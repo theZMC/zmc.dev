@@ -1,0 +1,63 @@
+---
+interface Props {
+  isIndex?: boolean;
+}
+const { isIndex } = Astro.props;
+---
+
+<header>
+  <a href="/">
+    {
+      isIndex ? (
+        <h1>
+          ZMC<span>dot</span>DEV
+        </h1>
+      ) : (
+        <h2>
+          ZMC<span>dot</span>DEV
+        </h2>
+      )
+    }
+  </a>
+  <p>Feet on the ground. Head in the cloud.</p>
+</header>
+
+<style lang="scss">
+  @use "../styles/variables.scss" as *;
+  header {
+    display: flex;
+    margin: 0 1rem;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  h1,
+  h2 {
+    font-weight: 400;
+    letter-spacing: 0.5rem;
+    margin-right: auto;
+    font-size: 2rem;
+  }
+  span {
+    font-size: 0.45rem;
+    writing-mode: vertical-rl;
+    background: $font-color;
+    color: $color-secondary;
+    text-transform: uppercase;
+    letter-spacing: normal;
+    vertical-align: baseline;
+    border-radius: 0.15rem;
+    padding: 0.25rem 0.05rem 0.25rem 0;
+    margin: 0 0.6rem 0 0.25rem;
+    transition: all 0.1s ease-in-out;
+  }
+  a:hover span {
+    background: $color-secondary;
+    color: $font-color;
+  }
+  p {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin: 0;
+  }
+</style>

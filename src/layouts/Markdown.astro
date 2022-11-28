@@ -1,0 +1,108 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+
+const { frontmatter } = Astro.props;
+---
+
+<BaseLayout pageTitle={frontmatter.title}>
+  <article class="post">
+    {frontmatter.image && <img class="post-image" src={frontmatter.image.url} alt={frontmatter.image.alt} />}
+    <h1 class="post-title">{frontmatter.title}</h1>
+    <div class="post-meta">
+      <p class="primary-tag">{frontmatter.mainTag}</p>
+      <p class="publish-date">{frontmatter.pubDate}</p>
+    </div>
+    {frontmatter.description && <p class="post-description">{frontmatter.description}</p>}
+    <slot />
+    <footer></footer>
+  </article>
+</BaseLayout>
+
+<style is:global>
+  article.post {
+    background: #ffffff99;
+    border-radius: 1rem;
+    padding: 1rem;
+    box-shadow: 0 0 0.5rem #00000022;
+  }
+  article.post > img {
+    min-width: 0;
+    border-radius: 0.25rem 0.25rem 0 0;
+    margin-bottom: 1rem;
+  }
+  h1.post-title {
+    font-size: 2.4rem;
+    word-wrap: break-word;
+    line-height: 1;
+    font-weight: 800;
+    text-align: left;
+    margin-bottom: 0.5rem;
+  }
+  div.post-meta {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0;
+    margin-bottom: 1rem;
+  }
+  p.primary-tag {
+    padding: 0.25rem 0.5rem;
+    text-transform: uppercase;
+    font-weight: 200;
+    letter-spacing: 0.15rem;
+    background: #00000077;
+    border-radius: 0.25rem;
+    color: #ffffff;
+    margin-right: 1rem;
+  }
+  p.post-description {
+    font-size: 0.8rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    font-style: italic;
+    padding: 0.5rem 1rem;
+    background: #ffffff77;
+    border: 1px solid #00000022;
+    border-radius: 0.25rem;
+  }
+  article.post pre {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    overflow: hidden;
+  }
+  article.post a {
+    color: #555555;
+    font-weight: bold;
+    text-decoration: none;
+    border-bottom: 1px solid #555555;
+  }
+  article.post a:hover {
+    color: #000000;
+  }
+  article.post p {
+    margin-bottom: 1rem;
+  }
+  article.post > p > code {
+    background: #00000022;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+  }
+  article.post > blockquote {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    overflow: hidden;
+    background: #00000022;
+    border: 1px solid #00000022;
+    border-left-width: 0.25rem;
+  }
+  article.post > blockquote > p {
+    margin: 0;
+  }
+  article.post > img {
+    border-radius: 0.25rem;
+  }
+  article.post > *:last-child {
+    margin-bottom: 0;
+  }
+</style>

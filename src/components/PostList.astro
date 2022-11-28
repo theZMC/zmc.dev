@@ -1,0 +1,72 @@
+---
+import type { MarkdownInstance } from "astro";
+
+interface Props {
+  qty: number;
+  posts: MarkdownInstance<Record<string, any>>[];
+}
+
+const { posts, qty } = Astro.props;
+
+let postsToShow = posts.slice(0, qty);
+---
+
+<ul>
+  {
+    postsToShow.map((post) => (
+      <li>
+        <a href={post.url}>
+          <figure>
+            <img src={post.frontmatter.image.url} alt={post.frontmatter.image.alt} />
+            <figcaption>{post.frontmatter.title}</figcaption>
+          </figure>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-gap: 1rem;
+  }
+  figure {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    transition: all 0.075s ease-in-out;
+    box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.2);
+  }
+  figure:hover {
+    scale: 1.05;
+    box-shadow: 0 0.5rem 0.75rem rgba(0, 0, 0, 0.5);
+  }
+  figure:active {
+    scale: 1.025;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.5);
+  }
+  img {
+    width: 100%;
+    object-fit: cover;
+    height: 12rem;
+  }
+  figcaption {
+    display: block;
+    position: absolute;
+    padding: 0.25rem 0.5rem;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #00000055;
+    color: white;
+    font-weight: 500;
+    font-size: 0.75rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>
