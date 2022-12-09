@@ -1,0 +1,28 @@
+name: Deploy to DigitalOcean
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Deployment and Wait for Completion
+        shell: bash
+        run: |
+          cd
+          wget https://github.com/digitalocean/doctl/releases/download/v1.86.0/doctl-1.86.0-linux-amd64.tar.gz
+          tar xf doctl-1.86.0-linux-amd64.tar.gz
+          export PATH=$PATH:$HOME
+          doctl auth init --access-token ${{ secrets.DIGITALOCEAN_TOKEN }}
+          DEPLOY_ID=$(doctl apps create-deployment ${{ secrets.APP_UUID }} --force-rebuild -o json | jq -r '.[0].id')
+          while true
+          do
+            PHASE=$(doctl apps get-deployment ${{ secrets.APP_UUID }} $DEPLOY_ID -o json | jq -r '.[0].phase')
+            if [[ $PHASE = "ACTIVE" ]]
+            then
+              break
+            fi
+            sleep 5
+          done
