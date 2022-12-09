@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
-import PostList from "@components/PostList.astro";
+import PostStubList from "@components/PostStubList.astro";
 import type { MarkdownInstance } from 'astro';
 
 const pageTitle = "ZMC.DEV";
@@ -11,7 +11,7 @@ let projects: MarkdownInstance<Record<string, any>>[];
 try {
 	posts = await Astro.glob("../pages/posts/*.md");
 	posts = posts.sort((a, b) => {
-		return new Date(b.frontmatter.pubDate).getTime() - new Date(a.frontmatter.pubDate).getTime();
+		return new Date(b.frontmatter.date).getTime() - new Date(a.frontmatter.date).getTime();
 	});
 } catch (e) {
 	posts = [];
@@ -20,23 +20,23 @@ try {
 try {
   projects = await Astro.glob("../pages/projects/*.md");
   projects = projects.sort((a, b) => {
-    return new Date(b.frontmatter.pubDate).getTime() - new Date(a.frontmatter.pubDate).getTime();
+    return new Date(b.frontmatter.date).getTime() - new Date(a.frontmatter.date).getTime();
   });
 } catch (e) {
   projects = [];
 }
 ---
 
-<BaseLayout pageTitle={pageTitle} isIndex={true}>
+<BaseLayout pageTitle={pageTitle} isIndex={true} metaDescription="Zach Callahan's Professional Resume" tags={["resume", "zach callahan", "thezmc"]}>
   <article>
     <p>
       Hey! I'm Zach. I'm a full-stack developer, kubernetes evangelist, and open-source enthusiast.
-      <a href="mailto:zach@zmc.dev">Get in touch with me</a> if you think I can help you with your next project.
+      <a href="mailto:zach@zmc.dev">Get in touch with me</a> or check out my <a href="/resume">resume</a> if you think I can help you with your next project.
     </p>
 		{
 			posts.length > 0 && (
 				<h3>Recent Posts</h3>
-				<PostList posts={posts} qty={3} />
+				<PostStubList posts={posts} qty={3} />
 				<a href="/posts">View all posts &rarr;</a>
 			)
 		}
@@ -44,10 +44,15 @@ try {
 </BaseLayout>
 
 <style>
+  article {
+    display: flex;
+    flex-direction: column;
+  }
   article > a {
     font-weight: 400;
     text-transform: uppercase;
     font-size: 0.8rem;
+    align-self: flex-end;
   }
   h3 {
     margin-top: 1rem;
@@ -56,7 +61,15 @@ try {
   }
   p {
     background: #ffffff55;
+    border: 1px solid #ffffff77;
+    box-shadow: 0 0 0.5rem 0.1rem #00000011;
+    padding: 1rem;
+    border-radius: 1rem;
     padding: 1rem;
     border-radius: 0.5rem;
+  }
+  p > a:hover {
+    text-decoration: underline;
+    color: inherit;
   }
 </style>

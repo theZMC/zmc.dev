@@ -1,0 +1,41 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+---
+
+<BaseLayout pageTitle="Page Not Found - ZMC.DEV" isIndex={true}>
+  <article>
+    <p>Did you come here on purpose?</p>
+    <h1>404</h1>
+    <h2>That means <em>page not found.</em></h2>
+  </article>
+</BaseLayout>
+
+<style>
+  article {
+    background: #ffffff55;
+    border: 1px solid #ffffff77;
+    box-shadow: 0 0 0.5rem 0.1rem #00000011;
+    padding: 1rem;
+    border-radius: 1rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h1 {
+    font-size: 9rem;
+    font-weight: 900;
+    margin: -2rem 2rem;
+  }
+  h2 {
+    font-size: 2.5rem;
+    font-weight: 200;
+    margin: 0rem 2rem;
+    text-align: center;
+  }
+  p {
+    font-size: 1.25rem;
+    font-weight: 400;
+    text-transform: uppercase;
+  }
+</style>
