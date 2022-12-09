@@ -76,7 +76,7 @@ select {
 }
 
 html {
-  font-size: $effective-font-size;
+  font-size: $effective-font-size * .9;
 
   @media #{$mq-small} {
     font-size: $effective-font-size * 1.15;
@@ -95,9 +95,21 @@ a {
   font-weight: 600;
   color: $color-primary;
   text-decoration: none;
-  transition: color 0.1s ease-in-out;
 
   &:hover {
     color: $color-secondary;
+  }
+}
+
+@media print {
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
   }
 }

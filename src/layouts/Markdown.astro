@@ -4,26 +4,39 @@ import BaseLayout from "@layouts/BaseLayout.astro";
 const { frontmatter } = Astro.props;
 ---
 
-<BaseLayout pageTitle={frontmatter.title}>
+<BaseLayout pageTitle={frontmatter.title + " - ZMC.DEV"} metaDescription={frontmatter.description}>
   <article class="post">
-    {frontmatter.image && <img class="post-image" src={frontmatter.image.url} alt={frontmatter.image.alt} />}
+    <a class="all-posts" href="/posts">&larr; View All Posts</a>
+    <img
+      src={frontmatter.image ? frontmatter.image.url : "/journalist-on-laptop.png"}
+      alt={frontmatter.image ? frontmatter.image.alt : "AI-generated image of journalist on laptop"}
+    />
     <h1 class="post-title">{frontmatter.title}</h1>
     <div class="post-meta">
-      <p class="primary-tag">{frontmatter.mainTag}</p>
-      <p class="publish-date">{frontmatter.pubDate}</p>
+      <p class="primary-tag">{frontmatter.tags[0] || "GENERAL"}</p>
+      <p class="publish-date">{frontmatter.date || "A WHILE AGO"}</p>
     </div>
     {frontmatter.description && <p class="post-description">{frontmatter.description}</p>}
     <slot />
-    <footer></footer>
   </article>
 </BaseLayout>
 
 <style is:global>
+  article.post > a.all-posts {
+    display: block;
+    margin-bottom: 1rem;
+    border: none;
+    font-weight: 400;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+  }
   article.post {
-    background: #ffffff99;
-    border-radius: 1rem;
+    background: #ffffff55;
+    border: 1px solid #ffffff77;
+    box-shadow: 0 0 0.5rem 0.1rem #00000011;
     padding: 1rem;
-    box-shadow: 0 0 0.5rem #00000022;
+    border-radius: 1rem;
+    margin-bottom: 1.5rem;
   }
   article.post > img {
     min-width: 0;
@@ -42,12 +55,12 @@ const { frontmatter } = Astro.props;
     display: flex;
     align-items: center;
     padding: 0.5rem 0;
-    margin-bottom: 1rem;
   }
   p.primary-tag {
     padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
     text-transform: uppercase;
-    font-weight: 200;
+    font-weight: 300;
     letter-spacing: 0.15rem;
     background: #00000077;
     border-radius: 0.25rem;
@@ -74,9 +87,14 @@ const { frontmatter } = Astro.props;
     color: #555555;
     font-weight: bold;
     text-decoration: none;
-    border-bottom: 1px solid #555555;
   }
   article.post a:hover {
+    color: #000000;
+  }
+  article.post a:visited {
+    color: #777777;
+  }
+  article.post a:visited:hover {
     color: #000000;
   }
   article.post p {
@@ -92,8 +110,8 @@ const { frontmatter } = Astro.props;
     padding: 1rem;
     border-radius: 0.25rem;
     overflow: hidden;
-    background: #00000022;
-    border: 1px solid #00000022;
+    background: #00000011;
+    border: 1px solid #00000011;
     border-left-width: 0.25rem;
   }
   article.post > blockquote > p {
@@ -104,5 +122,11 @@ const { frontmatter } = Astro.props;
   }
   article.post > *:last-child {
     margin-bottom: 0;
+  }
+  article.post > hr {
+    margin: 1rem 0;
+    border: none;
+    border-top: 1px solid #00000011;
+    border-bottom: 1px solid #ffffff55;
   }
 </style>

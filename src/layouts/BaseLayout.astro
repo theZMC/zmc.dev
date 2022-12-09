@@ -6,6 +6,7 @@ import SocialList from "@components/SocialList.astro";
 import LinkedinIcon from "../images/linkedin.svg";
 import GithubIcon from "../images/github.svg";
 import EmailIcon from "../images/email.svg";
+import ResumeIcon from "../images/resume.svg";
 
 interface Props {
   pageTitle: string;
@@ -32,13 +33,18 @@ const socials: Social[] = [
     url: "mailto:inquiries@zmc.dev",
     icon: EmailIcon,
   },
+  {
+    name: "Resume",
+    url: "/resume",
+    icon: ResumeIcon,
+  },
 ];
 ---
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>{pageTitle}</title>
@@ -88,5 +94,13 @@ const socials: Social[] = [
   }
   main {
     margin: 1rem;
+  }
+  @media print {
+    body {
+      background: none;
+    }
+    main {
+      margin: 0;
+    }
   }
 </style>

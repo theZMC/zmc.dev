@@ -11,8 +11,11 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/image": "^0.12.0",
     "astro": "^1.6.11",
-    "autoprefixer": "^10.4.13"
+    "astro-heroicons": "^0.3.0",
+    "autoprefixer": "^10.4.13",
+    "sharp": "^0.31.2"
   },
   "devDependencies": {
     "sass": "^1.56.1"
