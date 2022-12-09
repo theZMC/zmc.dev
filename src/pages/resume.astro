@@ -133,6 +133,9 @@ const workHistory: {
       "Red Hat Enterprise Linux",
       "AIX",
       "Gitlab",
+      "Java",
+      "Web Security",
+      "NodeJS",
     ],
     companyLogo: DillardsLogo,
   },
@@ -216,7 +219,7 @@ const workHistory: {
           </a>
         </p>
         <h1>Zach Callahan</h1>
-        <h2>Frontend / Backend / DevOps / SysAdmin</h2>
+        <h2>SysAdmin turned Software Engineer</h2>
       </div>
     </header>
     <section class="about">
@@ -235,13 +238,14 @@ const workHistory: {
         especially in management, taught me a great deal about people and how to work with them. I'm a firm believer in
         treating people with respect and valuing their contributions. Everyone has at least one strength and I pride
         myself on identifying and developing those strengths in my team members. Being an individual contributor hasn't
-        dulled that sense of responsibility, though. Whether I'm working on a team or working alone, I always strive to
-        leave things better than I found them.
+        dulled that sense of responsibility. Whether I'm working on a team or working alone, I always strive to leave
+        things better than I found them.
       </p>
       <p>
         During my time working retail, I also served in the Arkansas Army National Guard as a Combat Medic. I found my
         time in the military to be a great learning experience and I'm proud to have served my country. I learned a
-        great deal about leadership and teamwork, and I'm grateful for the opportunity to have served.
+        great deal about leadership and teamwork, and I'm grateful for the opportunity to have served. I was honorably
+        discharged in 2017.
       </p>
       <p>
         If I'm not working, I'm probably spending time with my girlfriend and our three dogs. I enjoy tinkering with
@@ -324,13 +328,13 @@ const workHistory: {
   article > p > a {
     margin-left: 1rem;
   }
-
   header {
     display: flex;
     gap: 1rem;
     align-items: center;
     flex-wrap: wrap;
     justify-content: center;
+    overflow: auto;
   }
   header > img {
     width: 10rem;
@@ -342,15 +346,18 @@ const workHistory: {
     flex: 1;
   }
   header > div > h1 {
-    font-size: 4rem;
+    font-size: 5rem;
+    font-weight: 200;
     text-align: center;
-    margin: 0;
+    line-height: 1;
+    margin: 1rem;
   }
   header > div > h2 {
     font-size: 1.5rem;
     color: #000000bb;
     text-align: center;
     margin: 0;
+    font-weight: 300;
   }
   header > div > p {
     text-align: center;
@@ -393,11 +400,13 @@ const workHistory: {
   h3 {
     font-size: 1.5rem;
     text-transform: uppercase;
-    font-weight: bold;
+    font-weight: 200;
     margin: 0 -1rem;
     margin-bottom: 1rem;
-    background: #ffffff44;
-    padding: 1rem;
+    background: #ffffff33;
+    border: 1px solid #ffffff44;
+    border-width: 1px 0;
+    padding: 0.5rem 1rem;
   }
   .skills > ul {
     list-style: none;
@@ -418,6 +427,10 @@ const workHistory: {
     border: 0.1rem solid #ffffff99;
     box-shadow: 0 0 0.25rem 0.1rem #00000011;
     justify-content: space-between;
+    transition: all 0.1s ease-in-out;
+  }
+  .skills > ul > li:hover {
+    scale: 1.05;
   }
   .skills > ul > li > span {
     display: inline-block;
@@ -451,16 +464,19 @@ const workHistory: {
     border: 1px solid #000000;
     border-radius: 0.125rem;
   }
-  .skills > ul > li > span.skill-level-advanced::before {
-    background: linear-gradient(90deg, rgba(110, 181, 73, 1) 0%, rgba(110, 181, 73, 1) 75%, rgba(110, 181, 73, 0) 75%);
-  }
   .skills > ul > li > span.skill-level-proficient::before {
     background: linear-gradient(90deg, rgba(110, 181, 73, 1) 0%, rgba(110, 181, 73, 1) 50%, rgba(110, 181, 73, 0) 50%);
+  }
+  .skills > ul > li > span.skill-level-advanced::before {
+    background: linear-gradient(90deg, rgba(110, 181, 73, 1) 0%, rgba(110, 181, 73, 1) 75%, rgba(110, 181, 73, 0) 75%);
   }
   .skills > ul > li > span.skill-level-expert::before {
     background: linear-gradient(90deg, rgba(110, 181, 73, 1) 0%, rgba(110, 181, 73, 1) 100%);
   }
   @media print {
+    .skills > ul > li > {
+      border-color: black;
+    }
     .skills > ul > li > span.skill-level::before {
       display: none;
     }
@@ -536,6 +552,10 @@ const workHistory: {
     background: #ffffff99;
     box-shadow: 0 0 0.25rem 0.1rem #00000011;
     flex-grow: 1;
+    transition: all 0.1s ease-in-out;
+  }
+  .work-history > .job > aside > ul > li:hover {
+    scale: 1.1;
   }
   .work-history > .job > div {
     flex: 1;
