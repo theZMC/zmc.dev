@@ -7,6 +7,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Trigger Deployment and Wait for Completion
         shell: bash
@@ -22,7 +23,13 @@ jobs:
             PHASE=$(doctl apps get-deployment ${{ secrets.APP_UUID }} $DEPLOY_ID -o json | jq -r '.[0].phase')
             if [[ $PHASE = "ACTIVE" ]]
             then
+              echo "Deployment complete"
               break
+            fi
+            if [[ $PHASE = "ERROR" ]]
+            then
+              echo "Deployment failed"
+              exit 1
             fi
             echo "Waiting for deployment to complete..."
             echo "Current phase: $PHASE"
