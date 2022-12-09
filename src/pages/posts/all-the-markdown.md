@@ -4,6 +4,7 @@ date: 12-09-2022
 author: Zach Callahan
 description: An example blog post with all the markdown elements
 tags: ["markdown"]
+layout: ../../layouts/Markdown.astro
 ---
 
 # Markdown Cheat Sheet
