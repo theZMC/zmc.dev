@@ -28,15 +28,34 @@ const { isIndex } = Astro.props;
     display: flex;
     margin: 0 1rem;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    gap: 1rem;
     flex-wrap: wrap;
+  }
+  @media screen and (min-width: 768px) {
+    header {
+      justify-content: space-between;
+    }
   }
   h1,
   h2 {
     font-weight: 400;
     letter-spacing: 0.5rem;
-    margin-right: auto;
+    white-space: nowrap;
     font-size: 2rem;
+    text-align: center;
+  }
+  h1:hover,
+  h2:hover {
+    text-shadow: 0 0 0.5rem $color-secondary;
+  }
+  h1:hover span,
+  h2:hover span {
+    box-shadow: 0 0 0.5rem $color-secondary;
+  }
+
+  a {
+    transition: all 0.1s ease-in-out;
   }
   span {
     font-size: 0.45rem;
@@ -47,7 +66,7 @@ const { isIndex } = Astro.props;
     letter-spacing: normal;
     vertical-align: baseline;
     border-radius: 0.15rem;
-    padding: 0.25rem 0.05rem 0.25rem 0;
+    padding: 0.25rem 0.05rem 0.25rem 0.05rem;
     margin: 0 0.6rem 0 0.25rem;
     transition: all 0.1s ease-in-out;
   }
@@ -57,7 +76,13 @@ const { isIndex } = Astro.props;
   }
   p {
     font-size: 0.9rem;
+    text-align: center;
     font-weight: 500;
     margin: 0;
+  }
+  @media print {
+    header {
+      display: none;
+    }
   }
 </style>

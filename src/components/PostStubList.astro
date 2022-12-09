@@ -17,7 +17,10 @@ let postsToShow = posts.slice(0, qty);
       <li>
         <a href={post.url}>
           <figure>
-            <img src={post.frontmatter.image.url} alt={post.frontmatter.image.alt} />
+            <img
+              src={post.frontmatter.image ? post.frontmatter.image.url : "/journalist-on-laptop.png"}
+              alt={post.frontmatter.image ? post.frontmatter.image.alt : "AI-generated image of journalist on laptop"}
+            />
             <figcaption>{post.frontmatter.title}</figcaption>
           </figure>
         </a>
@@ -30,9 +33,13 @@ let postsToShow = posts.slice(0, qty);
   ul {
     list-style: none;
     padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    grid-gap: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+  li {
+    flex-grow: 1;
   }
   figure {
     position: relative;
@@ -62,9 +69,11 @@ let postsToShow = posts.slice(0, qty);
     left: 0;
     right: 0;
     background: #00000055;
+    backdrop-filter: blur(0.5rem);
+    border-top: 1px solid #00000055;
     color: white;
     font-weight: 500;
-    font-size: 0.75rem;
+    font-size: 1rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
