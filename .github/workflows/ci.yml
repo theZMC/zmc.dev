@@ -24,5 +24,7 @@ jobs:
             then
               break
             fi
+            echo "Waiting for deployment to complete..."
+            echo "Current phase: $PHASE"
             sleep 5
           done
