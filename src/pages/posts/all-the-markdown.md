@@ -1,6 +1,6 @@
 ---
 title: All the Markdown!
-date: 12-09-2022
+date: "2022-12-09"
 author: Zach Callahan
 description: An example blog post with all the markdown elements
 tags: ["markdown"]
