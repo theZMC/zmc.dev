@@ -40,21 +40,22 @@ let postsToShow = posts.slice(0, qty);
   }
   li {
     flex-grow: 1;
-  }
-  figure {
-    position: relative;
-    overflow: hidden;
     border-radius: 0.5rem;
+    overflow: hidden;
     transition: all 0.075s ease-in-out;
     box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.2);
   }
-  figure:hover {
+  li:hover {
+    cursor: pointer;
     scale: 1.05;
     box-shadow: 0 0.5rem 0.75rem rgba(0, 0, 0, 0.5);
   }
-  figure:active {
+  li:active {
     scale: 1.025;
     box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.5);
+  }
+  figure {
+    position: relative;
   }
   img {
     width: 100%;
