@@ -10,6 +10,13 @@ try {
 } catch (e) {
   posts = [];
 }
+
+// sort posts by date
+posts.sort((a, b) => {
+  const aDate = new Date(a.frontmatter.date);
+  const bDate = new Date(b.frontmatter.date);
+  return bDate.getTime() - aDate.getTime();
+});
 ---
 
 <BaseLayout pageTitle="All Posts - ZMC.DEV" isIndex={false}>
