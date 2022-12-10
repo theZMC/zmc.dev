@@ -2,6 +2,16 @@
 import BaseLayout from "@layouts/BaseLayout.astro";
 
 const { frontmatter } = Astro.props;
+
+let date = new Date(frontmatter.date + "T12:00:00").toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+
+if (date === "Invalid Date") {
+  date = frontmatter.date;
+}
 ---
 
 <BaseLayout pageTitle={frontmatter.title + " - ZMC.DEV"} metaDescription={frontmatter.description}>
@@ -11,11 +21,15 @@ const { frontmatter } = Astro.props;
       src={frontmatter.image ? frontmatter.image.url : "/journalist-on-laptop.png"}
       alt={frontmatter.image ? frontmatter.image.alt : "AI-generated image of journalist on laptop"}
     />
-    <h1 class="post-title">{frontmatter.title}</h1>
     <div class="post-meta">
-      <p class="primary-tag">{frontmatter.tags[0] || "GENERAL"}</p>
-      <p class="publish-date">{frontmatter.date || "A WHILE AGO"}</p>
+      <p class="publish-date">
+        {date}
+      </p>
+      <p class="primary-tag">
+        {frontmatter.tags[0] || "GENERAL"}
+      </p>
     </div>
+    <h1 class="post-title">{frontmatter.title}</h1>
     {frontmatter.description && <p class="post-description">{frontmatter.description}</p>}
     <slot />
   </article>
@@ -41,20 +55,43 @@ const { frontmatter } = Astro.props;
   article.post > img {
     min-width: 0;
     border-radius: 0.25rem 0.25rem 0 0;
+  }
+  article.post > h2 {
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    font-weight: 200;
+    margin: 0 -1rem;
     margin-bottom: 1rem;
+    background: #ffffff33;
+    border: 1px solid #ffffff44;
+    border-width: 1px 0;
+    padding: 0.5rem 1rem;
+  }
+  article.post > h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
   }
   h1.post-title {
     font-size: 2.4rem;
     word-wrap: break-word;
     line-height: 1;
+    margin-bottom: 1rem;
     font-weight: 800;
     text-align: left;
-    margin-bottom: 0.5rem;
   }
   div.post-meta {
     display: flex;
     align-items: center;
-    padding: 0.5rem 0;
+    justify-content: space-between;
+    margin-top: 1rem;
+  }
+  p.publish-date {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 300;
+    letter-spacing: 0.15rem;
+    color: #00000099;
   }
   p.primary-tag {
     padding: 0.25rem 0.5rem;
@@ -65,12 +102,10 @@ const { frontmatter } = Astro.props;
     background: #00000077;
     border-radius: 0.25rem;
     color: #ffffff;
-    margin-right: 1rem;
   }
   p.post-description {
     font-size: 0.8rem;
     line-height: 1.5;
-    margin-bottom: 1rem;
     font-style: italic;
     padding: 0.5rem 1rem;
     background: #ffffff77;
@@ -101,8 +136,8 @@ const { frontmatter } = Astro.props;
     margin-bottom: 1rem;
   }
   article.post > p > code {
-    background: #00000022;
-    padding: 0.25rem 0.5rem;
+    background: #ffffff77;
+    padding: 0.1rem 0.25rem;
     border-radius: 0.25rem;
   }
   article.post > blockquote {
@@ -113,6 +148,11 @@ const { frontmatter } = Astro.props;
     background: #00000011;
     border: 1px solid #00000011;
     border-left-width: 0.25rem;
+  }
+  article.post > blockquote > p > code {
+    background: #00000011;
+    padding: 0.1rem 0.25rem;
+    border-radius: 0.25rem;
   }
   article.post > blockquote > p {
     margin: 0;
