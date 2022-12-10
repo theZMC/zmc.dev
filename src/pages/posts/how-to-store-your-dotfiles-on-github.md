@@ -149,8 +149,8 @@ reliable automation tools: cron.
 
 ### What is Cron?
 Cron is a time-based job scheduler that runs commands at specified intervals. It's been around since the 1970s and is
-still used today. It's a great tool for automating tasks that need to be run on a regular basis. For example, you can use
-cron to automatically back up your database every night at 2am.
+still used today. It's a great tool for automating tasks that need to be run on a regular basis. The canonical example
+is a cron job that runs every night at midnight to back up your database.
 
 ### How to Use Cron
 Cron is a system service that runs in the background on POSIX-based systems (Linux, Mac, etc.). It's configured by editing
@@ -203,13 +203,13 @@ And add the following line to the bottom of the file:
 ```
 > **ℹ What this line does:** Runs the `sync.sh` script every 30 minutes. You can read more about cron syntax [here](https://en.wikipedia.org/wiki/Cron#CRON_expression).
 
-### Disclaimer
-Using cron to constantly push and pull to your repo is a great way to keep your dotfiles synced, but it's not perfect. If you're constantly fiddling
-with your dotfiles on multiple machines, you may run into merge conflicts. If and when this happens, you'll need to resolve the
-conflicts manually. You can do this by pulling your changes from your remote repository, resolving the conflicts, and
-pushing your changes back to your remote repository, but it's definitely a hassle. It's up to you to decide if the
-convenience of having your dotfiles synced is worth the hassle of resolving merge conflicts since it's largely dependent
-on how often you're making changes.
+> #### ⚠ Disclaimer
+> Using cron to constantly push and pull to your repo is a great way to keep your dotfiles synced, but it's not perfect. If you're constantly fiddling
+> with your dotfiles on multiple machines, you may run into merge conflicts. If and when this happens, you'll need to resolve the
+> conflicts manually. You can do this by pulling your changes from your remote repository, resolving the conflicts, and
+> pushing your changes back to your remote repository, but it's definitely a hassle. It's up to you to decide if the
+> convenience of having your dotfiles synced is worth the hassle of resolving merge conflicts since it's largely dependent
+> on how often you're making changes.
 
 ## Conclusion
 In this tutorial, we learned how to use Git to manage our dotfiles. We also learned how to create a shell script to
