@@ -3,6 +3,15 @@ interface Props {
   post: Record<string, any>;
 }
 const { post } = Astro.props;
+let date = new Date(post.frontmatter.date + "T12:00:00").toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+
+if (date === "Invalid Date") {
+  date = post.frontmatter.date;
+}
 ---
 
 <a href={post.url}>
@@ -19,14 +28,8 @@ const { post } = Astro.props;
     <footer>
       <div>
         <p>
-          <time datetime={post.frontmatter.date}>
-            {
-              new Date(post.frontmatter.date + "T12:00:00").toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })
-            }
+          <time datetime={date}>
+            {date}
           </time>
         </p>
       </div>
