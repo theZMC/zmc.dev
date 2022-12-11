@@ -5,6 +5,7 @@ import DillardsLogo from "../images/dillards.svg";
 import LovesLogo from "../images/loves.svg";
 import ArmyNGLogo from "../images/armyng.svg";
 import WalmartLogo from "../images/walmart.svg";
+import QRCode from "../images/qr-code.svg";
 
 import Envelope from "astro-heroicons/solid/Envelope.astro";
 import Phone from "astro-heroicons/solid/Phone.astro";
@@ -194,6 +195,7 @@ const workHistory: {
   <article>
     <p></p>
     <header>
+      <img src={QRCode} alt="QR code that links to this resume page." class="qr-code-image" />
       <img src="zach.png" alt="Picture of Zach Callahan, a balding, chubby, super-nice guy" />
       <div>
         <p>
@@ -335,6 +337,18 @@ const workHistory: {
     flex-wrap: wrap;
     justify-content: center;
     overflow: auto;
+  }
+  header > img.qr-code-image {
+    width: 7rem;
+    height: 7rem;
+    border-radius: 0.5rem;
+    border: 0.3rem solid #ffffff99;
+    display: none;
+  }
+  @media print {
+    header > img.qr-code-image {
+      display: block;
+    }
   }
   header > img {
     width: 10rem;
