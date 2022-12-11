@@ -12,7 +12,7 @@ const { socials } = Astro.props;
   {
     socials.map((social) => (
       <li>
-        <a href={social.url} target="_blank" rel="noopener noreferrer">
+        <a href={social.url} target="_blank" rel="noopener noreferrer" title={social.name}>
           <img src={social.icon} alt={social.name} />
         </a>
       </li>

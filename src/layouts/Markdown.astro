@@ -28,9 +28,17 @@ if (date === "Invalid Date") {
       <p class="publish-date">
         {date}
       </p>
-      <p class="primary-tag">
-        {frontmatter.tags[0] || "GENERAL"}
-      </p>
+      {
+        frontmatter.tags && (
+          <div class="tags">
+            {frontmatter.tags.map((tag: string) => (
+              <p class="tag">
+                <a href={`/posts/tags/${tag}`}>{tag}</a>
+              </p>
+            ))}
+          </div>
+        )
+      }
     </div>
     <h1 class="post-title">{frontmatter.title}</h1>
     {frontmatter.description && <p class="post-description">{frontmatter.description}</p>}
@@ -96,9 +104,17 @@ if (date === "Invalid Date") {
     text-transform: uppercase;
     font-weight: 300;
     letter-spacing: 0.15rem;
-    color: #00000099;
   }
-  p.primary-tag {
+  p.tag {
+    display: inline-block;
+  }
+  div.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  div.tags > p.tag > a {
+    text-decoration: none;
     padding: 0.25rem 0.5rem;
     font-size: 0.8rem;
     text-transform: uppercase;
@@ -107,6 +123,10 @@ if (date === "Invalid Date") {
     background: #00000077;
     border-radius: 0.25rem;
     color: #ffffff;
+    transition: all 0.1s ease;
+  }
+  div.tags > p.tag > a:hover {
+    background: #ffffff99;
   }
   p.post-description {
     font-size: 0.8rem;

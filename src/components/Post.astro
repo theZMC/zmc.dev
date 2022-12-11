@@ -1,8 +1,5 @@
 ---
 import { Image } from "@astrojs/image/components";
-interface Props {
-  post: Record<string, any>;
-}
 const { post } = Astro.props;
 let date = new Date(post.frontmatter.date + "T12:00:00").toLocaleDateString("en-US", {
   year: "numeric",
@@ -53,6 +50,22 @@ if (date === "Invalid Date") {
     overflow: hidden;
     white-space: nowrap;
   }
+  h2 {
+    margin: 0;
+    padding: 0.25rem 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 300;
+    letter-spacing: 0.05rem;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  header > p {
+    margin: 0;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 300;
+    letter-spacing: 0.05rem;
+  }
   article {
     position: relative;
     border-radius: 1rem;
@@ -81,7 +94,7 @@ if (date === "Invalid Date") {
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 1rem;
+    padding: 0.5rem;
     background: #00000080;
     color: white;
     backdrop-filter: blur(0.5rem);
@@ -100,7 +113,7 @@ if (date === "Invalid Date") {
     top: 0;
     right: 0;
     left: 0;
-    padding: 0.75rem;
+    padding: 0.25rem;
     background: #00000080;
     color: white;
     backdrop-filter: blur(0.5rem);
@@ -117,10 +130,17 @@ if (date === "Invalid Date") {
     margin-left: auto;
     display: flex;
     gap: 0.5rem;
+    padding: 0.25rem;
+  }
+  footer > div > p {
+    margin: 0;
+    padding: 0.25rem 0.5rem;
+    font-weight: 300;
+    letter-spacing: 0.05rem;
+    text-transform: uppercase;
   }
   footer > div:last-of-type > p {
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
+    border-radius: 0.5rem;
     background: #ffffff22;
     text-transform: uppercase;
     font-size: 0.75rem;
