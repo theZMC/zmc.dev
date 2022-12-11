@@ -1,4 +1,5 @@
 ---
+import { Image } from "@astrojs/image/components";
 interface Props {
   post: Record<string, any>;
 }
@@ -16,10 +17,11 @@ if (date === "Invalid Date") {
 
 <a href={post.url}>
   <article>
-    <img
+    <Image
       src={post.frontmatter.image ? post.frontmatter.image.url : "/journalist-on-laptop.png"}
       alt={post.frontmatter.image ? post.frontmatter.image.alt : "AI-generated image of journalist on laptop"}
-      loading="lazy"
+      aspectRatio={3 / 2}
+      width={1000}
     />
     <header>
       <h2>{post.frontmatter.title}</h2>

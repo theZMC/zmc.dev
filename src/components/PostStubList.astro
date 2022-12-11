@@ -1,5 +1,6 @@
 ---
 import type { MarkdownInstance } from "astro";
+import { Image } from "@astrojs/image/components";
 
 interface Props {
   qty: number;
@@ -17,9 +18,11 @@ let postsToShow = posts.slice(0, qty);
       <li>
         <a href={post.url}>
           <figure>
-            <img
+            <Image
               src={post.frontmatter.image ? post.frontmatter.image.url : "/journalist-on-laptop.png"}
               alt={post.frontmatter.image ? post.frontmatter.image.alt : "AI-generated image of journalist on laptop"}
+              aspectRatio={3 / 2}
+              width={1000}
             />
             <figcaption>{post.frontmatter.title}</figcaption>
           </figure>
