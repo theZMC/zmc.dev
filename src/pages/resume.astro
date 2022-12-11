@@ -485,8 +485,8 @@ const workHistory: {
     background: linear-gradient(90deg, rgba(110, 181, 73, 1) 0%, rgba(110, 181, 73, 1) 100%);
   }
   @media print {
-    .skills > ul > li > {
-      border-color: black;
+    .skills > ul > li {
+      flex-grow: 0;
     }
     .skills > ul > li > span.skill-level::before {
       display: none;
