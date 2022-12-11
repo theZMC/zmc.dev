@@ -195,4 +195,33 @@ if (date === "Invalid Date") {
     border-top: 1px solid #00000011;
     border-bottom: 1px solid #ffffff55;
   }
+  article.post > h1 > a,
+  article.post > h2 > a,
+  article.post > h3 > a,
+  article.post > h4 > a,
+  article.post > h5 > a,
+  article.post > h6 > a {
+    color: inherit;
+    font-weight: inherit;
+    text-decoration: none;
+  }
+  article.post > h1 > a:hover::after,
+  article.post > h2 > a:hover::after,
+  article.post > h3 > a:hover::after,
+  article.post > h4 > a:hover::after,
+  article.post > h5 > a:hover::after,
+  article.post > h6 > a:hover::after {
+    content: " 🔗";
+    text-shadow: 0 0 0.1rem #00000088;
+  }
+  article.post > h1 > a:visited,
+  article.post > h2 > a:visited,
+  article.post > h3 > a:visited,
+  article.post > h4 > a:visited,
+  article.post > h5 > a:visited,
+  article.post > h6 > a:visited {
+    color: inherit;
+    font-weight: inherit;
+    text-decoration: none;
+  }
 </style>
