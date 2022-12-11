@@ -129,8 +129,8 @@ git add .
 git commit -m "added dotfiles; added setup.sh"
 git push
 ```
-> **⚠️ NOTE:** If you're using a private repository, you'll need to add your SSH key to your GitHub account. You can find
-> instructions for doing this [here](https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/).
+> **⚠️ NOTE:** If you're using a private repository, you'll need to add your SSH key to your GitHub account.
+> [You can find instructions for doing this here](https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/).
 
 ### Step 7: Clone Your Repository to a New Machine
 Now that you have your dotfiles in a remote repository, you can clone them to a new machine. Just make sure you run your
@@ -159,7 +159,7 @@ a file called a `crontab`. You can edit your user's crontab with the following c
 crontab -e
 ```
 This will open your crontab in your default text editor. You can also use the `-l` flag to list your crontab or the `-r`
-flag to remove your crontab. You can find more information about cron [here](https://en.wikipedia.org/wiki/Cron).
+flag to remove your crontab. [You can find more information about cron here](https://en.wikipedia.org/wiki/Cron).
 
 ### How to Use Cron to Sync Your Dotfiles
 Now that you know what cron is and how to use it, we can use it to sync our dotfiles. We'll be creating a new shell script
@@ -201,7 +201,7 @@ And add the following line to the bottom of the file:
 ```
 */30 * * * * ~/dotfiles/sync.sh
 ```
-> **ℹ What this line does:** Runs the `sync.sh` script every 30 minutes. You can read more about cron syntax [here](https://en.wikipedia.org/wiki/Cron#CRON_expression).
+> **ℹ What this line does:** Runs the `sync.sh` script every 30 minutes. [You can read more about cron syntax here](https://en.wikipedia.org/wiki/Cron#CRON_expression).
 
 > #### ⚠ Disclaimer
 > Using cron to constantly push and pull to your repo is a great way to keep your dotfiles synced, but it's not perfect. If you're constantly fiddling
