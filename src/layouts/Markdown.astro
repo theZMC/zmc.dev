@@ -72,16 +72,39 @@ if (date === "Invalid Date") {
   article.post > h2 {
     font-size: 1.5rem;
     text-transform: uppercase;
+    letter-spacing: 0.15rem;
     font-weight: 200;
     margin: 0 -1rem;
     margin-bottom: 1rem;
-    background: #ffffff33;
+    background: linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.25) 0%,
+      rgba(255, 255, 255, 0.5) 25%,
+      rgba(255, 255, 255, 0.25) 50%,
+      rgba(255, 255, 255, 0.125) 100%
+    );
     border: 1px solid #ffffff44;
+    background-blend-mode: overlay;
     border-width: 1px 0;
     padding: 0.5rem 1rem;
   }
   article.post > h3 {
     font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  article.post > h4 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  article.post > h5 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  article.post > h6 {
+    font-size: 1.1rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
   }
@@ -142,6 +165,7 @@ if (date === "Invalid Date") {
     margin: 1rem 0;
     padding: 1rem;
     border-radius: 0.25rem;
+    font-size: 0.8rem;
     overflow: hidden;
   }
   article.post a {
@@ -182,6 +206,21 @@ if (date === "Invalid Date") {
   }
   article.post > blockquote > p {
     margin: 0;
+  }
+  article.post li code {
+    background: #ffffff77;
+    padding: 0.1rem 0.25rem;
+    border-radius: 0.25rem;
+  }
+  article.post h1 code,
+  article.post h2 code,
+  article.post h3 code,
+  article.post h4 code,
+  article.post h5 code,
+  article.post h6 code {
+    background: #ffffff77;
+    padding: 0.1rem 0.25rem;
+    border-radius: 0.25rem;
   }
   article.post > img {
     border-radius: 0.25rem;
