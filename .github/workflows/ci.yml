@@ -9,29 +9,33 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Trigger Deployment and Wait for Completion
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_TOKEN }}
+      - name: Trigger Deployment
         shell: bash
         run: |
-          cd
-          wget https://github.com/digitalocean/doctl/releases/download/v1.86.0/doctl-1.86.0-linux-amd64.tar.gz
-          tar xf doctl-1.86.0-linux-amd64.tar.gz
-          export PATH=$PATH:$HOME
-          doctl auth init --access-token ${{ secrets.DIGITALOCEAN_TOKEN }}
           DEPLOY_ID=$(doctl apps create-deployment ${{ secrets.APP_UUID }} --force-rebuild -o json | jq -r '.[0].id')
+          echo "Deployment started with ID: $DEPLOY_ID"
+          LASTPHASE=""
           while true
           do
             PHASE=$(doctl apps get-deployment ${{ secrets.APP_UUID }} $DEPLOY_ID -o json | jq -r '.[0].phase')
             if [[ $PHASE = "ACTIVE" ]]
             then
-              echo "Deployment complete"
+              echo "Deployment complete!"
               break
             fi
             if [[ $PHASE = "ERROR" ]]
             then
-              echo "Deployment failed"
+              echo "Deployment failed!"
               exit 1
             fi
-            echo "Waiting for deployment to complete..."
-            echo "Current phase: $PHASE"
-            sleep 5
+            if [[ $PHASE != $LASTPHASE ]]
+            then
+              echo "Deployment phase: $PHASE"
+              LASTPHASE=$PHASE
+            fi
+            sleep 3 
           done
