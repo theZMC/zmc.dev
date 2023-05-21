@@ -62,15 +62,6 @@ const socials: Social[] = [
     <meta property="og:site_name" content="ZMC.DEV" />
     <meta property="og:locale" content="en_US" />
     <title>{pageTitle}</title>
-  </head>
-  <body>
-    <div>
-      <Header isIndex={isIndex} />
-      <main>
-        <slot />
-        {socials.length > 0 ? <SocialList socials={socials} /> : null}
-      </main>
-    </div>
     <script type="text/partytown" async src="https://www.googletagmanager.com/gtag/js?id=G-6R3Z7ZBR19"></script>
     <script type="text/partytown">
       window.dataLayer = window.dataLayer || [];
@@ -80,6 +71,15 @@ const socials: Social[] = [
       gtag("js", new Date());
       gtag("config", "G-6R3Z7ZBR19");
     </script>
+  </head>
+  <body>
+    <div>
+      <Header isIndex={isIndex} />
+      <main>
+        <slot />
+        {socials.length > 0 ? <SocialList socials={socials} /> : null}
+      </main>
+    </div>
   </body>
 </html>
 
