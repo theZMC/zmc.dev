@@ -13,6 +13,7 @@
     "@astrojs/partytown": "^2.1.4",
     "@lucide/astro": "^0.532.0",
     "astro": "^5.12.4",
+    "astro-relative-links": "^0.4.2",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-slugs": "^0.0.5",
     "sharp": "^0.34.3"

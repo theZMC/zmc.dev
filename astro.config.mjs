@@ -5,6 +5,8 @@ import partytown from "@astrojs/partytown";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { rehypeHeadingIds } from "@astrojs/markdown-remark";
 
+import relativeLinks from "astro-relative-links";
+
 // https://astro.build/config
 export default defineConfig({
   markdown: {
@@ -23,6 +25,5 @@ export default defineConfig({
       ],
     ],
   },
-  integrations: [partytown()],
+  integrations: [partytown(), relativeLinks()],
 });
-
