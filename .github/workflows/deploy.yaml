@@ -1,0 +1,38 @@
+name: Deploy to GitHub Pages
+on:
+  push:
+    branches:
+    - main
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: git checkout
+      uses: actions/checkout@v4
+    - name: install packages
+      shell: bash
+      working-directory: .
+      run: pnpm install
+    - name: build astro site
+      shell: bash
+      working-directory: .
+      run: pnpm build
+    - name: upload pages artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: ./dist/
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+    - name: deploy to github pages
+      id: deployment
+      uses: actions/deploy-pages@v4

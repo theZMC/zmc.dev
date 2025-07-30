@@ -1,0 +1,79 @@
+---
+import type Social from "@lib/types/social";
+
+interface Props {
+  socials: Social[];
+}
+
+const { socials } = Astro.props;
+---
+
+<ul>
+  {
+    socials.map((social) => (
+      <li>
+        <a
+          href={social.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          title={social.name}
+        >
+          <div class="social-icon">
+            <social.icon />
+          </div>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  ul {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+  }
+  li {
+    margin: 0 0.5rem;
+  }
+  a {
+    width: 3rem;
+    height: 3rem;
+    padding: 0.8rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.05s ease-in-out;
+    border-radius: 100%;
+    aspect-ratio: 1/1;
+    background: black;
+    color: white;
+  }
+  a:hover {
+    scale: 1.2;
+  }
+  a:active {
+    scale: 1.1;
+  }
+  @media print {
+    ul {
+      display: none;
+    }
+  }
+  div.social-icon {
+    display: grid;
+    place-items: center;
+  }
+  div.social-icon > :global(*) {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+</style>

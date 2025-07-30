@@ -1,0 +1,512 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import QRCode from "@images/qr-code.svg";
+import ZachCallahanImage from "@images/zach.png";
+import { Image } from "astro:assets";
+
+import { Download, Globe, Mail, Phone, Printer } from "@lucide/astro";
+import { getCollection } from "astro:content";
+import { render } from "astro:content";
+
+const dayMonth = (date: Date | string) => {
+  if (typeof date === "string") {
+    return date;
+  }
+  date.setUTCHours(12);
+  return date.toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
+};
+
+const jobs = await getCollection("jobs");
+
+const renderedJobs = (await Promise.all(jobs.map(async (job) => {
+  return {
+    startDate: () => {
+      let startDate = new Date();
+      startDate.setFullYear(job.data.tenure.start.year);
+      startDate.setMonth(job.data.tenure.start.month - 1);
+      return startDate;
+    },
+    endDate: () => {
+      if (job.data.tenure.end) {
+        let endDate = new Date();
+        endDate.setFullYear(job.data.tenure.end.year);
+        endDate.setMonth(job.data.tenure.end.month - 1);
+        return endDate;
+      }
+      return "Present";
+    },
+    content: (await render(job)).Content,
+    ...job,
+  };
+}))).sort((a, b) => b.startDate().getTime() - a.startDate().getTime());
+
+type SkillLevel = "expert" | "advanced" | "proficient" | "familiar";
+
+const skills: Record<string, SkillLevel> = {
+  "Go": "expert",
+  "HTML/CSS": "expert",
+  "Kubernetes": "expert",
+  "Docker": "expert",
+  "Linux": "expert",
+  "Bash": "expert",
+  "Technical Writing": "advanced",
+  "Git": "advanced",
+  "AWS": "expert",
+  "Terraform": "expert",
+  "TypeScript": "advanced",
+  "Svelte/SvelteKit": "advanced",
+  "Java": "advanced",
+  "Pulumi": "advanced",
+  "OpenTelemetry": "advanced",
+};
+---
+
+<BaseLayout pageTitle="Zach Callahan Resume - ZMC.DEV">
+  <article>
+    <p></p>
+    <header>
+      <Image
+        src={QRCode}
+        alt="QR code that links to this resume page."
+        class="qr-code-image"
+      />
+      <Image
+        src={ZachCallahanImage}
+        alt="Picture of Zach Callahan, a balding, chubby, super-nice guy"
+      />
+      <div>
+        <p>
+          <a href="tel:14794595787">
+            <Phone />
+            1 (479) 459-5787
+          </a>
+          <a href="mailto:zach@zmc.dev">
+            <Mail />
+            zach@zmc.dev
+          </a>
+          <a href="https://zmc.dev">
+            <Globe />
+            zmc.dev
+          </a>
+          <a
+            href="/ZachCallahanResume.pdf"
+            download="Zach Callahan - Resume.pdf"
+            class="download-resume no-print"
+          >
+            <Download />
+            Download PDF
+          </a>
+          <a href="javascript:window.print()" class="print-resume no-print">
+            <Printer />
+            Print
+          </a>
+        </p>
+        <h1>Zach Callahan</h1>
+        <h2>SysAdmin turned Software Engineer</h2>
+      </div>
+    </header>
+    <section class="about">
+      <h3>About Me</h3>
+      <p>
+        I'm currently working as a Software Engineer, but I was previously a
+        System Administrator and prior to that I excelled in retail operations.
+        Automation and tooling are my passions. My goal is to make my and my
+        team's jobs easier today than they were yesterday. Bash and Go are the
+        languages I use most often, but I'm always looking for new tools to add
+        to my toolbox. I'm a <em>mostly</em> self-taught developer/sysadmin and
+        I've been working with Linux in some capacity daily since 2006. I'm an
+        advocate of open-source software and protocols and I believe that the
+        best solutions are the ones that are built by a community.
+      </p>
+      <p>
+        Prior to my career transition into tech, I worked in retail management
+        for 9 years, most recently as a General Manager for a Love's Travel
+        Stops and as an Assistant Manager for Walmart prior to that. Working in
+        retail, and especially in management, taught me a great deal about
+        people and how to work with them. I'm a firm believer in treating people
+        with respect and valuing their contributions. Everyone has at least one
+        strength and I pride myself on identifying and developing those
+        strengths in my team members. Being an individual contributor hasn't
+        dulled that sense of responsibility. Whether I'm working on a team or
+        working alone, I always strive to leave things better than I found them.
+      </p>
+      <p>
+        During my time working retail, I also served in the Arkansas Army
+        National Guard as a Combat Medic. I found my time in the military to be
+        a great learning experience and I'm proud to have served my country. I
+        learned a great deal about leadership and teamwork, and I'm grateful for
+        the opportunity to have served. I was honorably discharged in 2017.
+      </p>
+      <p>
+        If I'm not working, I'm probably spending time with my girlfriend and
+        our three dogs. I enjoy tinkering with computers and electronics, so I'm
+        always looking for new projects to work on. On occasion, I teach
+        frontend fundamentals classes at the <a
+          href="https://arkansascodingacademy.com/"
+        >Arkansas Coding Academy.</a>
+      </p>
+    </section>
+    <section class="skills">
+      <h3>Top Skills</h3>
+      <ul>
+        {
+          Object.keys(skills).map((skill) => (
+            <li>
+              <span class={`skill-level skill-level-${skills[skill]}`}>{
+                skills[skill]
+              }</span>
+              <span class="skill-name">{skill}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+    <section class="work-history">
+      <h3>Work History</h3>
+      {
+        renderedJobs.map((job) => (
+          <div class="job">
+            <aside>
+              {
+                job.data.company.logo && (
+                  <Image
+                    src={job.data.company.logo}
+                    alt={`Logo for ${job.data.company.name}`}
+                  />
+                )
+              }
+              <h5>{job.data.company.name}</h5>
+              <ul>
+                {job.data.skills.map((skill) => <li>{skill}</li>)}
+              </ul>
+            </aside>
+            <div>
+              <h4>{job.data.title}</h4>
+              <h6>
+                {dayMonth(job.startDate())} to {dayMonth(job.endDate())}
+              </h6>
+              <job.content />
+            </div>
+          </div>
+        ))
+      }
+    </section>
+  </article>
+</BaseLayout>
+
+<style>
+  article {
+    background: #ffffff55;
+    border: 1px solid #ffffff77;
+    box-shadow: 0 0 0.5rem 0.1rem #00000011;
+    padding: 1rem;
+    border-radius: 1rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+    position: relative;
+  }
+  @media print {
+    article {
+      background: #ffffff;
+      border: 0;
+      box-shadow: none;
+      padding: 0;
+      border-radius: 0;
+      margin-bottom: 0;
+      width: 100%;
+      position: relative;
+    }
+  }
+  article > p {
+    text-align: right;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1rem;
+    margin: 0;
+    color: ;
+  }
+  article > p > a {
+    margin-left: 1rem;
+  }
+  header {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    overflow: auto;
+  }
+  header > img.qr-code-image {
+    width: 7rem;
+    height: 7rem;
+    border-radius: 0.5rem;
+    border: 0.3rem solid #ffffff99;
+    display: none;
+  }
+  @media print {
+    header > img.qr-code-image {
+      display: block;
+    }
+  }
+  header > img {
+    width: 10rem;
+    height: 10rem;
+    border-radius: 0.5rem;
+    border: 0.3rem solid #ffffff99;
+  }
+  header > div {
+    flex: 1;
+  }
+  header > div > h1 {
+    font-size: 5rem;
+    font-weight: 200;
+    text-align: center;
+    line-height: 1;
+    margin: 1rem;
+  }
+  header > div > h2 {
+    font-size: 1.5rem;
+    color: #000000bb;
+    text-align: center;
+    margin: 0;
+    font-weight: 300;
+  }
+  header > div > p {
+    text-align: center;
+    justify-content: center;
+    margin: 0;
+    font-size: 0.7rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  header > div > p > a {
+    display: flex;
+    align-items: center;
+    color: #000000bb;
+  }
+  header > div > p > a:hover {
+    color: #000000ff;
+  }
+  header > div > p > a > svg {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.5rem;
+  }
+  @media (min-width: 768px) {
+    header > div > p {
+      text-align: left;
+    }
+  }
+  .about {
+    margin-top: 1rem;
+  }
+  .about > p {
+    margin: 0;
+    margin-bottom: 1rem;
+    text-align: justify;
+  }
+  .skills {
+    margin-top: 1rem;
+  }
+  h3 {
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    font-weight: 200;
+    margin: 0 -1rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.25) 0%,
+      rgba(255, 255, 255, 0.5) 25%,
+      rgba(255, 255, 255, 0.25) 50%,
+      rgba(255, 255, 255, 0.125) 100%
+    );
+    background-blend-mode: overlay;
+    border: 1px solid #ffffff44;
+    border-width: 1px 0;
+    padding: 0.5rem 1rem;
+  }
+  .skills > ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .skills > ul > li {
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+    background: linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 255, 255, 0.75) 25%,
+      rgba(255, 255, 255, 0.75) 50%,
+      rgba(255, 255, 255, 0.5) 100%
+    );
+    background-blend-mode: overlay;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+    border: 1px solid #ffffff99;
+    box-shadow: 0 0 0.25rem 0.1rem #00000011;
+    justify-content: space-between;
+    transition: all 0.1s ease-in-out;
+  }
+  .skills > ul > li > span {
+    display: inline-block;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: bold;
+  }
+  .skills > ul > li > span.skill-level {
+    text-transform: uppercase;
+    text-align: center;
+    min-width: 4rem;
+    font-size: 0.5rem;
+    background: #ffffff;
+    padding: 0.25rem;
+    border: 1px solid #00000033;
+    color: #00000099;
+  }
+  .skills > ul > li > span.skill-name {
+    font-size: 0.9rem;
+    font-weight: 800;
+    margin: 0.5rem;
+    flex-grow: 1;
+    text-align: center;
+  }
+  .skills > ul > li > span.skill-level::before {
+    content: "";
+    display: inline-block;
+    height: 0.5rem;
+    overflow: hidden;
+    width: 100%;
+    border: 1px solid #000000;
+    border-radius: 0.125rem;
+  }
+  .skills > ul > li > span.skill-level-proficient::before {
+    background: linear-gradient(
+      90deg,
+      rgba(110, 181, 73, 1) 0%,
+      rgba(110, 181, 73, 1) 50%,
+      rgba(110, 181, 73, 0) 50%
+    );
+  }
+  .skills > ul > li > span.skill-level-advanced::before {
+    background: linear-gradient(
+      90deg,
+      rgba(110, 181, 73, 1) 0%,
+      rgba(110, 181, 73, 1) 75%,
+      rgba(110, 181, 73, 0) 75%
+    );
+  }
+  .skills > ul > li > span.skill-level-expert::before {
+    background: linear-gradient(
+      90deg,
+      rgba(110, 181, 73, 1) 0%,
+      rgba(110, 181, 73, 1) 100%
+    );
+  }
+  @media print {
+    .skills > ul > li {
+      flex-grow: 0;
+    }
+    .skills > ul > li > span.skill-level::before {
+      display: none;
+    }
+  }
+  .work-history {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .work-history > .job {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  @media (min-width: 768px) {
+    .work-history > .job {
+      flex-direction: row;
+    }
+  }
+  @media print {
+    .work-history > .job {
+      flex-direction: row;
+    }
+  }
+  .work-history > .job > aside {
+    flex: 0 0 10rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-right: 0.5rem;
+  }
+  .work-history > .job > aside > img {
+    background: #ffffff99;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    border: 0.1rem solid #ffffff99;
+    box-shadow: 0 0 0.25rem 0.1rem #00000011;
+    height: fit-content;
+  }
+  .work-history > .job > aside > h5 {
+    font-size: 1rem;
+    text-align: center;
+    margin: 0;
+    margin-top: 0.5rem;
+  }
+  .work-history > .job > aside > img ~ h5 {
+    display: none;
+  }
+  .work-history > .job > div > h6 {
+    font-size: 0.75rem;
+    margin: 0;
+    margin-bottom: 0.5rem;
+  }
+  .work-history > .job > aside > ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin-top: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .work-history > .job > aside > ul > li {
+    font-size: 0.5rem;
+    text-align: center;
+    font-weight: bold;
+    margin: 0;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+    border: 1px solid #ffffff99;
+    background: #ffffff99;
+    box-shadow: 0 0 0.25rem 0.1rem #00000011;
+    flex-grow: 1;
+    transition: all 0.1s ease-in-out;
+  }
+  .work-history > .job > div {
+    flex: 1;
+  }
+  .work-history > .job > div > h4 {
+    font-size: 1.25rem;
+    margin: 0;
+    margin-bottom: 0.5rem;
+  }
+  .work-history > .job > div > p {
+    font-size: 0.9rem;
+    margin: 0;
+    margin-bottom: 0.5rem;
+    text-align: justify;
+  }
+</style>

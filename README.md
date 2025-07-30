@@ -1,6 +1,43 @@
-# ZMC.DEV
-[![DigitalOcean Referral Badge](https://web-platforms.sfo2.digitaloceanspaces.com/WWW/Badge%203.svg)](https://www.digitalocean.com/?refcode=acd86e83dc97&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
+# Astro Starter Kit: Minimal
 
-[![Deploy to DigitalOcean](https://github.com/theZMC/zmc.dev/actions/workflows/ci.yml/badge.svg)](https://github.com/theZMC/zmc.dev/actions/workflows/ci.yml)
+```sh
+pnpm create astro@latest -- --template minimal
+```
 
-This is the `zmc.dev` repository. It contains the source code for the [zmc.dev](https://zmc.dev) website. The website is built using [Astro](https://astro.build/), a typescript-based static site generator. The site is hosted on [Digital Ocean](https://www.digitalocean.com/). The site is built and deployed using [GitHub Actions](https://github.com/features/actions).
+> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+
+## 🚀 Project Structure
+
+Inside of your Astro project, you'll see the following folders and files:
+
+```text
+/
+├── public/
+├── src/
+│   └── pages/
+│       └── index.astro
+└── package.json
+```
+
+Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+
+There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+
+Any static assets, like images, can be placed in the `public/` directory.
+
+## 🧞 Commands
+
+All commands are run from the root of the project, from a terminal:
+
+| Command                   | Action                                           |
+| :------------------------ | :----------------------------------------------- |
+| `pnpm install`             | Installs dependencies                            |
+| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
+| `pnpm build`           | Build your production site to `./dist/`          |
+| `pnpm preview`         | Preview your build locally, before deploying     |
+| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
+| `pnpm astro -- --help` | Get help using the Astro CLI                     |
+
+## 👀 Want to learn more?
+
+Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).

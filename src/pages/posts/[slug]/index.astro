@@ -1,0 +1,294 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import DefaultImage from "@images/journalist-on-laptop.png";
+import { render } from "astro:content";
+
+export const getStaticPaths = async () => {
+  return (await getCollection("blog")).map((post) => {
+    return {
+      params: {
+        slug: post.id,
+      },
+      props: { post },
+    };
+  });
+};
+
+const { post } = Astro.props;
+
+let date = new Date(post.data.date + "T12:00:00").toLocaleDateString(
+  "en-US",
+  {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  },
+);
+
+if (date === "Invalid Date") {
+  date = post.data.date;
+}
+
+const { Content } = await render(post);
+---
+
+<BaseLayout
+  pageTitle={post.data.title + " - ZMC.DEV"}
+  metaDescription={post.data.description}
+>
+  <article class="post">
+    <a class="all-posts" href="/posts">&slarr; View All Posts</a>
+    <Image
+      src={post.data.cover ? post.data.cover.image : DefaultImage}
+      alt={post.data.cover
+        ? post.data.cover.alt
+        : "AI-generated image of journalist on laptop"}
+    />
+    <div class="post-meta">
+      <p class="publish-date">
+        {date}
+      </p>
+      {
+        post.data.tags && (
+          <div class="tags">
+            {
+              post.data.tags.map((tag: string) => (
+                <p class="tag">
+                  <a href={`/posts/by-tag/${tag}`}>{tag}</a>
+                </p>
+              ))
+            }
+          </div>
+        )
+      }
+    </div>
+    <h1 class="post-title">{post.data.title}</h1>
+    {
+      post.data.description && (
+        <p class="post-description">{post.data.description}</p>
+      )
+    }
+    <Content />
+  </article>
+</BaseLayout>
+
+<style is:global>
+  article.post > a.all-posts {
+    display: block;
+    margin-bottom: 1rem;
+    border: none;
+    font-weight: 400;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+  }
+  article.post {
+    background: #ffffff55;
+    border: 1px solid #ffffff77;
+    box-shadow: 0 0 0.5rem 0.1rem #00000011;
+    padding: 1rem;
+    border-radius: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  article.post > img {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+  }
+  article.post > h2 {
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15rem;
+    font-weight: 200;
+    margin: 0 -1rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.25) 0%,
+      rgba(255, 255, 255, 0.5) 25%,
+      rgba(255, 255, 255, 0.25) 50%,
+      rgba(255, 255, 255, 0.125) 100%
+    );
+    border: 1px solid #ffffff44;
+    background-blend-mode: overlay;
+    border-width: 1px 0;
+    padding: 0.5rem 1rem;
+  }
+  article.post > h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  article.post > h4 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  article.post > h5 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  article.post > h6 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  h1.post-title {
+    font-size: 2.4rem;
+    word-wrap: break-word;
+    line-height: 1;
+    margin-bottom: 1rem;
+    font-weight: 800;
+    text-align: left;
+  }
+  div.post-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  p.publish-date {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 300;
+    letter-spacing: 0.15rem;
+  }
+  p.tag {
+    display: inline-block;
+  }
+  div.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  div.tags > p.tag > a {
+    text-decoration: none;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 300;
+    letter-spacing: 0.15rem;
+    background: #00000077;
+    border-radius: 0.25rem;
+    color: #ffffff;
+    transition: all 0.1s ease;
+  }
+  div.tags > p.tag > a:hover {
+    background: #ffffff99;
+    color: #000000;
+  }
+  p.post-description {
+    font-size: 0.8rem;
+    line-height: 1.5;
+    font-style: italic;
+    padding: 0.5rem 1rem;
+    background: #ffffff77;
+    border: 1px solid #00000022;
+    border-radius: 0.25rem;
+  }
+  article.post pre {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    font-size: 0.8rem;
+    overflow: hidden;
+  }
+  article.post a {
+    color: #555555;
+    font-weight: bold;
+    text-decoration: none;
+  }
+  article.post a:hover {
+    color: #000000;
+  }
+  article.post a:visited {
+    color: #777777;
+  }
+  article.post a:visited:hover {
+    color: #000000;
+  }
+  article.post p {
+    margin-bottom: 1rem;
+  }
+  article.post > p > code {
+    background: #ffffff77;
+    padding: 0.1rem 0.25rem;
+    border-radius: 0.25rem;
+  }
+  article.post > blockquote {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    overflow: hidden;
+    background: #00000011;
+    border: 1px solid #00000011;
+    border-left-width: 0.25rem;
+  }
+  article.post > blockquote > p > code {
+    background: #00000011;
+    padding: 0.1rem 0.25rem;
+    border-radius: 0.25rem;
+  }
+  article.post > blockquote > p {
+    margin: 0;
+  }
+  article.post li code {
+    background: #ffffff77;
+    padding: 0.1rem 0.25rem;
+    border-radius: 0.25rem;
+  }
+  article.post h1 code,
+  article.post h2 code,
+  article.post h3 code,
+  article.post h4 code,
+  article.post h5 code,
+  article.post h6 code {
+    background: #ffffff77;
+    padding: 0.1rem 0.25rem;
+    border-radius: 0.25rem;
+  }
+  article.post > img {
+    border-radius: 0.25rem;
+  }
+  article.post > *:last-child {
+    margin-bottom: 0;
+  }
+  article.post > hr {
+    margin: 1rem 0;
+    border: none;
+    border-top: 1px solid #00000011;
+    border-bottom: 1px solid #ffffff55;
+  }
+  article.post > h1 > a,
+  article.post > h2 > a,
+  article.post > h3 > a,
+  article.post > h4 > a,
+  article.post > h5 > a,
+  article.post > h6 > a {
+    color: inherit;
+    font-weight: inherit;
+    text-decoration: none;
+  }
+  article.post > h1 > a:hover::after,
+  article.post > h2 > a:hover::after,
+  article.post > h3 > a:hover::after,
+  article.post > h4 > a:hover::after,
+  article.post > h5 > a:hover::after,
+  article.post > h6 > a:hover::after {
+    content: " 🔗";
+    text-shadow: 0 0 0.1rem #00000088;
+  }
+  article.post > h1 > a:visited,
+  article.post > h2 > a:visited,
+  article.post > h3 > a:visited,
+  article.post > h4 > a:visited,
+  article.post > h5 > a:visited,
+  article.post > h6 > a:visited {
+    color: inherit;
+    font-weight: inherit;
+    text-decoration: none;
+  }
+</style>

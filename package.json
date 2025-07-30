@@ -1,26 +1,24 @@
 {
-  "name": "@example/minimal",
+  "name": "thezmc.github.io",
   "type": "module",
   "version": "0.0.1",
-  "private": true,
   "scripts": {
     "dev": "astro dev",
-    "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/image": "^0.12.0",
-    "@astrojs/partytown": "^1.2.1",
-    "astro": "^1.6.11",
-    "astro-heroicons": "^0.3.0",
-    "autoprefixer": "^10.4.13",
-    "rehype-autolink-headings": "^6.1.1",
-    "rehype-slug": "^5.1.0",
-    "sharp": "^0.31.2"
+    "@astrojs/markdown-remark": "^6.3.3",
+    "@astrojs/partytown": "^2.1.4",
+    "@lucide/astro": "^0.532.0",
+    "astro": "^5.12.4",
+    "rehype-autolink-headings": "^7.1.0",
+    "rehype-slugs": "^0.0.5",
+    "sharp": "^0.34.3"
   },
   "devDependencies": {
-    "sass": "^1.56.1"
+    "sass-embedded": "^1.89.2",
+    "typescript": "^5.8.3"
   }
 }

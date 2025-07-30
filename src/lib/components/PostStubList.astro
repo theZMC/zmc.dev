@@ -1,0 +1,86 @@
+---
+import { Image } from "astro:assets";
+import type { getCollection } from "astro:content";
+import DefaultImage from "@images/journalist-on-laptop.png";
+
+interface Props {
+  posts: Awaited<ReturnType<typeof getCollection<"blog">>>;
+}
+
+const { posts } = Astro.props;
+---
+
+<ul>
+  {
+    posts.map((post) => (
+      <li>
+        <a href={`/posts/${post.id}`}>
+          <figure>
+            <Image
+              src={post.data.cover ? post.data.cover.image : DefaultImage}
+              alt={post.data.cover
+                ? post.data.cover.alt
+                : "AI-generated image of journalist on laptop"}
+            />
+            <figcaption>{post.data.title}</figcaption>
+          </figure>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+  li {
+    flex-grow: 1;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    transition: all 0.075s ease-in-out;
+    box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.2);
+  }
+  li:hover {
+    cursor: pointer;
+    scale: 1.05;
+    box-shadow: 0 0.5rem 0.75rem rgba(0, 0, 0, 0.5);
+  }
+  li:active {
+    scale: 1.025;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.5);
+  }
+  figure {
+    position: relative;
+  }
+  img {
+    width: 100%;
+    object-fit: cover;
+    height: 12rem;
+  }
+  figcaption {
+    display: block;
+    position: absolute;
+    padding: 0.25rem 0.5rem;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #00000055;
+    backdrop-filter: blur(0.5rem);
+    border-top: 1px solid #00000055;
+    color: white;
+    font-weight: 200;
+    letter-spacing: 0.05rem;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>

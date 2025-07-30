@@ -1,20 +1,13 @@
 ---
 import Post from "@components/Post.astro";
 import BaseLayout from "@layouts/BaseLayout.astro";
-import type { MarkdownInstance } from "astro";
+import { getCollection } from "astro:content";
 
-let posts: MarkdownInstance<Record<string, any>>[];
+const posts = await getCollection("blog");
 
-try {
-  posts = await Astro.glob("./*.md");
-} catch (e) {
-  posts = [];
-}
-
-// sort posts by date
 posts.sort((a, b) => {
-  const aDate = new Date(a.frontmatter.date);
-  const bDate = new Date(b.frontmatter.date);
+  const aDate = new Date(a.data.date);
+  const bDate = new Date(b.data.date);
   return bDate.getTime() - aDate.getTime();
 });
 ---
@@ -22,7 +15,7 @@ posts.sort((a, b) => {
 <BaseLayout pageTitle="All Posts - ZMC.DEV" isIndex={false}>
   <h1>All Posts</h1>
   <div class="posts">
-    {posts.map((post) => <Post post={post} />)}
+    {posts.map((post) => <Post {post} />)}
   </div>
 </BaseLayout>
 

@@ -1,32 +1,28 @@
-import { defineConfig } from 'astro/config';
-import rehypeAutolinkHeadings from 'rehype-autolink-headings';
-import rehypeSlug from 'rehype-slug';
+// @ts-check
+import { defineConfig } from "astro/config";
 
-// https://astro.build/config
-import image from "@astrojs/image";
-
-// https://astro.build/config
 import partytown from "@astrojs/partytown";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import { rehypeHeadingIds } from "@astrojs/markdown-remark";
 
 // https://astro.build/config
 export default defineConfig({
   markdown: {
-    extendDefaultPlugins: true,
-    rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, {
-      behavior: 'wrap',
-      properties: {
-        ariaHidden: true,
-        tabIndex: -1,
-        className: 'anchor'
-      }
-    }]]
+    rehypePlugins: [
+      rehypeHeadingIds,
+      [
+        rehypeAutolinkHeadings,
+        {
+          behavior: "wrap",
+          properties: {
+            ariaHidden: true,
+            tabIndex: -1,
+            className: "anchor",
+          },
+        },
+      ],
+    ],
   },
-  site: 'https://zmc.dev',
-  integrations: [image({
-    serviceEntryPoint: '@astrojs/image/sharp'
- }), partytown({
-    config: { 
-      forward: ["dataLayer.push"] 
-    },
-  })]
+  integrations: [partytown()],
 });
+
