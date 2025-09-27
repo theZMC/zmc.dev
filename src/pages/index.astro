@@ -24,7 +24,7 @@ const posts = await getCollection("blog");
     </p>
     {
       posts.length > 0 && (
-        <h3>Recent Posts</h3>
+        <h2>Recent Posts</h2>
         <PostStubList posts={posts.slice(0, 3)} />
         <a href="/posts">View all posts &rarr;</a>
       )
@@ -43,7 +43,7 @@ const posts = await getCollection("blog");
     font-size: 0.8rem;
     align-self: flex-end;
   }
-  h3 {
+  h2 {
     text-transform: uppercase;
     font-weight: 300;
   }
