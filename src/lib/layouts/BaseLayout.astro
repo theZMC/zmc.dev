@@ -1,5 +1,5 @@
 ---
-import "@styles/global.scss";
+import "@styles/global.css";
 import Header from "@components/Header.astro";
 import type Social from "@lib/types/social";
 import { FileUser, Github, Linkedin, Mail } from "@lucide/astro";
@@ -67,52 +67,21 @@ const socials: Social[] = [
     <meta property="og:site_name" content="ZMC.DEV" />
     <meta property="og:locale" content="en_US" />
     <title>{pageTitle}</title>
-    <script
-      is:inline
-      type="text/partytown"
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-6R3Z7ZBR19"
-    ></script>
-    <script is:inline type="text/partytown">
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
-      gtag("config", "G-6R3Z7ZBR19");
-    </script>
   </head>
   <body>
     <div>
       <Header {isIndex} />
       <main>
         <slot />
-        {socials.length > 0 ? <SocialList {socials} /> : null}
+        {socials.length && <SocialList {socials} />}
       </main>
     </div>
   </body>
 </html>
 
 <style lang="scss">
-  body {
-    font-family:
-      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
-      Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-    background: rgb(182, 233, 255);
-    padding: 1rem 0;
-    background: linear-gradient(
-      90deg,
-      rgba(255, 183, 121, 1) 0%,
-      rgba(182, 233, 255, 1) 50%,
-      rgba(255, 183, 121, 1) 100%
-    );
-    background-size: 400%;
-    animation: gradient 300s ease infinite;
-    display: flex;
-    min-width: 0;
-    align-items: center;
-    justify-content: center;
-  }
+  @reference "tailwindcss";
+
   @keyframes gradient {
     0% {
       background-position: 0% 0%;
@@ -121,12 +90,25 @@ const socials: Social[] = [
       background-position: 400% 400%;
     }
   }
+
+  body {
+    @apply bg-[#b6e9ff];
+    @apply bg-size-[400%];
+    @apply py-2 px-0;
+    @apply min-h-[100vh];
+    @apply flex items-center justify-center;
+    @apply bg-linear-to-r from-[#ffb879] from-0% via-[#b6e9ff] via-50%
+      to-[#ffb879] to-100%;
+    animation: gradient 300s ease infinite;
+  }
   div {
     max-width: 50rem;
     min-width: 0;
   }
   main {
-    margin: 1rem;
+    @apply m-4;
+    @apply flex flex-col items-center;
+    @apply gap-4;
   }
   @media print {
     body {

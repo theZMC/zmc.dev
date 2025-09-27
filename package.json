@@ -12,13 +12,17 @@
     "@astrojs/markdown-remark": "^6.3.3",
     "@astrojs/partytown": "^2.1.4",
     "@lucide/astro": "^0.532.0",
+    "@tailwindcss/vite": "^4.1.11",
     "astro": "^5.12.4",
     "astro-relative-links": "^0.4.2",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-slugs": "^0.0.5",
-    "sharp": "^0.34.3"
+    "sharp": "^0.34.3",
+    "tailwindcss": "^4.1.11"
   },
   "devDependencies": {
+    "prettier": "^3.6.2",
+    "prettier-plugin-astro": "^0.14.1",
     "sass-embedded": "^1.89.2",
     "typescript": "^5.8.3"
   }

@@ -1,11 +1,12 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 
-import partytown from "@astrojs/partytown";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { rehypeHeadingIds } from "@astrojs/markdown-remark";
 
 import relativeLinks from "astro-relative-links";
+
+import tailwindcss from "@tailwindcss/vite";
 
 // https://astro.build/config
 export default defineConfig({
@@ -25,5 +26,10 @@ export default defineConfig({
       ],
     ],
   },
-  integrations: [partytown(), relativeLinks()],
+
+  integrations: [relativeLinks()],
+
+  vite: {
+    plugins: [tailwindcss()],
+  },
 });
