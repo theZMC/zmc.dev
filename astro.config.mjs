@@ -13,7 +13,7 @@ export default defineConfig({
   site: "https://zmc.dev",
   base: "/",
   build: {
-    inlineStylesheets: "always",
+    assetsPrefix: "https://zmc.dev/",
   },
   markdown: {
     rehypePlugins: [
