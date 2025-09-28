@@ -23,7 +23,9 @@ const { posts } = Astro.props;
                 ? post.data.cover.alt
                 : "AI-generated image of journalist on laptop"}
             />
-            <figcaption>{post.data.title}</figcaption>
+            <figcaption transition:name={`post-title-${post.id}`}>
+              {post.data.title}
+            </figcaption>
           </figure>
         </a>
       </li>

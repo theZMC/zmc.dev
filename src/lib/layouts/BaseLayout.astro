@@ -67,18 +67,18 @@ const socials: Social[] = [
     <meta property="og:description" content={Astro.props.metaDescription} />
     <meta property="og:site_name" content="ZMC.DEV" />
     <meta property="og:locale" content="en_US" />
+    <ClientRouter />
     <title>{pageTitle}</title>
   </head>
   <body>
     <div>
       <Header {isIndex} />
-      <main transition:animate="slide">
+      <main transition:animate="fade">
         <slot />
         {socials.length && <SocialList {socials} />}
       </main>
     </div>
   </body>
-  <ClientRouter />
 </html>
 
 <style lang="scss">

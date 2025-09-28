@@ -26,15 +26,17 @@ if (date === "Invalid Date") {
   <article>
     <Image
       src={post.data.cover ? post.data.cover.image : DefaultImage}
-      class="w-full h-full object-cover rounded-lg -z-1"
+      class="w-full h-full object-cover rounded-lg"
       transition:name={`post-cover-${post.id}`}
       alt={post.data.cover
         ? post.data.cover.alt
         : "AI-generated image of journalist on laptop"}
     />
     <header>
-      <h2>{post.data.title}</h2>
-      <p>{post.data.description}</p>
+      <h2 transition:name={`post-title-${post.id}`}>{post.data.title}</h2>
+      <p transition:name={`post-description-${post.id}`}>
+        {post.data.description}
+      </p>
     </header>
     <footer>
       <div>
@@ -64,7 +66,6 @@ if (date === "Invalid Date") {
       @apply overflow-hidden;
       @apply shadow-lg;
       @apply transition-all;
-      @apply z-1;
       @apply font-sans;
       @apply text-sm;
       @apply hover:shadow-2xl/60;

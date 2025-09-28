@@ -65,10 +65,20 @@ const { Content } = await render(post);
         )
       }
     </div>
-    <h1 class="post-title">{post.data.title}</h1>
+    <h1
+      transition:name={`post-title-${post.id}`}
+      class="post-title"
+    >
+      {post.data.title}
+    </h1>
     {
       post.data.description && (
-        <p class="post-description">{post.data.description}</p>
+        <p
+          transition:name={`post-description-${post.id}`}
+          class="post-description"
+        >
+          {post.data.description}
+        </p>
       )
     }
     <Content />
