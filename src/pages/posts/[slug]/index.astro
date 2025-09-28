@@ -42,6 +42,7 @@ const { Content } = await render(post);
     <a class="all-posts" href="/posts">&slarr; View All Posts</a>
     <Image
       src={post.data.cover ? post.data.cover.image : DefaultImage}
+      transition:name={`post-cover-${post.id}`}
       alt={post.data.cover
         ? post.data.cover.alt
         : "AI-generated image of journalist on laptop"}

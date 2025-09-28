@@ -4,6 +4,7 @@ import Header from "@components/Header.astro";
 import type Social from "@lib/types/social";
 import { FileUser, Github, Linkedin, Mail } from "@lucide/astro";
 import SocialList from "@components/SocialList.astro";
+import { ClientRouter } from "astro:transitions";
 
 interface Props {
   pageTitle: string;
@@ -71,12 +72,13 @@ const socials: Social[] = [
   <body>
     <div>
       <Header {isIndex} />
-      <main>
+      <main transition:animate="slide">
         <slot />
         {socials.length && <SocialList {socials} />}
       </main>
     </div>
   </body>
+  <ClientRouter />
 </html>
 
 <style lang="scss">

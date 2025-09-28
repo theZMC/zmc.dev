@@ -26,6 +26,7 @@ if (date === "Invalid Date") {
   <article>
     <Image
       src={post.data.cover ? post.data.cover.image : DefaultImage}
+      class="w-full h-full object-cover rounded-lg -z-1"
       transition:name={`post-cover-${post.id}`}
       alt={post.data.cover
         ? post.data.cover.alt
