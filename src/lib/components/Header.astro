@@ -9,11 +9,11 @@ const { isIndex } = Astro.props;
   <a href="/">
     {
       isIndex ? (
-        <h1>
+        <h1 class="group/heading">
           ZMC<span>dot</span>DEV
         </h1>
       ) : (
-        <h2>
+        <h2 class="group/heading">
           ZMC<span>dot</span>DEV
         </h2>
       )
@@ -24,73 +24,59 @@ const { isIndex } = Astro.props;
 
 <style lang="scss">
   @reference "tailwindcss";
-  header {
-    display: flex;
-    margin: 0 1rem;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-  @media screen and (min-width: 768px) {
-    header {
-      justify-content: space-between;
-    }
-  }
-  h1,
-  h2 {
-    @apply font-bold;
-    @apply tracking-widest;
-    white-space: nowrap;
-    font-size: 2rem;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    transition: all 0.1s ease-in-out;
-    @apply transition-colors;
-    @apply gap-2;
-  }
-  h1:hover,
-  h2:hover {
-    color: white;
-    text-shadow: 0 0 0.5rem white;
-  }
-  h1:hover span,
-  h2:hover span {
-    box-shadow: 0 0 0.5rem white;
-  }
 
-  a {
-    transition: all 0.1s ease-in-out;
-  }
-  span {
-    @apply tracking-tighter;
-    @apply text-[0.5rem];
-    @apply bg-black;
-    @apply text-white;
-    @apply rounded-full;
-    @apply w-6;
-    @apply h-6;
+  header {
     @apply flex;
-    @apply content-center;
-    @apply align-middle;
-    @apply transition-colors;
-    @apply block;
-    @apply -ml-1;
-  }
-  a:hover span {
-    background: white;
-    color: black;
-  }
-  p {
-    font-size: 0.9rem;
-    text-align: center;
-    font-weight: 500;
-    margin: 0;
-  }
-  @media print {
-    header {
-      display: none;
+    @apply flex-wrap;
+    @apply items-center;
+    @apply justify-center;
+    @apply gap-4;
+    @apply mx-4;
+    @apply sm:justify-between;
+    @apply print:hidden;
+
+    & h1, & h2 {
+      @apply font-bold;
+      @apply tracking-widest;
+      @apply flex;
+      @apply whitespace-nowrap;
+      @apply text-4xl;
+      @apply text-center;
+      @apply flex;
+      @apply items-center;
+      @apply transition-all;
+      @apply gap-2;
+      @apply hover:text-shadow-[0_0_5px];
+      @apply hover:text-white;
+      @apply hover:text-shadow-white;
+
+      & span {
+        @apply tracking-tighter;
+        @apply text-xs;
+        @apply bg-black;
+        @apply text-white;
+        @apply rounded-full;
+        @apply h-8;
+        @apply aspect-square;
+        @apply flex;
+        @apply content-center;
+        @apply align-middle;
+        @apply transition-all;
+        @apply block;
+        @apply -ml-1;
+        @apply -mt-1;
+        @apply group-hover/heading:bg-white;
+        @apply group-hover/heading:text-black;
+        @apply group-hover/heading:shadow-white;
+        @apply group-hover/heading:shadow-[0_0_5px];
+      }
+    }
+
+    & p {
+      @apply text-sm;
+      @apply text-center;
+      @apply font-medium;
+      @apply m-0;
     }
   }
 </style>

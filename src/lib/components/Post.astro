@@ -26,6 +26,7 @@ if (date === "Invalid Date") {
   <article>
     <Image
       src={post.data.cover ? post.data.cover.image : DefaultImage}
+      transition:name={`post-cover-${post.id}`}
       alt={post.data.cover
         ? post.data.cover.alt
         : "AI-generated image of journalist on laptop"}
@@ -49,55 +50,54 @@ if (date === "Invalid Date") {
   </article>
 </a>
 
-<style>
+<style lang="scss">
+  @reference "tailwindcss";
+
   a {
-    color: inherit;
-    text-decoration: none;
-  }
-  h2,
-  p {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-  }
-  h2 {
-    margin: 0;
-    padding: 0.25rem 0.5rem;
-    font-size: 1.25rem;
-    font-weight: 300;
-    letter-spacing: 0.05rem;
-    text-transform: uppercase;
-    line-height: 1;
-  }
-  header > p {
-    margin: 0;
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 300;
-    letter-spacing: 0.05rem;
-  }
-  article {
-    position: relative;
-    border-radius: 1rem;
-    overflow: hidden;
-    box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.2);
-    transition: all 0.075s ease-in-out;
-    z-index: 1;
-    font-size: 0.8rem;
-  }
-  article:hover {
-    scale: 1.05;
-    box-shadow: 0 0.5rem 0.75rem rgba(0, 0, 0, 0.5);
-  }
-  article:active {
-    scale: 1.025;
-    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.5);
-  }
-  img {
-    width: 100%;
-    height: 100%;
-    border-radius: 0.5rem;
-    z-index: -1;
+    @apply text-inherit;
+    @apply no-underline;
+
+    > article {
+      @apply relative;
+      @apply rounded-2xl;
+      @apply overflow-hidden;
+      @apply shadow-lg;
+      @apply transition-all;
+      @apply z-1;
+      @apply font-sans;
+      @apply text-sm;
+      @apply hover:shadow-2xl/60;
+      @apply active:shadow-lg/40;
+      @apply hover:scale-105;
+      @apply active:scale-[102.5%];
+
+      > header {
+        > p {
+          @apply m-0;
+          @apply px-2;
+          @apply py-1;
+          @apply text-xs;
+          @apply font-normal;
+          @apply text-ellipsis;
+          @apply tracking-wider;
+        }
+        > h2, > p {
+          @apply text-ellipsis;
+          @apply overflow-hidden;
+          @apply whitespace-nowrap;
+        }
+        > h2 {
+          @apply m-0;
+          @apply px-2 py-1;
+          @apply text-xl;
+          @apply font-semibold;
+          @apply tracking-wider;
+          @apply uppercase;
+          @apply leading-none;
+          @apply sm:text-sm;
+        }
+      }
+    }
   }
   header {
     position: absolute;
