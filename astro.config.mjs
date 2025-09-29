@@ -12,8 +12,12 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   site: "https://zmc.dev",
   base: "/",
+  prefetch: {
+    defaultStrategy: "viewport",
+  },
   build: {
     assetsPrefix: "https://zmc.dev/",
+    inlineStylesheets: "never",
   },
   markdown: {
     rehypePlugins: [
