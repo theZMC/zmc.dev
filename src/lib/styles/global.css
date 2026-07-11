@@ -155,10 +155,12 @@ nav,
   font-family: "Cormorant", serif;
   font-style: italic;
   font-weight: 500;
-  font-size: 4.6px;
+  font-size: 3.2px;
   letter-spacing: 0.24em;
   fill: var(--label);
-  dominant-baseline: central;
+  /* Vertical centering on the stroke comes from the tspan dy in the markup,
+     calibrated to the caps' ink box — dominant-baseline:central is unreliable
+     on textPath across engines (notably Safari). */
 }
 .orbit-label.brass {
   fill: var(--label-brass);

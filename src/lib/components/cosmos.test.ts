@@ -53,6 +53,8 @@ const CIRCULAR_RINGS: Record<number, number> = {
   2: 152, // III
   3: 196, // IV
   4: 242, // V
+  6: 356, // VI (circularized from the study's 360×352 ellipse: no wobble
+  //             under rotation, body exactly on the stroke)
   7: 410, // VII
 };
 
@@ -139,20 +141,6 @@ describe("bodies sit on their declared paths", () => {
     expect(moons.length).toBe(1);
     const d = Math.hypot(Number(moons[0].cx) - 652, Number(moons[0].cy) - 500);
     expect(d, `moon at (${moons[0].cx},${moons[0].cy}) is ${d} from (652,500), not 9`).toBeCloseTo(9, 9);
-  });
-
-  it("group VI body satisfies the 360×352 ellipse equation within 2%", () => {
-    const found = bodies(groups[6]);
-    expect(found.length).toBe(1);
-    const c = found[0];
-    const eq = ((Number(c.cx) - SUN.x) / 360) ** 2 + ((Number(c.cy) - SUN.y) / 352) ** 2;
-    // The mockup body sits ~0.65% inside the stroke — that is the approved
-    // artwork; assert within tolerance, do not "fix" the SVG.
-    expect(
-      Math.abs(eq - 1),
-      `VI body (${c.cx},${c.cy}) gives ellipse eq ${eq.toFixed(6)} ` +
-        `(radial deviation ≈ ${((1 - Math.sqrt(eq)) * 100).toFixed(4)}% inside)`,
-    ).toBeLessThanOrEqual(0.02);
   });
 
   it("asteroid belt has 16 dots, all within the 286–302 band", () => {
