@@ -2,6 +2,7 @@
 import { defineConfig } from "astro/config";
 
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import rehypeExternalLinks from "rehype-external-links";
 import { rehypeHeadingIds } from "@astrojs/markdown-remark";
 
 import relativeLinks from "astro-relative-links";
@@ -40,6 +41,13 @@ export default defineConfig({
             tabIndex: -1,
             className: "anchor",
           },
+        },
+      ],
+      [
+        rehypeExternalLinks,
+        {
+          target: "_blank",
+          rel: ["noopener", "noreferrer"],
         },
       ],
     ],

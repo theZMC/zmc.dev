@@ -27,7 +27,18 @@ const year = toRoman(new Date().getFullYear());
   <div class="foot-inner">
     <span class="mono">© {year} Zach Callahan · zmc.dev</span>
     <div class="links mono">
-      {links.map((link) => <a href={link.href}>{link.label}</a>)}
+      {
+        links.map((link) => (
+          <a
+            href={link.href}
+            {...(/^https?:\/\//.test(link.href)
+              ? { target: "_blank", rel: "noopener noreferrer" }
+              : {})}
+          >
+            {link.label}
+          </a>
+        ))
+      }
     </div>
   </div>
 </footer>

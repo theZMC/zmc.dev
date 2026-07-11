@@ -52,14 +52,22 @@ function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
     <section id="work" class="panel">
       <div class="sec-head">
         <h2><a href="#work">Selected Work</a></h2>
-        <a class="mono coord" href="https://github.com/theZMC"
-          >Open Source · github.com/theZMC</a
+        <a
+          class="mono coord"
+          href="https://github.com/theZMC"
+          target="_blank"
+          rel="noopener noreferrer">Open Source · github.com/theZMC</a
         >
       </div>
 
       {
         projects.map((project) => (
-          <a class="work-row glint-row" href={project.data.url}>
+          <a
+            class="work-row glint-row"
+            href={project.data.url}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <span class="mono kind">{project.data.kind}</span>
             <div>
               <h3>{project.data.name}</h3>
