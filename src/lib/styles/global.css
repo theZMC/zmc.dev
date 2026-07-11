@@ -309,15 +309,29 @@ main {
   border-radius: 14px;
   position: relative;
 }
-/* hoverable index rows: frameless until considered — whitespace separates
-   them, and hover draws the panels' border shimmer at row scale. --row-pad
-   insets the text from the clickable surface; pages reuse it in their
-   padding so the two stay in lockstep. */
+/* hoverable index rows: separated by a comet (dot at the text's left edge,
+   tail fading right — kin to the orrery's comet), and hover draws the
+   panels' border shimmer at row scale. --row-pad insets the text from the
+   clickable surface; pages reuse it in their padding so the two stay in
+   lockstep. */
 .glint-row {
   --row-pad: 1.4rem;
   position: relative;
   border-radius: 10px;
   margin: 0 calc(-1 * var(--row-pad));
+}
+.glint-row:not(:last-of-type)::after {
+  content: "";
+  position: absolute;
+  left: var(--row-pad);
+  right: var(--row-pad);
+  bottom: -3px;
+  height: 5px;
+  background:
+    radial-gradient(circle closest-side, var(--brass-dim) 68%, transparent 72%)
+      left center / 5px 5px no-repeat,
+    linear-gradient(to right, var(--brass-dim), transparent)
+      4px 50% / min(26rem, 65%) 1px no-repeat;
 }
 
 /* border shimmer: gradient painted only into the 1px border ring via mask */
