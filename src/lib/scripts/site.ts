@@ -45,6 +45,29 @@ function onScroll(): void {
 document.addEventListener("click", (e) => {
   const btn = (e.target as Element | null)?.closest("#themeToggle");
   if (btn instanceof HTMLElement) toggleTheme(btn);
+
+  const copy = (e.target as Element | null)?.closest(".copy-code");
+  if (copy instanceof HTMLElement) {
+    const pre = copy.closest("pre");
+    const code = pre?.querySelector("code");
+    if (code) {
+      const done = () => {
+        copy.textContent = "Copied ✓";
+        setTimeout(() => {
+          copy.textContent = "Copy";
+        }, 1600);
+      };
+      navigator.clipboard.writeText(code.innerText).then(done, () => {
+        // Clipboard API unavailable (permissions/insecure context):
+        // select the block so a manual ⌘C still lands the right text.
+        const range = document.createRange();
+        range.selectNodeContents(code);
+        const sel = window.getSelection();
+        sel?.removeAllRanges();
+        sel?.addRange(range);
+      });
+    }
+  }
 });
 
 document.addEventListener("pointermove", (e) => {
@@ -74,6 +97,19 @@ document.addEventListener("astro:page-load", () => {
       document.fonts.ready.then(run);
     }
   }
+
+  // Copy buttons on article code blocks (idempotent per page view).
+  document
+    .querySelectorAll<HTMLPreElement>(".post-body pre")
+    .forEach((pre) => {
+      if (pre.querySelector(".copy-code")) return;
+      const btn = document.createElement("button");
+      btn.className = "copy-code mono";
+      btn.type = "button";
+      btn.textContent = "Copy";
+      btn.setAttribute("aria-label", "Copy code to clipboard");
+      pre.appendChild(btn);
+    });
 
   updateScrollState();
 });

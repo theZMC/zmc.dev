@@ -187,6 +187,13 @@ const { Content } = await render(post);
     padding-top: 2.2rem;
     border-top: 1px solid var(--hair);
   }
+  /* A post that opens with a heading otherwise stacks the meta rule and
+     the heading's own top rule around an empty band. */
+  .post-body > h2:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
   .post-body h3 {
     font-family: "Marcellus", serif;
     font-weight: 400;
@@ -229,9 +236,12 @@ const { Content } = await render(post);
     border: 1px solid var(--hair);
     border-radius: 5px;
     padding: 0.1em 0.4em;
+    /* long identifiers in headings/prose must never pan the page sideways */
+    overflow-wrap: anywhere;
   }
   .post-body pre,
   .post-body .astro-code {
+    position: relative;
     margin: 2rem 0;
     padding: 1.4rem 1.6rem;
     overflow-x: auto;
@@ -239,6 +249,40 @@ const { Content } = await render(post);
     border: 1px solid var(--glass-hair);
     border-radius: 10px;
     line-height: 1.6;
+    /* visible affordance that long lines continue past the clip edge */
+    scrollbar-width: thin;
+    scrollbar-color: var(--brass-dim) transparent;
+  }
+  .post-body pre::-webkit-scrollbar {
+    height: 8px;
+  }
+  .post-body pre::-webkit-scrollbar-thumb {
+    background: var(--brass-dim);
+    border-radius: 4px;
+  }
+  .post-body pre .copy-code {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    cursor: pointer;
+    background: var(--glass);
+    color: var(--ink-dim);
+    border: 1px solid var(--hair);
+    border-radius: 6px;
+    padding: 0.25rem 0.6rem;
+    opacity: 0;
+    transition:
+      opacity 0.25s ease,
+      color 0.25s ease,
+      border-color 0.25s ease;
+  }
+  .post-body pre:hover .copy-code,
+  .post-body pre .copy-code:focus-visible {
+    opacity: 1;
+  }
+  .post-body pre .copy-code:hover {
+    color: var(--brass);
+    border-color: var(--brass-dim);
   }
   .post-body pre code {
     background: none;

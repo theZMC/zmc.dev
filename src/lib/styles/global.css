@@ -66,6 +66,10 @@
 html {
   scroll-behavior: smooth;
 }
+/* Anchored sections and headings clear the fixed frosted nav. */
+[id] {
+  scroll-margin-top: 5.5rem;
+}
 body {
   background: var(--bg);
   color: var(--ink);
@@ -426,5 +430,36 @@ footer a:hover {
   }
   .foot-inner {
     padding: 1.6rem 1.4rem;
+  }
+}
+
+/* Very narrow: tighten the bars so sigil, links, and toggle never collide
+   and the footer never pans the page sideways. */
+@media (max-width: 420px) {
+  nav {
+    padding: 0.9rem 1rem;
+  }
+  .nav-right {
+    gap: 0.9rem;
+  }
+  nav ul {
+    gap: 0.9rem;
+  }
+  nav ul a {
+    letter-spacing: 0.12em;
+  }
+  .foot-inner {
+    padding: 1.4rem 1rem;
+  }
+  footer .links {
+    flex-wrap: wrap;
+    gap: 0.8rem 1.2rem;
+  }
+  .sec-head {
+    flex-wrap: wrap;
+    row-gap: 0.3rem;
+  }
+  .sec-head h2 {
+    font-size: 1.25rem;
   }
 }
