@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
+import type { ResumePdfData } from "@lib/resume-pdf/template";
 import { toRoman } from "@lib/utils/roman";
 import { monthKey, shortDate } from "@lib/utils/tenure";
 import { getCollection, getEntry, render } from "astro:content";
@@ -28,6 +29,28 @@ const renderedJobs = await Promise.all(
     }),
 );
 
+// Payload for the in-browser PDF generator (lazy-loaded on button click).
+const pdfData: ResumePdfData = {
+  name: resume.name,
+  location: resume.location,
+  email: resume.email,
+  phone: resume.phone,
+  site: resume.site,
+  github: resume.github,
+  linkedin: resume.linkedin,
+  summary: resume.summary,
+  skills: resume.skills,
+  certifications: resume.certifications,
+  jobs: jobs.map((job) => ({
+    company: job.data.company,
+    title: job.data.title,
+    tenure: job.data.tenure,
+    isTech: job.data.isTech,
+    highlights: job.data.highlights,
+  })),
+};
+const pdfFilename = `${resume.name} - Resume.pdf`;
+
 const eyebrow = `Personnel Dossier · ${toRoman(new Date().getFullYear())}`;
 
 const footerLinks = [
@@ -54,15 +77,17 @@ const footerLinks = [
           <span class="mono loc">{resume.location} · {resume.site}</span>
         </div>
         <div class="actions">
-          <a
+          <button
+            id="download-pdf"
             class="action primary"
-            href="/ZachCallahanResume.pdf"
-            download="Zach Callahan - Resume.pdf"
+            data-filename={pdfFilename}
           >
-            Download PDF <span class="glyph">⇩</span>
-          </a>
-          <button class="action" onclick="window.print()">
-            Print Dossier <span class="glyph">⎙</span>
+            <span class="label">Download PDF</span>
+            <span class="glyph">⇩</span>
+          </button>
+          <button id="print-pdf" class="action">
+            <span class="label">Print Resume</span>
+            <span class="glyph">⎙</span>
           </button>
           <a class="action" href={`mailto:${resume.email}`}>
             {resume.email} <span class="glyph">→</span>
@@ -158,7 +183,83 @@ const footerLinks = [
       }
     </section>
   </div>
+
+  <script
+    type="application/json"
+    id="resume-pdf-data"
+    set:html={JSON.stringify(pdfData).replace(/</g, "\\u003c")}
+  />
 </BaseLayout>
+
+<script>
+  import type { ResumePdfData } from "@lib/resume-pdf/template";
+
+  const downloadBtn = document.getElementById(
+    "download-pdf",
+  ) as HTMLButtonElement | null;
+  const printBtn = document.getElementById(
+    "print-pdf",
+  ) as HTMLButtonElement | null;
+
+  // One render per visit: both buttons share the generated blob.
+  let blobUrl: string | undefined;
+  async function resumePdfUrl(): Promise<string> {
+    if (blobUrl) return blobUrl;
+    const payload = document.getElementById("resume-pdf-data")?.textContent;
+    if (!payload) throw new Error("resume PDF data missing");
+    const data = JSON.parse(payload) as ResumePdfData;
+    const { generateResumePdf } = await import("@lib/resume-pdf/generate");
+    blobUrl = URL.createObjectURL(await generateResumePdf(data));
+    return blobUrl;
+  }
+
+  function setBusy(btn: HTMLButtonElement, on: boolean, failed = false) {
+    const label = btn.querySelector(".label");
+    if (!label) return;
+    if (!btn.dataset.idleLabel) btn.dataset.idleLabel = label.textContent ?? "";
+    btn.disabled = on;
+    btn.setAttribute("aria-busy", String(on));
+    label.textContent = on
+      ? "Preparing…"
+      : failed
+        ? "Failed — try again"
+        : btn.dataset.idleLabel;
+  }
+
+  downloadBtn?.addEventListener("click", async () => {
+    setBusy(downloadBtn, true);
+    try {
+      const url = await resumePdfUrl();
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = downloadBtn.dataset.filename ?? "Resume.pdf";
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      setBusy(downloadBtn, false);
+    } catch (error) {
+      console.error(error);
+      setBusy(downloadBtn, false, true);
+    }
+  });
+
+  printBtn?.addEventListener("click", async () => {
+    // Open synchronously so Safari's popup blocker allows the tab; point it
+    // at the blob once the render finishes.
+    const tab = window.open("about:blank", "_blank");
+    setBusy(printBtn, true);
+    try {
+      const url = await resumePdfUrl();
+      if (tab) tab.location.href = url;
+      else window.location.href = url;
+      setBusy(printBtn, false);
+    } catch (error) {
+      console.error(error);
+      tab?.close();
+      setBusy(printBtn, false, true);
+    }
+  });
+</script>
 
 <style>
   .resume {
@@ -251,6 +352,10 @@ const footerLinks = [
   }
   .action.primary:hover .glyph {
     color: var(--bg);
+  }
+  button.action[disabled] {
+    opacity: 0.6;
+    cursor: progress;
   }
 
   /* ---------- profile ---------- */
