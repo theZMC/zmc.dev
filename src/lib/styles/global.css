@@ -136,14 +136,17 @@ nav,
   background: var(--bg);
   transition: background 0.45s ease;
 }
-/* Sun anchored just below the nav bar; orbits fan down the page */
+/* The sun rides a page's hero anchor when one is present, then docks with
+   its centre on the nav's bottom border. site.ts drives --orrery-y every
+   scroll frame; 70px approximates the docked position before it runs.
+   translateY (not top) keeps the per-frame movement off the layout path. */
 .orrery {
   position: absolute;
   left: 50%;
-  top: 84px;
+  top: 0;
   width: min(max(200vmin, 150vw), 2800px);
   height: min(max(200vmin, 150vw), 2800px);
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) translateY(var(--orrery-y, 70px));
 }
 .orbit-group {
   transform-box: view-box;

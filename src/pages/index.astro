@@ -36,7 +36,7 @@ function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
   <header>
     <div class="hero-inner">
       <p class="mono epoch">Epoch {epoch} · Arkansas · zmc.dev</p>
-      <h1>ZACH CALLAHAN</h1>
+      <h1 data-orrery-anchor>ZACH CALLAHAN</h1>
       <p class="tagline">Feet on the ground. Head in the cloud.</p>
       <p class="role">
         Full-stack developer, Kubernetes evangelist, and open-source
@@ -173,6 +173,16 @@ function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
   </div>
 </BaseLayout>
 
+<style is:global>
+  /* Pre-JS approximation of the hero-anchored start (site.ts takes over and
+     tracks the h1 exactly); .orrery lives outside this page's scope. The
+     offset accounts for the hero block below the h1 outweighing the epoch
+     line above it. */
+  .orrery {
+    --orrery-y: calc(50vh - 4.5rem);
+  }
+</style>
+
 <style>
   header {
     min-height: 100vh;
@@ -183,6 +193,23 @@ function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
     text-align: center;
     position: relative;
     padding: 0 1.5rem;
+  }
+  .hero-inner {
+    position: relative;
+  }
+  /* legibility scrim: a soft pool of the page colour that quiets the chart's
+     strokes beneath the hero lettering */
+  .hero-inner::before {
+    content: "";
+    position: absolute;
+    inset: -4rem -6rem;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse closest-side,
+      color-mix(in srgb, var(--bg) 85%, transparent) 30%,
+      transparent
+    );
   }
   .hero-inner .epoch {
     margin-bottom: 2.2rem;

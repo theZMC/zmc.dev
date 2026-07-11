@@ -9,6 +9,22 @@ let ticking = false;
 function updateScrollState(): void {
   const y = window.scrollY;
 
+  // The orrery's centre rides the page's hero anchor (when one exists) until
+  // it docks on the nav's bottom border. This mirrors ordinary document
+  // scrolling — not added motion — so it stays live under reduced motion.
+  const orrery = document.querySelector<SVGSVGElement>("svg.orrery");
+  if (orrery) {
+    const nav = document.querySelector("nav");
+    const dock = nav ? nav.getBoundingClientRect().bottom : 70;
+    const anchor = document.querySelector("[data-orrery-anchor]");
+    let target = dock;
+    if (anchor) {
+      const r = anchor.getBoundingClientRect();
+      target = Math.max(dock, r.top + r.height / 2);
+    }
+    orrery.style.setProperty("--orrery-y", `${target}px`);
+  }
+
   if (!prefersReduced.matches) {
     updateOrbits(y);
   }
