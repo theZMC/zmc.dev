@@ -1,305 +1,321 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
-import { Image } from "astro:assets";
-import { getCollection } from "astro:content";
-import DefaultImage from "@images/journalist-on-laptop.png";
-import { render } from "astro:content";
+import { getCollection, render } from "astro:content";
+import { toRoman } from "@lib/utils/roman";
 
 export const getStaticPaths = async () => {
-  return (await getCollection("blog")).map((post) => {
-    return {
-      params: {
-        slug: post.id,
-      },
-      props: { post },
-    };
-  });
+  const posts = (await getCollection("blog")).sort(
+    (a, b) =>
+      new Date(a.data.date).getTime() - new Date(b.data.date).getTime(),
+  );
+  return posts.map((post, i) => ({
+    params: { slug: post.id },
+    props: { post, prev: posts[i - 1], next: posts[i + 1] },
+  }));
 };
 
-const { post } = Astro.props;
+const { post, prev, next } = Astro.props;
 
-let date = new Date(post.data.date + "T12:00:00").toLocaleDateString(
-  "en-US",
-  {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  },
-);
+const date = new Date(post.data.date + "T12:00:00");
+const eyebrow = `Transmission · ${toRoman(date.getFullYear())} · ${String(
+  date.getMonth() + 1,
+).padStart(2, "0")}`;
+const longDate = date.toLocaleDateString("en-US", {
+  month: "long",
+  year: "numeric",
+});
 
-if (date === "Invalid Date") {
-  date = post.data.date;
-}
+const words = post.body ? post.body.split(/\s+/).filter(Boolean).length : 0;
+const readTime = `${Math.max(1, Math.round(words / 200))} min read`;
+
+const metaImage = new URL(`/og/${post.id}.png`, Astro.site).toString();
 
 const { Content } = await render(post);
 ---
 
 <BaseLayout
-  pageTitle={post.data.title + " - ZMC.DEV"}
+  pageTitle={`${post.data.title} — Zach Callahan`}
   metaDescription={post.data.description}
+  tags={post.data.tags}
+  {metaImage}
+  ogType="article"
+  showProgress
+  trimNavOnMobile
 >
-  <article class="post">
-    <a class="all-posts" href="/posts">&slarr; View All Posts</a>
-    <Image
-      src={post.data.cover ? post.data.cover.image : DefaultImage}
-      transition:name={`post-cover-${post.id}`}
-      alt={post.data.cover
-        ? post.data.cover.alt
-        : "AI-generated image of journalist on laptop"}
-    />
-    <div class="post-meta">
-      <p class="publish-date">
-        {date}
-      </p>
-      {
-        post.data.tags && (
-          <div class="tags">
-            {
-              post.data.tags.map((tag: string) => (
-                <p class="tag">
-                  <a href={`/posts/by-tag/${tag}`}>{tag}</a>
-                </p>
-              ))
-            }
+  <div class="panel-wrap">
+    <article class="panel post" id="post">
+      <div class="post-inner">
+        <a class="crumb mono" href="/posts">← All Transmissions</a>
+
+        <div class="post-head">
+          <span class="mono eyebrow">{eyebrow}</span>
+          <h1>{post.data.title}</h1>
+          <div class="post-meta">
+            <span class="mono">{longDate}</span>
+            <span class="mono">{readTime}</span>
+            <div class="tags">
+              {
+                post.data.tags.map((tag) => (
+                  <a class="tag" href={`/posts/by-tag/${tag}`}>
+                    {tag}
+                  </a>
+                ))
+              }
+            </div>
           </div>
-        )
-      }
-    </div>
-    <h1
-      transition:name={`post-title-${post.id}`}
-      class="post-title"
-    >
-      {post.data.title}
-    </h1>
+        </div>
+
+        <div class="post-body">
+          <Content />
+        </div>
+
+        <p class="end-mark mono">▣ End of Transmission</p>
+      </div>
+    </article>
+
     {
-      post.data.description && (
-        <p
-          transition:name={`post-description-${post.id}`}
-          class="post-description"
-        >
-          {post.data.description}
-        </p>
+      (prev || next) && (
+        <div class="post-nav">
+          {prev && (
+            <a class="panel prev" href={`/posts/${prev.id}`}>
+              <span class="dir mono">← Previous</span>
+              <h3>{prev.data.title}</h3>
+            </a>
+          )}
+          {next && (
+            <a class="panel next" href={`/posts/${next.id}`}>
+              <span class="dir mono">Next →</span>
+              <h3>{next.data.title}</h3>
+            </a>
+          )}
+        </div>
       )
     }
-    <Content />
-  </article>
+  </div>
 </BaseLayout>
 
 <style is:global>
-  article.post > a.all-posts {
-    display: block;
-    border: none;
-    font-weight: 400;
-    text-transform: uppercase;
-    font-size: 0.8rem;
+  main {
+    padding-top: 8.5rem;
   }
-  article.post {
-    width: 100%;
-    background: #ffffff55;
-    border: 1px solid #ffffff77;
-    box-shadow: 0 0 0.5rem 0.1rem #00000011;
-    padding: 1rem;
-    border-radius: 1rem;
-    margin-bottom: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+
+  /* ---------- article ---------- */
+  .post {
+    padding: 4rem 0 3.5rem;
+    font-size: 17px;
+    line-height: 1.75;
   }
-  article.post > img {
-    width: 100%;
-    height: 100%;
-    aspect-ratio: 3 / 2;
-    object-fit: cover;
+  .post-inner {
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: 0 2rem;
   }
-  article.post > h2 {
-    font-size: 1.5rem;
-    text-transform: uppercase;
-    letter-spacing: 0.15rem;
-    font-weight: 200;
-    margin: 0 -1rem;
-    background: linear-gradient(
-      45deg,
-      rgba(255, 255, 255, 0.25) 0%,
-      rgba(255, 255, 255, 0.5) 25%,
-      rgba(255, 255, 255, 0.25) 50%,
-      rgba(255, 255, 255, 0.125) 100%
-    );
-    border: 1px solid #ffffff44;
-    background-blend-mode: overlay;
-    border-width: 1px 0;
-    padding: 0.5rem 1rem;
-  }
-  article.post > h3 {
-    font-size: 1.4rem;
-    font-weight: 600;
-  }
-  article.post > h4 {
-    font-size: 1.3rem;
-    font-weight: 600;
-  }
-  article.post > h5 {
-    font-size: 1.2rem;
-    font-weight: 600;
-  }
-  article.post > h6 {
-    font-size: 1.1rem;
-    font-weight: 600;
-  }
-  h1.post-title {
-    font-size: 2.4rem;
-    word-wrap: break-word;
-    line-height: 1;
-    font-weight: 800;
-    text-align: left;
-  }
-  div.post-meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-  }
-  article.post p.tag {
+
+  .crumb {
     display: inline-block;
-    align-self: center;
-    margin: 0;
+    text-decoration: none;
+    margin-bottom: 2.6rem;
+    transition: color 0.3s;
   }
-  div.tags {
+  .crumb:hover {
+    color: var(--brass);
+  }
+
+  .post-head .eyebrow {
+    color: var(--brass);
+    letter-spacing: 0.3em;
+    display: block;
+    margin-bottom: 1.3rem;
+  }
+  .post-head h1 {
+    font-family: "Marcellus", serif;
+    font-weight: 400;
+    font-size: clamp(1.9rem, 4.4vw, 3rem);
+    letter-spacing: 0.06em;
+    line-height: 1.22;
+  }
+  .post-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.6rem 2rem;
+    align-items: baseline;
+    margin-top: 1.6rem;
+    padding-bottom: 2.2rem;
+    border-bottom: 1px solid var(--hair);
   }
-  div.tags > p.tag > a {
+  .post-meta .tags {
+    display: flex;
+    gap: 0.45rem;
+    margin-left: auto;
+  }
+  .post-meta .tags a.tag {
     text-decoration: none;
-    padding: 0.25rem 0.5rem;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    font-weight: 300;
-    letter-spacing: 0.15rem;
-    background: #00000077;
-    border-radius: 0.25rem;
-    color: #ffffff;
-    transition: all 0.1s ease;
   }
-  div.tags > p.tag > a:hover {
-    background: #ffffff99;
-    color: #000000;
+  .post-meta .tags a.tag:hover {
+    border-color: var(--celest);
   }
-  p.post-description {
-    font-size: 0.8rem;
-    line-height: 1.5;
+
+  .post-body {
+    padding-top: 2.4rem;
+  }
+  .post-body p {
+    margin-bottom: 1.5rem;
+  }
+  .post-body > p:first-of-type::first-letter {
+    font-family: "Marcellus", serif;
+    font-size: 3.4em;
+    line-height: 0.85;
+    float: left;
+    padding: 0.08em 0.12em 0 0;
+    color: var(--brass);
+  }
+  .post-body a {
+    color: var(--brass);
+    text-decoration: none;
+    border-bottom: 1px solid var(--brass-dim);
+    transition: border-color 0.3s;
+  }
+  .post-body a:hover {
+    border-color: var(--brass);
+  }
+  .post-body h2 {
+    font-family: "Marcellus", serif;
+    font-weight: 400;
+    font-size: 1.5rem;
+    letter-spacing: 0.1em;
+    margin: 3rem 0 1.2rem;
+    padding-top: 2.2rem;
+    border-top: 1px solid var(--hair);
+  }
+  .post-body h3 {
+    font-family: "Marcellus", serif;
+    font-weight: 400;
+    font-size: 1.15rem;
+    letter-spacing: 0.08em;
+    margin: 2.2rem 0 0.9rem;
+  }
+  /* rehype-autolink-headings wraps heading text in an anchor link;
+     keep it visually indistinguishable from plain heading text. */
+  .post-body h2 a.anchor,
+  .post-body h3 a.anchor {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: none;
+  }
+  .post-body h2 a.anchor:hover,
+  .post-body h3 a.anchor:hover {
+    border-bottom: none;
+  }
+  .post-body ul {
+    margin: 0 0 1.5rem 1.2rem;
+  }
+  .post-body li {
+    margin-bottom: 0.5rem;
+  }
+  .post-body li::marker {
+    color: var(--brass);
+  }
+  .post-body blockquote {
+    margin: 2.2rem 0;
+    padding: 0.4rem 0 0.4rem 1.6rem;
+    border-left: 1px solid var(--brass);
     font-style: italic;
-    padding: 0.5rem 1rem;
-    background: #ffffff77;
-    border: 1px solid #00000022;
-    border-radius: 0.25rem;
+    color: var(--ink-dim);
   }
-  article.post pre {
-    padding: 1rem;
-    border-radius: 0.25rem;
-    font-size: 0.8rem;
-    overflow: hidden;
+  .post-body code {
+    font-family: "Spline Sans Mono", monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    border: 1px solid var(--hair);
+    border-radius: 5px;
+    padding: 0.1em 0.4em;
   }
-  article.post a {
-    color: #555555;
-    font-weight: bold;
-    text-decoration: none;
+  .post-body pre,
+  .post-body .astro-code {
+    margin: 2rem 0;
+    padding: 1.4rem 1.6rem;
+    overflow-x: auto;
+    background: var(--code-bg) !important;
+    border: 1px solid var(--glass-hair);
+    border-radius: 10px;
+    line-height: 1.6;
   }
-  article.post a:hover {
-    color: #000000;
-  }
-  article.post a:visited {
-    color: #777777;
-  }
-  article.post a:visited:hover {
-    color: #000000;
-  }
-  article.post > p > code {
-    background: #ffffff77;
-    padding: 0.1rem 0.25rem;
-    border-radius: 0.25rem;
-  }
-  article.post > blockquote {
-    padding: 1rem;
-    border-radius: 0.25rem;
-    overflow: hidden;
-    background: #00000011;
-    border: 1px solid #00000011;
-    border-left-width: 0.25rem;
-  }
-  article.post > blockquote > p > code {
-    background: #00000011;
-    padding: 0.1rem 0.25rem;
-    border-radius: 0.25rem;
-  }
-  article.post > blockquote > p {
-    margin: 0;
-  }
-  article.post li code {
-    background: #ffffff77;
-    padding: 0.1rem 0.25rem;
-    border-radius: 0.25rem;
-  }
-  article.post h1 code,
-  article.post h2 code,
-  article.post h3 code,
-  article.post h4 code,
-  article.post h5 code,
-  article.post h6 code {
-    background: #ffffff77;
-    padding: 0.1rem 0.25rem;
-    border-radius: 0.25rem;
-  }
-  article.post code {
-    word-break: break-all;
-  }
-  article.post > img {
-    border-radius: 0.25rem;
-  }
-  article.post > *:last-child {
-    margin-bottom: 0;
-  }
-  article.post > hr {
-    margin: 1rem 0;
+  .post-body pre code {
+    background: none;
     border: none;
-    border-top: 1px solid #00000011;
-    border-bottom: 1px solid #ffffff55;
-  }
-  article.post > h1 > a,
-  article.post > h2 > a,
-  article.post > h3 > a,
-  article.post > h4 > a,
-  article.post > h5 > a,
-  article.post > h6 > a {
-    color: inherit;
-    font-weight: inherit;
-    text-decoration: none;
-  }
-  article.post > h1 > a:hover::after,
-  article.post > h2 > a:hover::after,
-  article.post > h3 > a:hover::after,
-  article.post > h4 > a:hover::after,
-  article.post > h5 > a:hover::after,
-  article.post > h6 > a:hover::after {
-    content: " 🔗";
-    text-shadow: 0 0 0.1rem #00000088;
-  }
-  article.post > h1 > a:visited,
-  article.post > h2 > a:visited,
-  article.post > h3 > a:visited,
-  article.post > h4 > a:visited,
-  article.post > h5 > a:visited,
-  article.post > h6 > a:visited {
-    color: inherit;
-    font-weight: inherit;
-    text-decoration: none;
-  }
-  article.post p.publish-date {
-    font-size: 1rem;
-    text-transform: uppercase;
-    font-weight: 300;
-    letter-spacing: 0.15rem;
-    align-self: center;
     padding: 0;
+    font-size: 0.82rem;
+  }
+  /* Shiki dual themes: dark colors are inlined (defaultColor: "dark");
+     light theme swaps every token to its --shiki-light custom prop. */
+  [data-theme="light"] .post-body .astro-code,
+  [data-theme="light"] .post-body .astro-code span {
+    color: var(--shiki-light);
+  }
+
+  .end-mark {
+    text-align: center;
+    margin-top: 3.4rem;
+    padding-top: 2.4rem;
+    border-top: 1px solid var(--hair);
+    color: var(--brass);
+    letter-spacing: 0.3em;
+  }
+
+  /* prev / next */
+  .post-nav {
+    max-width: var(--max);
+    margin: 0 auto 5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.4rem;
+  }
+  .post-nav .panel {
     margin: 0;
+    padding: 1.6rem 1.8rem;
+    text-decoration: none;
+    display: block;
+  }
+  .post-nav .dir {
+    display: block;
+    margin-bottom: 0.55rem;
+  }
+  .post-nav h3 {
+    font-family: "Marcellus", serif;
+    font-weight: 400;
+    font-size: 1.1rem;
+    letter-spacing: 0.04em;
+    transition: color 0.3s;
+  }
+  .post-nav .panel:hover h3 {
+    color: var(--brass);
+  }
+  .post-nav .next {
+    text-align: right;
+  }
+  .post-nav .next:first-child {
+    grid-column: 2;
+  }
+
+  @media (max-width: 860px) {
+    main {
+      padding-top: 6.5rem;
+    }
+    .post {
+      padding: 2.6rem 0 2.2rem;
+    }
+    .post-inner {
+      padding: 0 1.3rem;
+    }
+    .post-nav {
+      grid-template-columns: 1fr;
+      margin-bottom: 3rem;
+    }
+    .post-nav .next {
+      text-align: left;
+    }
+    .post-nav .next:first-child {
+      grid-column: auto;
+    }
   }
 </style>

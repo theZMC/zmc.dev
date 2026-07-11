@@ -22,11 +22,8 @@
       "@styles/*": [
         "src/lib/styles/*"
       ],
-      "@images/*": [
-        "src/lib/images/*"
-      ],
       "@utils/*": [
-        "src/lib/types/*"
+        "src/lib/utils/*"
       ],
       "@pages/*": [
         "src/pages/*"

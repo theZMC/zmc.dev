@@ -1,498 +1,526 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
-import QRCode from "@images/qr-code.svg";
-import ZachCallahanImage from "@images/zach.png";
-import { Image } from "astro:assets";
+import { toRoman } from "@lib/utils/roman";
+import { getCollection, render } from "astro:content";
 
-import { getCollection } from "astro:content";
-import { render } from "astro:content";
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
-const dayMonth = (date: Date | string) => {
-  if (typeof date === "string") {
-    return date;
-  }
-  date.setUTCHours(12);
-  return date.toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
-};
+interface Month {
+  month: number;
+  year: number;
+}
+
+const monthKey = (m?: Month) =>
+  m ? m.year * 12 + m.month : Number.POSITIVE_INFINITY;
+
+const shortDate = (m: Month) => `${MONTHS[m.month - 1]} ${m.year}`;
 
 const jobs = await getCollection("jobs");
 
-const renderedJobs = (await Promise.all(jobs.map(async (job) => {
-  return {
-    startDate: () => {
-      let startDate = new Date();
-      startDate.setFullYear(job.data.tenure.start.year);
-      startDate.setMonth(job.data.tenure.start.month - 1);
-      return startDate;
-    },
-    endDate: () => {
-      if (job.data.tenure.end) {
-        let endDate = new Date();
-        endDate.setFullYear(job.data.tenure.end.year);
-        endDate.setMonth(job.data.tenure.end.month - 1);
-        return endDate;
-      }
-      return "Present";
-    },
-    content: (await render(job)).Content,
-    ...job,
-  };
-}))).sort((a, b) => b.startDate().getTime() - a.startDate().getTime());
+const renderedJobs = await Promise.all(
+  jobs
+    .sort(
+      (a, b) =>
+        monthKey(b.data.tenure.end) - monthKey(a.data.tenure.end) ||
+        monthKey(b.data.tenure.start) - monthKey(a.data.tenure.start),
+    )
+    .map(async (job) => {
+      const { start, end } = job.data.tenure;
+      return {
+        ...job,
+        span: `${toRoman(start.year)} — ${end ? toRoman(end.year) : "Present"}`,
+        precise: `${shortDate(start)} — ${end ? shortDate(end) : "Now"}`,
+        Content: (await render(job)).Content,
+      };
+    }),
+);
 
-type SkillLevel = "expert" | "advanced" | "proficient" | "familiar";
+type SkillLevel = "expert" | "advanced";
 
-const skills: Record<string, SkillLevel> = {
-  "Go": "expert",
-  "HTML/CSS": "expert",
-  "Kubernetes": "expert",
-  "Docker": "expert",
-  "Linux": "expert",
-  "Bash": "expert",
-  "Technical Writing": "advanced",
-  "Git": "advanced",
-  "AWS": "expert",
-  "Terraform": "expert",
-  "TypeScript": "advanced",
-  "Svelte/SvelteKit": "advanced",
-  "Java": "advanced",
-  "Pulumi": "advanced",
-  "OpenTelemetry": "advanced",
-};
+interface Skill {
+  name: string;
+  level: SkillLevel;
+}
+
+const skills: Skill[] = [
+  { name: "Go", level: "expert" },
+  { name: "Kubernetes", level: "expert" },
+  { name: "Linux", level: "expert" },
+  { name: "Bash", level: "expert" },
+  { name: "Docker", level: "expert" },
+  { name: "AWS", level: "expert" },
+  { name: "Terraform", level: "expert" },
+  { name: "HTML / CSS", level: "expert" },
+  { name: "TypeScript", level: "advanced" },
+  { name: "Svelte / SvelteKit", level: "advanced" },
+  { name: "Java", level: "advanced" },
+  { name: "Pulumi", level: "advanced" },
+  { name: "OpenTelemetry", level: "advanced" },
+  { name: "Technical Writing", level: "advanced" },
+  { name: "Git", level: "advanced" },
+];
+
+const eyebrow = `Personnel Dossier · ${toRoman(new Date().getFullYear())}`;
+
+const navLinks = [
+  { label: "Profile", href: "#profile" },
+  { label: "Skills", href: "#calibration" },
+  { label: "Record", href: "#record" },
+];
+
+const footerLinks = [
+  { label: "GitHub", href: "https://github.com/theZMC" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/thezmc/" },
+  { label: "Writing", href: "/posts" },
+  { label: "Home", href: "/" },
+];
 ---
 
-<BaseLayout pageTitle="Zach Callahan Resume - ZMC.DEV">
-  <article>
-    <header>
-      <Image
-        src={QRCode}
-        alt="QR code that links to this resume page."
-        class="qr-code-image"
-      />
-      <Image
-        src={ZachCallahanImage}
-        alt="Picture of Zach Callahan, a balding, chubby, super-nice guy"
-      />
-      <div>
-        <p>
-          <a href="tel:14794595787"> 1 (479) 459-5787 </a>
-          <a href="mailto:zach@zmc.dev"> zach@zmc.dev </a>
-          <a href="https://zmc.dev"> zmc.dev </a>
-          <a
-            href="/ZachCallahanResume.pdf"
-            download="Zach Callahan - Resume.pdf"
-            class="download-resume no-print"
-          >
-            Download PDF
+<BaseLayout
+  pageTitle="Zach Callahan — Resume · zmc.dev"
+  metaDescription="Zach Callahan's professional resume"
+  {navLinks}
+  {footerLinks}
+  trimNavOnMobile
+>
+  <div class="resume panel-wrap">
+    <section class="panel">
+      <div class="dossier-head">
+        <div>
+          <span class="mono eyebrow">{eyebrow}</span>
+          <h1>ZACH CALLAHAN</h1>
+          <p class="designation">SysAdmin turned Software Engineer</p>
+          <span class="mono loc">Arkansas, United States · zmc.dev</span>
+        </div>
+        <div class="actions">
+          <a class="action primary" href="/ZachCallahanResume.pdf">
+            Download PDF <span class="glyph">⇩</span>
           </a>
-          <a href="javascript:window.print()" class="print-resume no-print">
-            Print
+          <button class="action" onclick="window.print()">
+            Print Dossier <span class="glyph">⎙</span>
+          </button>
+          <a class="action" href="mailto:zach@zmc.dev">
+            zach@zmc.dev <span class="glyph">→</span>
           </a>
-        </p>
-        <h1>Zach Callahan</h1>
-        <h2>SysAdmin turned Software Engineer</h2>
+          <a class="action" href="tel:14794595787">
+            1 (479) 459-5787 <span class="glyph">→</span>
+          </a>
+        </div>
       </div>
-    </header>
-    <section class="about">
-      <h3>About Me</h3>
-      <p>
-        I'm currently working as a Software Engineer, but I was previously a
-        System Administrator and prior to that I excelled in retail operations.
-        Automation and tooling are my passions. My goal is to make my and my
-        team's jobs easier today than they were yesterday. Bash and Go are the
-        languages I use most often, but I'm always looking for new tools to add
-        to my toolbox. I'm a <em>mostly</em> self-taught developer/sysadmin and
-        I've been working with Linux in some capacity daily since 2006. I'm an
-        advocate of open-source software and protocols and I believe that the
-        best solutions are the ones that are built by a community.
-      </p>
-      <p>
-        Prior to my career transition into tech, I worked in retail management
-        for 9 years, most recently as a General Manager for a Love's Travel
-        Stops and as an Assistant Manager for Walmart prior to that. Working in
-        retail, and especially in management, taught me a great deal about
-        people and how to work with them. I'm a firm believer in treating people
-        with respect and valuing their contributions. Everyone has at least one
-        strength and I pride myself on identifying and developing those
-        strengths in my team members. Being an individual contributor hasn't
-        dulled that sense of responsibility. Whether I'm working on a team or
-        working alone, I always strive to leave things better than I found them.
-      </p>
-      <p>
-        During my time working retail, I also served in the Arkansas Army
-        National Guard as a Combat Medic. I found my time in the military to be
-        a great learning experience and I'm proud to have served my country. I
-        learned a great deal about leadership and teamwork, and I'm grateful for
-        the opportunity to have served. I was honorably discharged in 2017.
-      </p>
-      <p>
-        If I'm not working, I'm probably spending time with my girlfriend and
-        our three dogs. I enjoy tinkering with computers and electronics, so I'm
-        always looking for new projects to work on. On occasion, I teach
-        frontend fundamentals classes at the <a
-          href="https://arkansascodingacademy.com/"
-        >Arkansas Coding Academy.</a>
-      </p>
     </section>
-    <section class="skills">
-      <h3>Top Skills</h3>
-      <ul>
+
+    <section id="profile" class="panel">
+      <div class="sec-head">
+        <h2>Profile</h2>
+        <span class="mono coord">Section I</span>
+      </div>
+      <div class="profile-grid">
+        <p class="lede">
+          Software engineer by way of system administration — and before that,
+          retail floors and field medicine. Automation and tooling are the
+          passion; the goal is to <em
+            >make my team's job easier today than it was yesterday.</em
+          > Mostly self-taught, working with Linux daily since 2006, and a firm
+          believer that the best solutions are built by communities.
+        </p>
+        <div class="body-col">
+          <p>
+            Bash and Go are the languages I reach for most, but I'm always
+            adding to the toolbox. Whether on a team or solo, I strive to leave
+            things better than I found them.
+          </p>
+          <p>
+            Nine years in retail management taught me how to identify people's
+            strengths and develop them — everyone has at least one. Six years
+            as a combat medic in the Arkansas Army National Guard (honorably
+            discharged 2017) taught me leadership and teamwork under pressure.
+          </p>
+          <p>
+            I also teach frontend fundamentals at the Arkansas Coding Academy.
+            Off the clock: tinkering with computers and electronics, my
+            girlfriend, and our three dogs.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="calibration" class="panel">
+      <div class="sec-head">
+        <h2>Instrument Calibration</h2>
+        <span class="mono coord">Section II</span>
+      </div>
+      <div class="cal-legend mono">
+        <span><i class="dot expert"></i> Expert</span>
+        <span><i class="dot advanced"></i> Advanced</span>
+      </div>
+      <div class="skills">
         {
-          Object.keys(skills).map((skill) => (
-            <li>
-              <span class={`skill-level skill-level-${skills[skill]}`}>{
-                skills[skill]
-              }</span>
-              <span class="skill-name">{skill}</span>
-            </li>
+          skills.map((skill) => (
+            <span class="skill">
+              <i class={`dot ${skill.level}`} /> {skill.name}
+            </span>
           ))
         }
-      </ul>
+      </div>
     </section>
-    <section class="work-history">
-      <h3>Work History</h3>
+
+    <section id="record" class="panel">
+      <div class="sec-head">
+        <h2>Service Record</h2>
+        <span class="mono coord">Section III · Complete</span>
+      </div>
+
       {
         renderedJobs.map((job) => (
-          <div class="job">
-            <aside>
-              <h5>{job.data.company}</h5>
-              <ul>
-                {job.data.skills.map((skill) => <li>{skill}</li>)}
-              </ul>
-            </aside>
+          <div class="svc-row">
+            <div class="svc-when">
+              <span class="span">{job.span}</span>
+              <span class="mono precise">{job.precise}</span>
+            </div>
             <div>
-              <h4>{job.data.title}</h4>
-              <h6>
-                {dayMonth(job.startDate())} to {dayMonth(job.endDate())}
-              </h6>
-              <job.content />
+              <h3>{job.data.company}</h3>
+              <span class="mono post">{job.data.title}</span>
+              <job.Content />
+              <div class="tags">
+                {job.data.skills.map((skill) => (
+                  <span class="tag">{skill}</span>
+                ))}
+              </div>
             </div>
           </div>
         ))
       }
     </section>
-  </article>
+  </div>
 </BaseLayout>
 
 <style>
-  article {
-    background: #ffffff55;
-    border: 1px solid #ffffff77;
-    box-shadow: 0 0 0.5rem 0.1rem #00000011;
-    padding: 1rem;
-    border-radius: 1rem;
-    width: 100%;
-    position: relative;
+  .resume {
+    padding-top: 8.5rem;
+  }
+
+  .panel {
+    margin: 0 auto 3rem;
+    padding: 3rem 3rem 2.4rem;
+  }
+
+  .sec-head h2 {
+    font-size: 1.4rem;
+  }
+
+  /* ---------- dossier header ---------- */
+  .dossier-head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2.5rem;
+    align-items: start;
+  }
+  .dossier-head .eyebrow {
+    color: var(--brass);
+    letter-spacing: 0.3em;
+    display: block;
+    margin-bottom: 1.2rem;
+  }
+  .dossier-head h1 {
+    font-family: "Marcellus", serif;
+    font-weight: 400;
+    font-size: clamp(2rem, 4.6vw, 3.2rem);
+    letter-spacing: 0.12em;
+    line-height: 1.15;
+  }
+  .dossier-head .designation {
+    margin-top: 0.8rem;
+    font-family: "Marcellus", serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.1em;
+    color: var(--brass);
+  }
+  .dossier-head .loc {
+    margin-top: 1.2rem;
+    display: block;
+  }
+  .actions {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.7rem;
+    align-items: stretch;
+    min-width: 220px;
   }
-  @media print {
-    article {
-      background: #ffffff;
-      border: 0;
-      box-shadow: none;
-      padding: 0;
-      border-radius: 0;
-      margin-bottom: 0;
-      width: 100%;
-      position: relative;
-    }
-  }
-  article > p {
-    text-align: right;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1rem;
-    margin: 0;
-    color: ;
-  }
-  article > p > a {
-    margin-left: 1rem;
-  }
-  header {
+  .action {
     display: flex;
-    gap: 1rem;
+    justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    justify-content: center;
-    overflow: auto;
-  }
-  header > img.qr-code-image {
-    width: 7rem;
-    height: 7rem;
-    border-radius: 0.5rem;
-    border: 0.3rem solid #ffffff99;
-    display: none;
-  }
-  @media print {
-    header > img.qr-code-image {
-      display: block;
-    }
-  }
-  header > img {
-    width: 10rem;
-    height: 10rem;
-    border-radius: 0.5rem;
-    border: 0.3rem solid #ffffff99;
-  }
-  header > div {
-    flex: 1;
-  }
-  header > div > h1 {
-    font-size: 5rem;
-    font-weight: 200;
-    text-align: center;
-    line-height: 1;
-    margin: 1rem;
-  }
-  header > div > h2 {
-    font-size: 1.5rem;
-    color: #000000bb;
-    text-align: center;
-    margin: 0;
-    font-weight: 300;
-  }
-  header > div > p {
-    text-align: center;
-    justify-content: center;
-    margin: 0;
-    font-size: 0.7rem;
-    display: flex;
-    flex-wrap: wrap;
     gap: 1rem;
+    text-decoration: none;
+    cursor: pointer;
+    font-family: "Spline Sans Mono", monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: none;
+    border: 1px solid var(--hair);
+    border-radius: 8px;
+    padding: 0.75rem 1.1rem;
+    transition:
+      border-color 0.3s,
+      color 0.3s,
+      background 0.3s;
   }
-  header > div > p > a {
+  .action:hover {
+    border-color: var(--brass);
+    color: var(--brass);
+  }
+  .action .glyph {
+    color: var(--brass);
+  }
+  .action.primary {
+    border-color: var(--brass-dim);
+    color: var(--brass);
+  }
+  .action.primary:hover {
+    background: var(--brass);
+    color: var(--bg);
+    border-color: var(--brass);
+  }
+  .action.primary:hover .glyph {
+    color: var(--bg);
+  }
+
+  /* ---------- profile ---------- */
+  .profile-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 3.5rem;
+    padding-top: 2.4rem;
+  }
+  .profile-grid .lede {
+    font-size: 1.2rem;
+    line-height: 1.75;
+  }
+  .profile-grid .lede em {
+    font-style: normal;
+    color: var(--brass);
+  }
+  .profile-grid .body-col p {
+    color: var(--ink-dim);
+    font-size: 0.95rem;
+    margin-bottom: 1.2rem;
+  }
+
+  /* ---------- skills / calibration ---------- */
+  .cal-legend {
+    display: flex;
+    gap: 2rem;
+    padding: 1.6rem 0 0.4rem;
+  }
+  .cal-legend span {
     display: flex;
     align-items: center;
-    color: #000000bb;
+    gap: 0.55rem;
   }
-  header > div > p > a:hover {
-    color: #000000ff;
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex: none;
   }
-  header > div > p > a > svg {
-    width: 1rem;
-    height: 1rem;
-    margin-right: 0.5rem;
+  .dot.expert {
+    background: var(--brass);
   }
-  @media (min-width: 768px) {
-    header > div > p {
-      text-align: left;
-    }
-  }
-  .about {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .about > p {
-    margin: 0;
-    text-align: justify;
-  }
-  h3 {
-    font-size: 1.5rem;
-    text-transform: uppercase;
-    font-weight: 200;
-    background: linear-gradient(
-      45deg,
-      rgba(255, 255, 255, 0.25) 0%,
-      rgba(255, 255, 255, 0.5) 25%,
-      rgba(255, 255, 255, 0.25) 50%,
-      rgba(255, 255, 255, 0.125) 100%
-    );
-    background-blend-mode: overlay;
-    border: 1px solid #ffffff44;
-    border-width: 1px 0;
-    padding: 0.5rem 1rem;
-    margin-inline: -1rem;
+  .dot.advanced {
+    background: none;
+    border: 1px solid var(--celest);
   }
   .skills {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 0.4rem 2rem;
+    padding-top: 1rem;
   }
-  .skills > ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  .skill {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px dashed var(--hair);
+    font-family: "Spline Sans Mono", monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+  }
+
+  /* ---------- service record (full) ---------- */
+  .svc-row {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 2.4rem;
+    padding: 2.4rem 0;
+    border-bottom: 1px solid var(--hair);
+  }
+  .svc-row:last-of-type {
+    border-bottom: none;
+    padding-bottom: 0.6rem;
+  }
+  .svc-when .span {
+    display: block;
+    font-family: "Marcellus", serif;
+    color: var(--brass);
+    font-size: 1rem;
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+  }
+  .svc-when .precise {
+    display: block;
+    margin-top: 0.5rem;
+  }
+  .svc-row h3 {
+    font-family: "Marcellus", serif;
+    font-weight: 400;
+    font-size: 1.35rem;
+    letter-spacing: 0.05em;
+  }
+  .svc-row .post {
+    display: block;
+    margin: 0.35rem 0 0.8rem;
+    color: var(--brass);
+  }
+  .svc-row :global(p) {
+    color: var(--ink-dim);
+    font-size: 0.95rem;
+    max-width: 52em;
+    margin-bottom: 1.1rem;
+  }
+  .svc-row .tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 0.45rem;
   }
-  .skills > ul > li {
-    display: flex;
-    flex-grow: 1;
-    align-items: center;
-    background: linear-gradient(
-      45deg,
-      rgba(255, 255, 255, 0.5) 0%,
-      rgba(255, 255, 255, 0.75) 25%,
-      rgba(255, 255, 255, 0.75) 50%,
-      rgba(255, 255, 255, 0.5) 100%
-    );
-    background-blend-mode: overlay;
-    padding: 0.25rem;
-    border-radius: 0.25rem;
-    border: 1px solid #ffffff99;
-    box-shadow: 0 0 0.25rem 0.1rem #00000011;
-    justify-content: space-between;
-    transition: all 0.1s ease-in-out;
+  .tag {
+    padding: 0.26rem 0.68rem;
   }
-  .skills > ul > li > span {
-    display: inline-block;
-    border-radius: 0.25rem;
-    font-size: 0.75rem;
-    font-weight: bold;
-  }
-  .skills > ul > li > span.skill-level {
-    text-transform: uppercase;
-    text-align: center;
-    min-width: 4rem;
-    font-size: 0.5rem;
-    background: #ffffff;
-    padding: 0.25rem;
-    border: 1px solid #00000033;
-    color: #00000099;
-  }
-  .skills > ul > li > span.skill-name {
-    font-size: 0.9rem;
-    font-weight: 800;
-    margin: 0.5rem;
-    flex-grow: 1;
-    text-align: center;
-  }
-  .skills > ul > li > span.skill-level::before {
-    content: "";
-    display: inline-block;
-    height: 0.5rem;
-    overflow: hidden;
-    width: 100%;
-    border: 1px solid #000000;
-    border-radius: 0.125rem;
-  }
-  .skills > ul > li > span.skill-level-proficient::before {
-    background: linear-gradient(
-      90deg,
-      rgba(110, 181, 73, 1) 0%,
-      rgba(110, 181, 73, 1) 50%,
-      rgba(110, 181, 73, 0) 50%
-    );
-  }
-  .skills > ul > li > span.skill-level-advanced::before {
-    background: linear-gradient(
-      90deg,
-      rgba(110, 181, 73, 1) 0%,
-      rgba(110, 181, 73, 1) 75%,
-      rgba(110, 181, 73, 0) 75%
-    );
-  }
-  .skills > ul > li > span.skill-level-expert::before {
-    background: linear-gradient(
-      90deg,
-      rgba(110, 181, 73, 1) 0%,
-      rgba(110, 181, 73, 1) 100%
-    );
-  }
-  @media print {
-    .skills > ul > li {
-      flex-grow: 0;
+
+  @media (max-width: 860px) {
+    .resume {
+      padding-top: 6.5rem;
     }
-    .skills > ul > li > span.skill-level::before {
+    .panel {
+      padding: 2.2rem 1.4rem 1.6rem;
+      margin-bottom: 2rem;
+    }
+    .dossier-head {
+      grid-template-columns: 1fr;
+      gap: 1.8rem;
+    }
+    .actions {
+      min-width: 0;
+    }
+    .profile-grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    .svc-row {
+      grid-template-columns: 1fr;
+      gap: 0.8rem;
+      padding: 2rem 0;
+    }
+    .svc-when .precise {
+      margin-top: 0.2rem;
+    }
+  }
+</style>
+
+<style is:global>
+  /* ============ PRINT: dossier declassified ============ */
+  @media print {
+    .cosmos,
+    nav,
+    footer,
+    .actions {
+      display: none !important;
+    }
+    body {
+      background: #fff;
+      color: #111;
+      font-size: 11pt;
+      line-height: 1.5;
+    }
+    main {
+      padding-top: 0;
+    }
+    .resume {
+      padding-top: 0;
+    }
+    .panel {
+      background: none;
+      border: none;
+      border-radius: 0;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      max-width: 100%;
+      margin: 0 0 1.2rem;
+      padding: 0 0 0.8rem;
+      break-inside: avoid;
+    }
+    .panel::before {
       display: none;
     }
-  }
-  .work-history {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .work-history > .job {
-    background: #ffffff55;
-    border: 1px solid #ffffff77;
-    box-shadow: 0 0 0.5rem 0.1rem #
-      00000011;
-    padding: 1rem;
-    border-radius: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  @media (min-width: 768px) {
-    .work-history > .job {
-      flex-direction: row;
+    .mono {
+      color: #555;
     }
-  }
-  @media print {
-    .work-history > .job {
-      flex-direction: row;
+    .dossier-head h1 {
+      font-size: 22pt;
+      letter-spacing: 0.06em;
     }
-  }
-  .work-history > .job > aside {
-    flex: 0 0 10rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding-right: 0.5rem;
-  }
-  .work-history > .job > aside > img {
-    background: #ffffff99;
-    padding: 0.5rem;
-    border-radius: 0.25rem;
-    border: 0.1rem solid #ffffff99;
-    box-shadow: 0 0 0.25rem 0.1rem #00000011;
-    height: fit-content;
-  }
-  .work-history > .job > aside > h5 {
-    font-size: 1rem;
-    text-align: center;
-    margin: 0;
-    margin-top: 0.5rem;
-  }
-  .work-history > .job > aside > img ~ h5 {
-    display: none;
-  }
-  .work-history > .job > div > h6 {
-    font-size: 0.75rem;
-    margin: 0;
-    margin-bottom: 0.5rem;
-  }
-  .work-history > .job > aside > ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    margin-top: 0.5rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-  .work-history > .job > aside > ul > li {
-    font-size: 0.5rem;
-    text-align: center;
-    font-weight: bold;
-    margin: 0;
-    padding: 0.25rem;
-    border-radius: 0.25rem;
-    border: 1px solid #ffffff99;
-    background: #ffffff99;
-    box-shadow: 0 0 0.25rem 0.1rem #00000011;
-    flex-grow: 1;
-    transition: all 0.1s ease-in-out;
-  }
-  .work-history > .job > div {
-    flex: 1;
-  }
-  .work-history > .job > div > h4 {
-    font-size: 1.25rem;
-    margin: 0;
-    margin-bottom: 0.5rem;
-  }
-  .work-history > .job > div > p {
-    font-size: 0.9rem;
-    margin: 0;
-    margin-bottom: 0.5rem;
-    text-align: justify;
+    .dossier-head .designation,
+    .svc-when .span,
+    .svc-row .post,
+    .dossier-head .eyebrow,
+    .profile-grid .lede em {
+      color: #111;
+    }
+    .sec-head {
+      border-bottom: 1pt solid #111;
+    }
+    .svc-row {
+      border-bottom: 0.5pt solid #bbb;
+      padding: 0.8rem 0;
+      grid-template-columns: 160px 1fr;
+      gap: 1rem;
+    }
+    .svc-row p,
+    .profile-grid .body-col p {
+      color: #333;
+    }
+    .tag {
+      color: #555;
+      border-color: #bbb;
+    }
+    .dot.expert {
+      background: #111;
+    }
+    .dot.advanced {
+      border-color: #555;
+    }
+    .skill {
+      border-bottom: none;
+      padding: 0.15rem 0;
+    }
+    a {
+      text-decoration: none;
+    }
   }
 </style>

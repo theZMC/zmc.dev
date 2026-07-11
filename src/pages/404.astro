@@ -2,40 +2,105 @@
 import BaseLayout from "@layouts/BaseLayout.astro";
 ---
 
-<BaseLayout pageTitle="Page Not Found - ZMC.DEV" isIndex={true}>
-  <article>
-    <p>Did you come here on purpose?</p>
+<BaseLayout
+  pageTitle="Signal Lost — zmc.dev"
+  metaDescription="404 — this transmission does not exist."
+  trimNavOnMobile={true}
+>
+  <section class="lost">
+    <p class="mono eyebrow">Signal Lost · Coordinates Unknown</p>
     <h1>404</h1>
-    <h2>That means <em>page not found.</em></h2>
-  </article>
+    <p class="subline">This transmission does not exist.</p>
+    <p class="explainer">
+      The coordinates you followed chart no known orbit. The page may have been
+      moved, decommissioned, or never launched at all.
+    </p>
+    <div class="hero-rule" aria-hidden="true"></div>
+    <a class="cta" href="/">Return to the Sun</a>
+  </section>
 </BaseLayout>
 
 <style>
-  article {
-    background: #ffffff55;
-    border: 1px solid #ffffff77;
-    box-shadow: 0 0 0.5rem 0.1rem #00000011;
-    padding: 1rem;
-    border-radius: 1rem;
-    margin-bottom: 1.5rem;
+  .lost {
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
+    text-align: center;
+    padding: 0 1.5rem;
+  }
+  .eyebrow {
+    margin-bottom: 2.2rem;
+    color: var(--brass);
+    letter-spacing: 0.3em;
   }
   h1 {
-    font-size: 9rem;
-    font-weight: 900;
-    margin: -2rem 2rem;
-  }
-  h2 {
-    font-size: 2.5rem;
-    font-weight: 200;
-    margin: 0rem 2rem;
-    text-align: center;
-  }
-  p {
-    font-size: 1.25rem;
+    font-family: "Marcellus", serif;
     font-weight: 400;
+    font-size: clamp(4.5rem, 15vw, 8rem);
+    letter-spacing: 0.2em;
+    text-indent: 0.2em;
+    line-height: 1.1;
+  }
+  .subline {
+    margin-top: 1.4rem;
+    font-family: "Marcellus", serif;
+    font-size: clamp(1.05rem, 2.2vw, 1.4rem);
+    letter-spacing: 0.12em;
+    color: var(--brass);
+  }
+  .explainer {
+    margin-top: 1.2rem;
+    color: var(--ink-dim);
+    font-size: clamp(0.95rem, 1.6vw, 1.05rem);
+    letter-spacing: 0.02em;
+    max-width: 36em;
+  }
+  .hero-rule {
+    width: 64px;
+    height: 1px;
+    background: var(--brass);
+    margin: 2.6rem auto 0;
+    position: relative;
+  }
+  .hero-rule::before,
+  .hero-rule::after {
+    content: "";
+    position: absolute;
+    top: -2.5px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    border: 1px solid var(--brass);
+    background: var(--bg);
+  }
+  .hero-rule::before {
+    left: -14px;
+  }
+  .hero-rule::after {
+    right: -14px;
+  }
+  .cta {
+    display: inline-block;
+    margin-top: 2.6rem;
+    text-decoration: none;
+    font-family: "Spline Sans Mono", monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
+    color: var(--brass);
+    border: 1px solid var(--brass-dim);
+    padding: 1rem 2.6rem;
+    border-radius: 999px;
+    transition:
+      background 0.3s,
+      color 0.3s,
+      border-color 0.3s;
+  }
+  .cta:hover {
+    background: var(--brass);
+    color: var(--bg);
+    border-color: var(--brass);
   }
 </style>

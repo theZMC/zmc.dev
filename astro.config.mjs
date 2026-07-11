@@ -18,6 +18,14 @@ export default defineConfig({
     inlineStylesheets: "never",
   },
   markdown: {
+    shikiConfig: {
+      themes: {
+        light: "github-light",
+        dark: "github-dark",
+      },
+      // Inline the dark colors; light theme swaps to --shiki-light via CSS.
+      defaultColor: "dark",
+    },
     rehypePlugins: [
       rehypeHeadingIds,
       [

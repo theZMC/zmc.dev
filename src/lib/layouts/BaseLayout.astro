@@ -22,6 +22,7 @@ interface Props {
   metaDescription?: string;
   tags?: string[];
   metaImage?: string;
+  ogType?: "website" | "article";
   navLinks?: Link[];
   footerLinks?: Link[];
   showProgress?: boolean;
@@ -33,6 +34,7 @@ const {
   metaDescription,
   tags,
   metaImage,
+  ogType = "website",
   navLinks,
   footerLinks,
   showProgress,
@@ -69,7 +71,7 @@ const faviconUrl = Astro.site
     </script>
     <meta charset="utf-8" />
     <link rel="icon" type="image/png" href={faviconUrl} />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={metaDescription} />
     <meta name="keywords" content={tags?.join(", ")} />
@@ -82,7 +84,7 @@ const faviconUrl = Astro.site
     <meta name="twitter:description" content={metaDescription} />
     {metaImage ? <meta name="twitter:image" content={metaImage} /> : null}
     <meta property="og:title" content={pageTitle} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:url" content={Astro.request.url} />
     {metaImage ? <meta property="og:image" content={metaImage} /> : null}
     <meta property="og:description" content={metaDescription} />
