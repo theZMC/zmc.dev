@@ -1,26 +1,58 @@
-import { cutLabelGaps, generateGraticule, updateOrbits } from "./orrery";
+import {
+  cacheOrbitRefs,
+  cutLabelGaps,
+  generateGraticule,
+  updateOrbits,
+} from "./orrery";
 import { applyStoredTheme, toggleTheme } from "./theme";
 
 const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)");
 const DIAL_CIRC = 2 * Math.PI * 9; // progress dial circumference
+// Docked orrery position for the frame before <nav> exists (never in
+// practice — every page renders one). Keep in sync with --nav-h in global.css.
+const NAV_H_FALLBACK = 70;
 
 let ticking = false;
 
+/* Per-page-view element refs, captured on astro:page-load so the scroll
+   handler never re-queries the DOM per frame. Client-side navs swap these
+   nodes, so the refs are re-captured rather than bound once. */
+let nav: HTMLElement | null = null;
+let orrery: SVGSVGElement | null = null;
+let orreryAnchor: Element | null = null;
+let cue: HTMLElement | null = null;
+let post: HTMLElement | null = null;
+let progressArc: HTMLElement | null = null;
+let progressBody: HTMLElement | null = null;
+
+function cacheScrollRefs(): void {
+  nav = document.querySelector("nav");
+  orrery = document.querySelector<SVGSVGElement>("svg.orrery");
+  orreryAnchor = document.querySelector("[data-orrery-anchor]");
+  cue = document.querySelector<HTMLElement>(".scroll-cue");
+  post = document.getElementById("post");
+  progressArc = document.getElementById("progressArc");
+  progressBody = document.getElementById("progressBody");
+}
+
 function updateScrollState(): void {
   const y = window.scrollY;
-  const nav = document.querySelector("nav");
-  const dock = nav ? nav.getBoundingClientRect().bottom : 70;
+
+  /* All layout reads happen up front, before the first style write, so the
+     frame never forces a reflow against its own mutations. */
+  const dock = nav ? nav.getBoundingClientRect().bottom : NAV_H_FALLBACK;
+  const anchorRect = orreryAnchor?.getBoundingClientRect();
+  const cueRect = cue ? cue.getBoundingClientRect() : null;
+  const viewH = window.innerHeight;
+  const postEnd = post ? post.offsetTop + post.offsetHeight - viewH : 0;
 
   // The orrery's centre rides the page's hero anchor (when one exists) until
   // it docks on the nav's bottom border. This mirrors ordinary document
   // scrolling — not added motion — so it stays live under reduced motion.
-  const orrery = document.querySelector<SVGSVGElement>("svg.orrery");
   if (orrery) {
-    const anchor = document.querySelector("[data-orrery-anchor]");
     let target = dock;
-    if (anchor) {
-      const r = anchor.getBoundingClientRect();
-      target = Math.max(dock, r.top + r.height / 2);
+    if (anchorRect) {
+      target = Math.max(dock, anchorRect.top + anchorRect.height / 2);
     }
     orrery.style.setProperty("--orrery-y", `${target}px`);
   }
@@ -28,12 +60,12 @@ function updateScrollState(): void {
   // The descend cue fades once the user complies: opaque until it climbs to
   // the viewport's midline, gone before it slips under the docked nav. It is
   // a link, so it also stops being clickable once invisible.
-  const cue = document.querySelector<HTMLElement>(".scroll-cue");
-  if (cue) {
-    const r = cue.getBoundingClientRect();
-    const fadeStart = window.innerHeight / 2;
+  if (cue && cueRect) {
+    const fadeStart = viewH / 2;
     const fadeEnd = dock + 48;
-    const t = (r.top + r.height / 2 - fadeEnd) / Math.max(1, fadeStart - fadeEnd);
+    const t =
+      (cueRect.top + cueRect.height / 2 - fadeEnd) /
+      Math.max(1, fadeStart - fadeEnd);
     const opacity = Math.min(1, Math.max(0, t));
     cue.style.opacity = `${opacity}`;
     cue.style.pointerEvents = opacity === 0 ? "none" : "";
@@ -45,18 +77,14 @@ function updateScrollState(): void {
 
   // reading progress: how far through the article the viewport bottom has
   // traveled. Stays live under reduced motion — information, not decoration.
-  const post = document.getElementById("post");
-  const arc = document.getElementById("progressArc");
-  if (post && arc) {
-    const end = post.offsetTop + post.offsetHeight - window.innerHeight;
-    const p = Math.min(1, Math.max(0, y / Math.max(1, end)));
-    (arc as unknown as SVGCircleElement).style.strokeDashoffset =
+  if (post && progressArc) {
+    const p = Math.min(1, Math.max(0, y / Math.max(1, postEnd)));
+    (progressArc as unknown as SVGCircleElement).style.strokeDashoffset =
       `${DIAL_CIRC * (1 - p)}`;
-    const dialBody = document.getElementById("progressBody");
-    if (dialBody) {
+    if (progressBody) {
       const a = p * 2 * Math.PI - Math.PI / 2; // dial svg is pre-rotated -90°
-      dialBody.setAttribute("cx", `${11 + 9 * Math.cos(a + Math.PI / 2)}`);
-      dialBody.setAttribute("cy", `${11 + 9 * Math.sin(a + Math.PI / 2)}`);
+      progressBody.setAttribute("cx", `${11 + 9 * Math.cos(a + Math.PI / 2)}`);
+      progressBody.setAttribute("cy", `${11 + 9 * Math.sin(a + Math.PI / 2)}`);
     }
   }
 
@@ -153,8 +181,10 @@ window.addEventListener("resize", onScroll, { passive: true });
 /* Per-page-view init: fires on first load and on every client-side nav. */
 document.addEventListener("astro:page-load", () => {
   applyStoredTheme();
+  cacheScrollRefs();
+  cacheOrbitRefs();
 
-  const svg = document.querySelector<SVGSVGElement>("svg.orrery");
+  const svg = orrery;
   if (svg) {
     generateGraticule(svg);
     // Gaps must fit the rendered lettering, so wait for fonts on first load;

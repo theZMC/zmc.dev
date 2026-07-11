@@ -156,24 +156,50 @@ export function cometPosition(scrollY: number): CometPosition {
   };
 }
 
+/* Orbit refs and their data-* rates, captured once per page view —
+   updateOrbits runs every scroll frame and must not re-query or re-parse.
+   Module-scope lets, DOM touched only inside functions (node-import safe). */
+let orbitGroups: { el: SVGGElement; rate: number }[] = [];
+let moonOrbits: { el: SVGGElement; rate: number; cx: string; cy: string }[] =
+  [];
+let cometBody: HTMLElement | null = null;
+let cometTail: HTMLElement | null = null;
+
+/**
+ * Captures the orbit elements and their scroll-invariant data-* values.
+ * Runs on every astro:page-load: client-side navs swap the svg wholesale,
+ * so the previous page's refs would otherwise animate detached nodes.
+ */
+export function cacheOrbitRefs(): void {
+  orbitGroups = [
+    ...document.querySelectorAll<SVGGElement>(".orbit-group"),
+  ].map((el) => ({ el, rate: parseFloat(el.dataset.rate || "0") }));
+  moonOrbits = [...document.querySelectorAll<SVGGElement>(".moon-orbit")].map(
+    (el) => ({
+      el,
+      rate: parseFloat(el.dataset.rate || "0"),
+      cx: el.dataset.cx ?? "",
+      cy: el.dataset.cy ?? "",
+    }),
+  );
+  cometBody = document.getElementById("cometBody");
+  cometTail = document.getElementById("cometTail");
+}
+
 /**
  * Applies scroll-driven motion: CSS rotations on the orbit groups, attribute
  * transforms on the moon orbits (they pivot on an arbitrary point in the
  * parent's local frame), and the comet's Kepler position + anti-sunward tail.
+ * Pure writes against the refs captured by cacheOrbitRefs.
  */
 export function updateOrbits(scrollY: number): void {
-  document.querySelectorAll<SVGGElement>(".orbit-group").forEach((g) => {
-    g.style.transform = `rotate(${scrollY * parseFloat(g.dataset.rate || "0")}deg)`;
-  });
-  document.querySelectorAll<SVGGElement>(".moon-orbit").forEach((m) => {
-    m.setAttribute(
-      "transform",
-      `rotate(${scrollY * parseFloat(m.dataset.rate || "0")} ${m.dataset.cx} ${m.dataset.cy})`,
-    );
-  });
+  for (const { el, rate } of orbitGroups) {
+    el.style.transform = `rotate(${scrollY * rate}deg)`;
+  }
+  for (const { el, rate, cx, cy } of moonOrbits) {
+    el.setAttribute("transform", `rotate(${scrollY * rate} ${cx} ${cy})`);
+  }
 
-  const cometBody = document.getElementById("cometBody");
-  const cometTail = document.getElementById("cometTail");
   if (!cometBody || !cometTail) return;
   const { x, y, tailX, tailY } = cometPosition(scrollY);
   cometBody.setAttribute("cx", `${x}`);

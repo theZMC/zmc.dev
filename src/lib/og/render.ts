@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import satori from "satori";
 import sharp from "sharp";
+import { formatPostDate } from "@lib/utils/dates";
 
 const WIDTH = 1200;
 const HEIGHT = 630;
@@ -120,10 +121,7 @@ export const renderPostImage = async ({
   date,
   tags,
 }: RenderPostImageInput): Promise<Buffer> => {
-  const longDate = new Date(date + "T12:00:00").toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
+  const longDate = formatPostDate(date);
 
   // Partial orrery breaking off the top/right edge.
   const cx = 1120;

@@ -1,11 +1,10 @@
 import rss from "@astrojs/rss";
 import type { APIContext } from "astro";
 import { getCollection } from "astro:content";
+import { byDateDesc } from "@lib/utils/dates";
 
 export async function GET(context: APIContext) {
-  const posts = (await getCollection("blog")).sort(
-    (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime(),
-  );
+  const posts = (await getCollection("blog")).sort(byDateDesc);
 
   return rss({
     title: "zmc.dev · Transmissions",

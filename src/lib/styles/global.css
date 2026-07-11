@@ -27,6 +27,11 @@
   --core-glow-opacity: 0.55;
   --max: 1120px;
   --measure: 720px;
+  /* The frosted nav's rendered height — 34px eclipse button + 2 × 1.1rem
+     padding + hairline border ≈ 70px (4.375rem). Everything that clears or
+     docks against the nav derives from this token; site.ts mirrors it as a
+     pre-measure fallback. */
+  --nav-h: 4.375rem;
 }
 [data-theme="light"] {
   --bg: #e9e3d3;
@@ -66,7 +71,7 @@ html {
 }
 /* Anchored sections and headings clear the fixed frosted nav. */
 [id] {
-  scroll-margin-top: 5.5rem;
+  scroll-margin-top: calc(var(--nav-h) + 1.125rem); /* = 5.5rem */
 }
 /* Sticky footer: short pages (e.g. the posts listing) grow <main> so the
    footer rests on the viewport bottom. Fixed children (cosmos, nav) sit
@@ -142,7 +147,7 @@ nav,
 }
 /* The sun rides a page's hero anchor when one is present, then docks with
    its centre on the nav's bottom border. site.ts drives --orrery-y every
-   scroll frame; 70px approximates the docked position before it runs.
+   scroll frame; --nav-h approximates the docked position before it runs.
    translateY (not top) keeps the per-frame movement off the layout path. */
 .orrery {
   position: absolute;
@@ -150,7 +155,7 @@ nav,
   top: 0;
   width: min(max(200vmin, 150vw), 2800px);
   height: min(max(200vmin, 150vw), 2800px);
-  transform: translate(-50%, -50%) translateY(var(--orrery-y, 70px));
+  transform: translate(-50%, -50%) translateY(var(--orrery-y, var(--nav-h)));
 }
 .orbit-group {
   transform-box: view-box;

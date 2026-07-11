@@ -206,7 +206,7 @@ const footerLinks = [
 
 <style>
   .resume {
-    padding-top: 8.5rem;
+    padding-top: calc(var(--nav-h) + 4.125rem); /* = 8.5rem */
   }
 
   .panel {
@@ -412,7 +412,7 @@ const footerLinks = [
 
   @media (max-width: 860px) {
     .resume {
-      padding-top: 6.5rem;
+      padding-top: calc(var(--nav-h) + 2.125rem); /* = 6.5rem */
     }
     .panel {
       padding: 2.2rem 1.4rem 1.6rem;
