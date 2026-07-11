@@ -70,7 +70,14 @@ html {
 [id] {
   scroll-margin-top: 5.5rem;
 }
+/* Sticky footer: short pages (e.g. the posts listing) grow <main> so the
+   footer rests on the viewport bottom. Fixed children (cosmos, nav) sit
+   outside the flex flow. */
 body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
   background: var(--bg);
   color: var(--ink);
   font-family: "Instrument Sans", sans-serif;
@@ -290,6 +297,7 @@ nav ul a:hover {
 main {
   position: relative;
   z-index: 1;
+  flex: 1 0 auto;
 }
 
 /* frosted panels with cursor shimmer.
