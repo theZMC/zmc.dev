@@ -1,54 +1,20 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
-import type { ResumePdfData } from "@lib/resume-pdf/template";
+import { loadResume } from "@lib/resume/load";
 import { toRoman } from "@lib/utils/roman";
-import { monthKey, shortDate } from "@lib/utils/tenure";
-import { getCollection, getEntry, render } from "astro:content";
+import { byTenureDesc, romanSpan, shortDate } from "@lib/utils/tenure";
 
-const resumeEntry = await getEntry("resume", "resume");
-if (!resumeEntry) throw new Error("resume collection entry missing");
-const resume = resumeEntry.data;
+const resume = await loadResume();
 
-const jobs = await getCollection("jobs");
+const jobs = [...resume.jobs].sort(byTenureDesc).map((job) => {
+  const { start, end } = job.tenure;
+  return {
+    ...job,
+    span: romanSpan(job.tenure),
+    precise: `${shortDate(start)} — ${end ? shortDate(end) : "Now"}`,
+  };
+});
 
-const renderedJobs = await Promise.all(
-  jobs
-    .sort(
-      (a, b) =>
-        monthKey(b.data.tenure.end) - monthKey(a.data.tenure.end) ||
-        monthKey(b.data.tenure.start) - monthKey(a.data.tenure.start),
-    )
-    .map(async (job) => {
-      const { start, end } = job.data.tenure;
-      return {
-        ...job,
-        span: `${toRoman(start.year)} — ${end ? toRoman(end.year) : "Present"}`,
-        precise: `${shortDate(start)} — ${end ? shortDate(end) : "Now"}`,
-        Content: (await render(job)).Content,
-      };
-    }),
-);
-
-// Payload for the in-browser PDF generator (lazy-loaded on button click).
-const pdfData: ResumePdfData = {
-  name: resume.name,
-  location: resume.location,
-  email: resume.email,
-  phone: resume.phone,
-  site: resume.site,
-  github: resume.github,
-  linkedin: resume.linkedin,
-  summary: resume.summary,
-  skills: resume.skills,
-  certifications: resume.certifications,
-  jobs: jobs.map((job) => ({
-    company: job.data.company,
-    title: job.data.title,
-    tenure: job.data.tenure,
-    isTech: job.data.isTech,
-    highlights: job.data.highlights,
-  })),
-};
 const pdfFilename = `${resume.name} - Resume.pdf`;
 
 const eyebrow = `Personnel Dossier · ${toRoman(new Date().getFullYear())}`;
@@ -139,18 +105,18 @@ const footerLinks = [
       </div>
 
       {
-        renderedJobs.map((job) => (
+        jobs.map((job) => (
           <div class="svc-row">
             <div class="svc-when">
               <span class="span">{job.span}</span>
               <span class="mono precise">{job.precise}</span>
             </div>
             <div>
-              <h3>{job.data.company}</h3>
-              <span class="mono post">{job.data.title}</span>
-              <job.Content />
+              <h3>{job.company}</h3>
+              <span class="mono post">{job.title}</span>
+              <p>{job.body}</p>
               <div class="tags">
-                {job.data.skills.map((skill) => (
+                {job.skills.map((skill) => (
                   <span class="tag">{skill}</span>
                 ))}
               </div>
@@ -184,15 +150,16 @@ const footerLinks = [
     </section>
   </div>
 
+  {/* Full resume payload for the in-browser PDF generator. */}
   <script
     type="application/json"
     id="resume-pdf-data"
-    set:html={JSON.stringify(pdfData).replace(/</g, "\\u003c")}
+    set:html={JSON.stringify(resume).replace(/</g, "\\u003c")}
   />
 </BaseLayout>
 
 <script>
-  import type { ResumePdfData } from "@lib/resume-pdf/template";
+  import type { Resume } from "@lib/resume/schema";
 
   const downloadBtn = document.getElementById(
     "download-pdf",
@@ -207,7 +174,7 @@ const footerLinks = [
     if (blobUrl) return blobUrl;
     const payload = document.getElementById("resume-pdf-data")?.textContent;
     if (!payload) throw new Error("resume PDF data missing");
-    const data = JSON.parse(payload) as ResumePdfData;
+    const data = JSON.parse(payload) as Resume;
     const { generateResumePdf } = await import("@lib/resume-pdf/generate");
     blobUrl = URL.createObjectURL(await generateResumePdf(data));
     return blobUrl;

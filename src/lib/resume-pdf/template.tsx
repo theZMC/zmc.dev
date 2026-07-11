@@ -6,36 +6,9 @@ import {
   Text,
   View,
 } from "@react-pdf/renderer";
-import { monthKey, shortDate, type Month } from "../utils/tenure";
-
-/**
- * Plain-data shapes for the PDF, structurally satisfied by the site's
- * `resume` and `jobs` collections. Kept astro-free so the module renders
- * in the browser (lazy-loaded) and under vitest alike.
- */
-export interface ResumePdfJob {
-  company: string;
-  title: string;
-  tenure: { start: Month; end?: Month };
-  isTech: boolean;
-  highlights?: string[];
-}
-
-export interface ResumePdfData {
-  name: string;
-  location: string;
-  email: string;
-  phone: { display: string; tel: string };
-  site: string;
-  github: string;
-  linkedin: string;
-  summary: string;
-  skills: { name: string; level: string; category: string }[];
-  certifications: { name: string; short: string; issuer: string; year?: number }[];
-  jobs: ResumePdfJob[];
-}
-
-export const resumePdfFilename = (name: string) => `${name} - Resume.pdf`;
+import { byTenureDesc, shortDate, type Tenure } from "../utils/tenure";
+// Type-only: keeps zod and yaml out of the lazy-loaded browser chunk.
+import type { Resume } from "../resume/schema";
 
 const styles = StyleSheet.create({
   page: {
@@ -123,18 +96,14 @@ const styles = StyleSheet.create({
   },
 });
 
-const span = (tenure: ResumePdfJob["tenure"]) =>
+const span = (tenure: Tenure) =>
   `${shortDate(tenure.start)} – ${tenure.end ? shortDate(tenure.end) : "Present"}`;
-
-const byTenureDesc = (a: ResumePdfJob, b: ResumePdfJob) =>
-  monthKey(b.tenure.end) - monthKey(a.tenure.end) ||
-  monthKey(b.tenure.start) - monthKey(a.tenure.start);
 
 function SectionHeader({ children }: { children: string }) {
   return <Text style={styles.sectionHeader}>{children}</Text>;
 }
 
-export function HarvardResume({ data }: { data: ResumePdfData }) {
+export function HarvardResume({ data }: { data: Resume }) {
   const techJobs = data.jobs.filter((j) => j.isTech).sort(byTenureDesc);
   const otherJobs = data.jobs.filter((j) => !j.isTech).sort(byTenureDesc);
 
@@ -169,7 +138,9 @@ export function HarvardResume({ data }: { data: ResumePdfData }) {
           </Link>{" "}
           ·{" "}
           <Link style={styles.link} src={data.linkedin}>
-            {data.linkedin.replace(/^https:\/\/(www\.)?/, "").replace(/\/$/, "")}
+            {data.linkedin
+              .replace(/^https:\/\/(www\.)?/, "")
+              .replace(/\/$/, "")}
           </Link>
         </Text>
 
@@ -184,7 +155,7 @@ export function HarvardResume({ data }: { data: ResumePdfData }) {
               <Text style={styles.dates}>{span(job.tenure)}</Text>
             </View>
             <Text style={styles.title}>{job.title}</Text>
-            {(job.highlights ?? []).map((highlight) => (
+            {job.highlights.map((highlight) => (
               <View key={highlight} style={styles.bulletRow}>
                 <Text style={styles.bulletGlyph}>•</Text>
                 <Text style={styles.bulletText}>{highlight}</Text>

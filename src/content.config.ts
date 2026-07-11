@@ -1,5 +1,6 @@
 import { defineCollection, z } from "astro:content";
 import { glob } from "astro/loaders";
+import { resumeSchema } from "./lib/resume/schema";
 
 const blog = defineCollection({
   loader: glob({
@@ -17,72 +18,12 @@ const blog = defineCollection({
   }),
 });
 
-const jobs = defineCollection({
-  loader: glob({
-    pattern: "**/*.md",
-    base: "./src/data/jobs",
-  }),
-  schema: z.object({
-    company: z.string(),
-    tenure: z.object({
-      start: z.object({
-        month: z.number(),
-        year: z.number(),
-      }),
-      end: z
-        .object({
-          month: z.number(),
-          year: z.number(),
-        })
-        .optional(),
-    }),
-    title: z.string(),
-    isTech: z.boolean(),
-    skills: z.array(z.string()),
-    summary: z.string().optional(),
-    // Accomplishment bullets for the generated resume PDF (tech roles).
-    highlights: z.array(z.string()).optional(),
-  }),
-});
-
 const resume = defineCollection({
   loader: glob({
     pattern: "*.yaml",
     base: "./src/data/resume",
   }),
-  schema: z.object({
-    name: z.string(),
-    designation: z.string(),
-    location: z.string(),
-    email: z.string().email(),
-    phone: z.object({
-      display: z.string(),
-      tel: z.string(),
-    }),
-    site: z.string(),
-    github: z.string().url(),
-    linkedin: z.string().url(),
-    summary: z.string(),
-    profile: z.object({
-      lede: z.string(),
-      body: z.array(z.string()),
-    }),
-    skills: z.array(
-      z.object({
-        name: z.string(),
-        level: z.enum(["expert", "advanced"]),
-        category: z.string(),
-      }),
-    ),
-    certifications: z.array(
-      z.object({
-        name: z.string(),
-        short: z.string(),
-        issuer: z.string(),
-        year: z.number().optional(),
-      }),
-    ),
-  }),
+  schema: resumeSchema,
 });
 
 const projects = defineCollection({
@@ -99,4 +40,4 @@ const projects = defineCollection({
   }),
 });
 
-export const collections = { blog, jobs, projects, resume };
+export const collections = { blog, projects, resume };

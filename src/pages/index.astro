@@ -2,6 +2,8 @@
 import BaseLayout from "@layouts/BaseLayout.astro";
 import { byDateDesc } from "@lib/utils/dates";
 import { toRoman } from "@lib/utils/roman";
+import { loadResume } from "@lib/resume/load";
+import { byTenureDesc, romanSpan } from "@lib/utils/tenure";
 import { getCollection } from "astro:content";
 
 const pageTitle = "Zach Callahan — zmc.dev";
@@ -14,21 +16,10 @@ const projects = (await getCollection("projects")).sort(
   (a, b) => a.data.order - b.data.order,
 );
 
-const jobs = (await getCollection("jobs"))
-  .filter((job) => job.data.isTech)
-  .sort(
-    (a, b) =>
-      b.data.tenure.start.year - a.data.tenure.start.year ||
-      b.data.tenure.start.month - a.data.tenure.start.month,
-  );
+const resume = await loadResume();
+const jobs = resume.jobs.filter((job) => job.isTech).sort(byTenureDesc);
 
 const posts = (await getCollection("blog")).sort(byDateDesc);
-
-function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
-  const start = toRoman(tenure.start.year);
-  const end = tenure.end ? toRoman(tenure.end.year) : "Present";
-  return `${start} — ${end}`;
-}
 ---
 
 <BaseLayout {pageTitle} {metaDescription}>
@@ -91,11 +82,11 @@ function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
       {
         jobs.map((job) => (
           <div class="svc-row">
-            <span class="span">{tenureSpan(job.data.tenure)}</span>
+            <span class="span">{romanSpan(job.tenure)}</span>
             <div>
-              <h3>{job.data.company}</h3>
-              <span class="mono post">{job.data.title}</span>
-              <p>{job.data.summary}</p>
+              <h3>{job.company}</h3>
+              <span class="mono post">{job.title}</span>
+              <p>{job.summary}</p>
             </div>
           </div>
         ))

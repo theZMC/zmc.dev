@@ -95,3 +95,207 @@ certifications:
   - name: Certified Kubernetes Security Specialist
     short: CKS
     issuer: CNCF
+
+# Service record. Each job carries up to three prose registers:
+#   body       — dossier prose for the resume page (plain text, no HTML)
+#   summary    — one-liner for the homepage service record (tech jobs)
+#   highlights — bullets for the generated resume PDF (tech jobs)
+# Array order is irrelevant; every view sorts by tenure.
+jobs:
+  - company: BridgePhase
+    title: Senior DevSecOps Engineer
+    isTech: true
+    tenure:
+      start:
+        month: 8
+        year: 2024
+    skills:
+      - Kubernetes
+      - Helm
+      - Istio
+      - OpenTelemetry
+      - Prometheus
+      - GitLab CI/CD
+      - Keycloak
+      - AWS
+      - Terraform
+      - Go
+    summary: >-
+      Contracted with the Air Force on Big Bang, the open-source
+      implementation of the DoD’s DevSecOps reference architecture.
+      Observability and service mesh mission teams: Helm charts, Istio,
+      OpenTelemetry, and steering a platform that other teams bet their
+      deployments on.
+    highlights:
+      - >-
+        Contracted with the Air Force on Big Bang, the open-source
+        implementation of the DoD’s DevSecOps reference architecture
+      - >-
+        Built and maintained Helm charts on the Observability and Service
+        Mesh mission teams — Istio, OpenTelemetry, and Prometheus
+      - >-
+        Steered project direction and process improvements for a platform
+        other teams bet their deployments on
+      - >-
+        Advised government stakeholders and supported end users of the
+        platform
+    body: >-
+      Contracted with the Air Force on Big Bang, the open-source
+      implementation of the DoD’s DevSecOps reference architecture. Served on
+      multiple mission teams including Observability and Service Mesh —
+      building and maintaining Helm charts, steering project direction,
+      implementing process improvements, advising government stakeholders,
+      and supporting end users of the platform.
+
+  - company: First Orion
+    title: Software Engineer, R&D
+    isTech: true
+    tenure:
+      start:
+        month: 1
+        year: 2022
+      end:
+        month: 8
+        year: 2024
+    skills:
+      - Go
+      - Kubernetes
+      - AWS
+      - gRPC
+      - Protobuf
+      - TypeScript
+      - Vue
+      - Scala
+      - Terraform
+    summary: >-
+      Built new products in Go on Kubernetes and AWS, including a polyglot
+      notebook platform bridging Polynote and Databricks for data-engineering
+      workflows. Known on the team as the unblocker.
+    highlights:
+      - >-
+        Built new products with an R&D team, primarily in Go with heavy use
+        of Kubernetes and AWS
+      - >-
+        Created a polyglot notebook platform gluing Netflix’s Polynote to
+        Databricks for smoother data-engineering workflows
+      - >-
+        Known as the team’s unblocker; invested heavily in team tooling,
+        including scripts that automate new-developer environment setup
+    body: >-
+      Built new products and features with an R&D team, primarily in Go
+      with heavy use of Kubernetes and AWS, with freedom to explore new
+      technologies. Created a polyglot notebook application gluing Netflix’s
+      Polynote to Databricks for smoother data-engineering workflows. Known
+      as the team’s unblocker; invested heavily in team tooling, including
+      scripts that automate new-developer environment setup.
+
+  - company: Dillard’s
+    title: System Administrator
+    isTech: true
+    tenure:
+      start:
+        month: 4
+        year: 2021
+      end:
+        month: 1
+        year: 2022
+    skills:
+      - Linux
+      - AIX
+      - RHEL
+      - OpenShift
+      - GitLab
+      - Docker
+      - Java
+      - NodeJS
+      - Web Security
+    summary: >-
+      Kept the runtime environments of a major ecommerce platform healthy
+      across AIX and RHEL on Power 9, automated a company-wide CVS-to-Git
+      migration, and built out logging and observability on OpenShift.
+    highlights:
+      - >-
+        Cared for the runtime environments of a major ecommerce platform —
+        Tomcat and WebSphere across AIX and RHEL atop Power 9 hardware
+      - >-
+        Helped automate the company-wide migration from CVS to Git and
+        worked extensively with internal GitLab CI/CD
+      - >-
+        Developed Helm charts and build pipelines for the internal OpenShift
+        environment with a focus on logging and observability
+    body: >-
+      Cared for the runtime environments of internal and external
+      applications — Tomcat and WebSphere on a mix of AIX and RHEL atop
+      Power 9 hardware — and helped keep the company’s ecommerce platform
+      running. Helped automate the migration from CVS to Git, worked
+      extensively with internal GitLab CI/CD, and developed Helm charts and
+      build pipelines for the internal OpenShift environment with a focus on
+      logging and observability.
+
+  - company: Love’s Travel Stops & Country Stores
+    title: Travel Stop General Manager
+    isTech: false
+    tenure:
+      start:
+        month: 9
+        year: 2017
+      end:
+        month: 4
+        year: 2021
+    skills:
+      - Leadership
+      - P&L
+      - Budgeting
+      - Training
+      - Mentoring
+    body: >-
+      Ran day-to-day operations of a 24-hour travel stop: a staff of 20–30
+      including hiring, training, and scheduling; roughly ten managerial
+      direct reports across assistant managers, shift leaders, and
+      profit-center managers; and full ownership of the store’s budget —
+      payroll, inventory, and expenses.
+
+  - company: Arkansas Army National Guard
+    title: 68W1O Combat Medic
+    isTech: false
+    tenure:
+      start:
+        month: 11
+        year: 2011
+      end:
+        month: 11
+        year: 2017
+    skills:
+      - Leadership
+      - Training
+      - Medical Reporting
+      - Equipment Maintenance
+    body: >-
+      Responsible for the medical readiness of the unit at all times.
+      Assisted with training and development of the unit’s medics, handled
+      medical reporting for the section during field operations, and
+      maintained the unit’s medical equipment and supplies in garrison.
+      Honorably discharged, 2017.
+
+  - company: Walmart Stores Inc
+    title: Assistant Store Manager
+    isTech: false
+    tenure:
+      start:
+        month: 10
+        year: 2008
+      end:
+        month: 9
+        year: 2017
+    skills:
+      - Leadership
+      - Merchandising
+      - Budgeting
+      - Training
+      - HR
+    body: >-
+      Ran day-to-day operations of assigned departments with a staff of
+      10–15 — hiring, training, scheduling — plus two to five department
+      managers as direct reports. Owned departmental budgets covering
+      payroll, inventory, and expenses, along with merchandising and
+      department presentation.
