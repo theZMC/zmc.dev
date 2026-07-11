@@ -193,6 +193,9 @@ function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
     text-align: center;
     position: relative;
     padding: 0 1.5rem;
+    /* the scrim's ::before overhangs .hero-inner; clip (not hidden — no new
+       scroll container) so narrow viewports don't gain sideways scroll */
+    overflow-x: clip;
   }
   .hero-inner {
     position: relative;
