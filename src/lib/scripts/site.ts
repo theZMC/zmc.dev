@@ -86,15 +86,20 @@ document.addEventListener("click", (e) => {
           copy.textContent = "Copy";
         }, 1600);
       };
-      navigator.clipboard.writeText(code.innerText).then(done, () => {
-        // Clipboard API unavailable (permissions/insecure context):
-        // select the block so a manual ⌘C still lands the right text.
+      // Clipboard API unavailable (permissions/insecure context):
+      // select the block so a manual ⌘C still lands the right text.
+      const fallback = () => {
         const range = document.createRange();
         range.selectNodeContents(code);
         const sel = window.getSelection();
         sel?.removeAllRanges();
         sel?.addRange(range);
-      });
+      };
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(code.innerText).then(done, fallback);
+      } else {
+        fallback();
+      }
     }
   }
 });
