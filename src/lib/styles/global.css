@@ -516,6 +516,49 @@ footer a:hover {
   }
 }
 
+/* ============ PRINT ============
+   Shared chrome and palette for every page. Selectors stay low-specificity
+   (single class / element) so page-scoped print blocks — notably the
+   resume's — tie and win by source order. */
+@media print {
+  :root {
+    --bg: #fff;
+    --bg-core: #fff;
+    --ink: #111;
+    --ink-dim: #444;
+    --brass: #6d5426;
+    --brass-dim: rgba(109, 84, 38, 0.5);
+    --celest: #3d4f66;
+    --hair: rgba(0, 0, 0, 0.22);
+    --glass: transparent;
+    --glass-solid: transparent;
+    --glass-hair: rgba(0, 0, 0, 0.25);
+    --nav-glass: transparent;
+    --code-bg: transparent;
+    --orb-celest: rgba(61, 79, 102, 0.5);
+  }
+  .cosmos,
+  nav,
+  footer {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+    color: #111;
+    font-size: 11pt;
+    line-height: 1.5;
+  }
+  main {
+    padding-top: 0;
+  }
+  /* Shiki dual-theme tokens: print always reads the light set, whatever
+     data-theme the screen was in. */
+  .astro-code,
+  .astro-code span {
+    color: var(--shiki-light) !important;
+  }
+}
+
 /* Very narrow: tighten the bars so sigil, links, and toggle never collide
    and the footer never pans the page sideways. */
 @media (max-width: 420px) {

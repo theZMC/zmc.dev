@@ -442,12 +442,26 @@ const footerLinks = [
   /* ============ PRINT: dossier declassified ============
      Scoped like the rules above so each override ties its base rule's
      specificity and wins by source order. Cross-component chrome
-     (body, main, nav, footer, .cosmos) is handled in the global block. */
+     (body, main, nav, footer, .cosmos) is handled in global.css. */
   @media print {
     .resume {
       padding-top: 0;
     }
     .actions {
+      min-width: 0;
+      gap: 0.35rem;
+      align-items: flex-end;
+    }
+    .action.primary,
+    button.action {
+      display: none;
+    }
+    .action {
+      border: none;
+      padding: 0;
+      color: #111;
+    }
+    .action .glyph {
       display: none;
     }
     .panel {
@@ -507,28 +521,6 @@ const footerLinks = [
     }
     a {
       text-decoration: none;
-    }
-  }
-</style>
-
-<style is:global>
-  /* Print: hide the shared chrome and flatten the page ground. The
-     display overrides carry !important (verbatim from the approved
-     mockup) because Nav/Footer set their own scoped display values. */
-  @media print {
-    .cosmos,
-    nav,
-    footer {
-      display: none !important;
-    }
-    body {
-      background: #fff;
-      color: #111;
-      font-size: 11pt;
-      line-height: 1.5;
-    }
-    main {
-      padding-top: 0;
     }
   }
 </style>
