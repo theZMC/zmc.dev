@@ -64,7 +64,8 @@ const formatDate = (date: string) =>
   }
 
   .tx-panel {
-    padding: 3.2rem 3rem 2.2rem;
+    --head-gap: 2.2rem;
+    padding: var(--head-gap) 3rem 2.2rem;
   }
 
   .crumb {
@@ -111,7 +112,8 @@ const formatDate = (date: string) =>
       padding-top: 6.5rem;
     }
     .tx-panel {
-      padding: 2.2rem 1.4rem 1.4rem;
+      --head-gap: 1.4rem;
+      padding: 1.4rem;
     }
   }
 </style>

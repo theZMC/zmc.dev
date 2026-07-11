@@ -298,7 +298,8 @@ function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
   }
 
   .panel {
-    padding: 3.2rem 3rem 2.2rem;
+    --head-gap: 2.2rem;
+    padding: var(--head-gap) 3rem 2.2rem;
   }
 
   /* project rows */
@@ -429,14 +430,15 @@ function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
     margin-bottom: 1.3rem;
   }
 
-  /* contact */
+  /* contact: no sec-head, so the centred composition gets symmetric,
+     ceremonial padding instead of the list panels' heading band */
   .contact {
     text-align: center;
+    padding-top: 3.2rem;
     padding-bottom: 3.2rem;
   }
   .contact .mono {
     display: block;
-    margin-top: 2.6rem;
   }
   .contact h2 {
     font-family: "Marcellus", serif;
@@ -474,7 +476,8 @@ function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
 
   @media (max-width: 860px) {
     .panel {
-      padding: 2.2rem 1.4rem 1.4rem;
+      --head-gap: 1.4rem;
+      padding: 1.4rem;
     }
     .work-row {
       grid-template-columns: 1fr;

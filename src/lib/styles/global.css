@@ -407,7 +407,9 @@ main {
   align-items: baseline;
   gap: 1.6rem;
   border-bottom: 1px solid var(--hair);
-  padding-bottom: 1.1rem;
+  /* panels set --head-gap to their own top padding, so the heading sits
+     centred between the container edge and its own rule */
+  padding-bottom: var(--head-gap, 1.4rem);
 }
 .sec-head h2 {
   font-family: "Marcellus", serif;
