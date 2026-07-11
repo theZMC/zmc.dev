@@ -75,12 +75,6 @@ const skills: Skill[] = [
 
 const eyebrow = `Personnel Dossier · ${toRoman(new Date().getFullYear())}`;
 
-const navLinks = [
-  { label: "Profile", href: "#profile" },
-  { label: "Skills", href: "#calibration" },
-  { label: "Record", href: "#record" },
-];
-
 const footerLinks = [
   { label: "GitHub", href: "https://github.com/theZMC" },
   { label: "LinkedIn", href: "https://www.linkedin.com/in/thezmc/" },
@@ -92,9 +86,8 @@ const footerLinks = [
 <BaseLayout
   pageTitle="Zach Callahan — Resume · zmc.dev"
   metaDescription="Zach Callahan's professional resume"
-  {navLinks}
   {footerLinks}
-  trimNavOnMobile
+ 
 >
   <div class="resume panel-wrap">
     <section class="panel">
@@ -124,7 +117,7 @@ const footerLinks = [
 
     <section id="profile" class="panel">
       <div class="sec-head">
-        <h2>Profile</h2>
+        <h2><a href="#profile">Profile</a></h2>
         <span class="mono coord">Section I</span>
       </div>
       <div class="profile-grid">
@@ -159,7 +152,7 @@ const footerLinks = [
 
     <section id="calibration" class="panel">
       <div class="sec-head">
-        <h2>Instrument Calibration</h2>
+        <h2><a href="#calibration">Instrument Calibration</a></h2>
         <span class="mono coord">Section II</span>
       </div>
       <div class="cal-legend mono">
@@ -179,7 +172,7 @@ const footerLinks = [
 
     <section id="record" class="panel">
       <div class="sec-head">
-        <h2>Service Record</h2>
+        <h2><a href="#record">Service Record</a></h2>
         <span class="mono coord">Section III · Complete</span>
       </div>
 

@@ -33,13 +33,13 @@ const formatDate = (date: string) =>
   });
 ---
 
-<BaseLayout pageTitle={`Transmissions · ${tag} — Zach Callahan`} trimNavOnMobile>
+<BaseLayout pageTitle={`Transmissions · ${tag} — Zach Callahan`}>
   <div class="panel-wrap">
-    <section class="panel tx-panel">
+    <section id="transmissions" class="panel tx-panel">
       <a class="crumb mono" href="/posts">← All Transmissions</a>
 
       <div class="sec-head">
-        <h2>Transmissions</h2>
+        <h2><a href="#transmissions">Transmissions</a></h2>
         <span class="mono coord">Tagged · {tag}</span>
       </div>
 

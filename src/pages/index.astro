@@ -32,7 +32,7 @@ function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
 }
 ---
 
-<BaseLayout {pageTitle} {metaDescription} trimNavOnMobile>
+<BaseLayout {pageTitle} {metaDescription}>
   <header>
     <div class="hero-inner">
       <p class="mono epoch">Epoch {epoch} · Arkansas · zmc.dev</p>
@@ -51,7 +51,7 @@ function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
   <div class="panel-wrap">
     <section id="work" class="panel">
       <div class="sec-head">
-        <h2>Selected Work</h2>
+        <h2><a href="#work">Selected Work</a></h2>
         <span class="mono coord">Open Source · github.com/theZMC</span>
       </div>
 
@@ -75,7 +75,7 @@ function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
 
     <section id="record" class="panel">
       <div class="sec-head">
-        <h2>Service Record</h2>
+        <h2><a href="#record">Service Record</a></h2>
         <span class="mono coord">Chronology · Newest First</span>
       </div>
 
@@ -110,7 +110,7 @@ function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
 
     <section id="writing" class="panel">
       <div class="sec-head">
-        <h2>Transmissions</h2>
+        <h2><a href="#writing">Transmissions</a></h2>
         <span class="mono coord">Field Notes · Plaintext</span>
       </div>
 
@@ -126,7 +126,7 @@ function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
 
     <section id="about" class="panel">
       <div class="sec-head">
-        <h2>About</h2>
+        <h2><a href="#about">About</a></h2>
         <span class="mono coord">Transmission · Plaintext</span>
       </div>
       <div class="about-grid">

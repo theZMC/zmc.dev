@@ -10,22 +10,18 @@ interface NavLink {
 interface Props {
   links?: NavLink[];
   showProgress?: boolean;
-  trimOnMobile?: boolean;
 }
 
 const {
   links = [
-    { label: "Work", href: "/#work" },
-    { label: "Record", href: "/#record" },
-    { label: "Writing", href: "/#writing" },
-    { label: "About", href: "/#about" },
+    { label: "Writing", href: "/posts" },
+    { label: "Resume", href: "/resume" },
   ],
   showProgress = false,
-  trimOnMobile = false,
 } = Astro.props;
 ---
 
-<nav class:list={[{ "trim-mobile": trimOnMobile }]}>
+<nav>
   <a class="sigil" href="/">Z·M·C</a>
   <div class="nav-right">
     <ul>

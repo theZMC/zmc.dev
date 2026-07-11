@@ -75,8 +75,7 @@ document.addEventListener("click", (e) => {
 
   const copy = (e.target as Element | null)?.closest(".copy-code");
   if (copy instanceof HTMLElement) {
-    const pre = copy.closest("pre");
-    const code = pre?.querySelector("code");
+    const code = copy.closest(".code-frame")?.querySelector("code");
     if (code) {
       const done = () => {
         copy.textContent = "Copied ✓";
@@ -131,17 +130,22 @@ document.addEventListener("astro:page-load", () => {
     }
   }
 
-  // Copy buttons on article code blocks (idempotent per page view).
+  // Copy buttons on article code blocks (idempotent per page view). Each pre
+  // gets a .code-frame wrapper with the button as a sibling, not a child —
+  // inside the pre its label concatenates into the code's accessible text.
   document
     .querySelectorAll<HTMLPreElement>(".post-body pre")
     .forEach((pre) => {
-      if (pre.querySelector(".copy-code")) return;
+      if (pre.parentElement?.classList.contains("code-frame")) return;
+      const frame = document.createElement("div");
+      frame.className = "code-frame";
       const btn = document.createElement("button");
       btn.className = "copy-code mono";
       btn.type = "button";
       btn.textContent = "Copy";
       btn.setAttribute("aria-label", "Copy code to clipboard");
-      pre.appendChild(btn);
+      pre.replaceWith(frame);
+      frame.append(pre, btn);
     });
 
   updateScrollState();

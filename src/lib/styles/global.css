@@ -181,6 +181,13 @@ nav,
   text-anchor: middle;
   dominant-baseline: middle;
 }
+/* On phones only slivers of the degree ring fit the viewport, so its
+   labels read as stray marks — keep the ticks, drop the numbers. */
+@media (max-width: 640px) {
+  .deg-label {
+    display: none;
+  }
+}
 
 /* ============ NAV (frosted bar) ============ */
 nav {
@@ -418,6 +425,16 @@ main {
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
+/* section headings are self-anchors: plain heading at rest (and in print),
+   warming to brass on hover like every other link */
+.sec-head h2 a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.sec-head h2 a:hover {
+  color: var(--brass);
+}
 .sec-head .coord {
   margin-left: auto;
 }
@@ -475,9 +492,6 @@ footer a:hover {
   }
   nav ul {
     gap: 1.4rem;
-  }
-  nav.trim-mobile ul li:nth-child(n + 3) {
-    display: none;
   }
   .panel-wrap {
     padding: 0 1rem;

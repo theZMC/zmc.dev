@@ -26,7 +26,6 @@ interface Props {
   navLinks?: Link[];
   footerLinks?: Link[];
   showProgress?: boolean;
-  trimNavOnMobile?: boolean;
 }
 
 const {
@@ -38,7 +37,6 @@ const {
   navLinks,
   footerLinks,
   showProgress,
-  trimNavOnMobile,
 } = Astro.props;
 
 const faviconUrl = Astro.site
@@ -95,7 +93,7 @@ const faviconUrl = Astro.site
   </head>
   <body>
     <Cosmos />
-    <Nav links={navLinks} {showProgress} trimOnMobile={trimNavOnMobile} />
+    <Nav links={navLinks} {showProgress} />
     <main>
       <slot />
     </main>
