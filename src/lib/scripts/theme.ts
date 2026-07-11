@@ -15,20 +15,9 @@ export function storedTheme(): Theme {
     : "dark";
 }
 
-export function syncToggleLabel(): void {
-  const btn = document.getElementById("themeToggle");
-  if (!btn) return;
-  const dark = document.documentElement.getAttribute("data-theme") === "dark";
-  btn.setAttribute(
-    "aria-label",
-    dark ? "Switch to light mode" : "Switch to dark mode",
-  );
-}
-
-/** Applies the persisted (or preferred) theme and syncs the toggle label. */
+/** Applies the persisted (or preferred) theme. */
 export function applyStoredTheme(): void {
   document.documentElement.setAttribute("data-theme", storedTheme());
-  syncToggleLabel();
 }
 
 function setTheme(next: Theme): void {
@@ -38,7 +27,6 @@ function setTheme(next: Theme): void {
   } catch {
     // persistence is best-effort
   }
-  syncToggleLabel();
 }
 
 /**
@@ -48,12 +36,12 @@ function setTheme(next: Theme): void {
  */
 export function toggleTheme(btn: HTMLElement): void {
   const root = document.documentElement;
-  const next: Theme =
-    root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  const toggle = (): void =>
+    setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark");
   const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   if (!document.startViewTransition || prefersReduced.matches) {
-    setTheme(next);
+    toggle();
     return;
   }
 
@@ -64,20 +52,22 @@ export function toggleTheme(btn: HTMLElement): void {
     Math.max(x, window.innerWidth - x),
     Math.max(y, window.innerHeight - y),
   );
-  const transition = document.startViewTransition(() => setTheme(next));
-  transition.ready.then(() => {
-    root.animate(
-      {
-        clipPath: [
-          `circle(0px at ${x}px ${y}px)`,
-          `circle(${endRadius}px at ${x}px ${y}px)`,
-        ],
-      },
-      {
-        duration: 750,
-        easing: "cubic-bezier(.4, 0, .2, 1)",
-        pseudoElement: "::view-transition-new(root)",
-      },
-    );
-  });
+  const transition = document.startViewTransition(toggle);
+  transition.ready
+    .then(() => {
+      root.animate(
+        {
+          clipPath: [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${endRadius}px at ${x}px ${y}px)`,
+          ],
+        },
+        {
+          duration: 750,
+          easing: "cubic-bezier(.4, 0, .2, 1)",
+          pseudoElement: "::view-transition-new(root)",
+        },
+      );
+    })
+    .catch(() => {});
 }
