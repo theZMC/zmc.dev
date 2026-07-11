@@ -6,8 +6,6 @@ import { rehypeHeadingIds } from "@astrojs/markdown-remark";
 
 import relativeLinks from "astro-relative-links";
 
-import tailwindcss from "@tailwindcss/vite";
-
 // https://astro.build/config
 export default defineConfig({
   site: "https://zmc.dev",
@@ -37,8 +35,4 @@ export default defineConfig({
   },
 
   integrations: [relativeLinks()],
-
-  vite: {
-    plugins: [tailwindcss()],
-  },
 });

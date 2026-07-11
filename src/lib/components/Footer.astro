@@ -1,0 +1,32 @@
+---
+import { toRoman } from "@lib/utils/roman";
+
+interface FooterLink {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  links?: FooterLink[];
+}
+
+const {
+  links = [
+    { label: "GitHub", href: "https://github.com/theZMC" },
+    { label: "LinkedIn", href: "https://www.linkedin.com/in/thezmc/" },
+    { label: "Writing", href: "/posts" },
+    { label: "Resume", href: "/resume" },
+  ],
+} = Astro.props;
+
+const year = toRoman(new Date().getFullYear());
+---
+
+<footer>
+  <div class="foot-inner">
+    <span class="mono">© {year} Zach Callahan · zmc.dev</span>
+    <div class="links mono">
+      {links.map((link) => <a href={link.href}>{link.label}</a>)}
+    </div>
+  </div>
+</footer>

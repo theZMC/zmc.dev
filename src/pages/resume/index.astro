@@ -4,7 +4,6 @@ import QRCode from "@images/qr-code.svg";
 import ZachCallahanImage from "@images/zach.png";
 import { Image } from "astro:assets";
 
-import { Download, Globe, Mail, Phone, Printer } from "@lucide/astro";
 import { getCollection } from "astro:content";
 import { render } from "astro:content";
 
@@ -78,28 +77,17 @@ const skills: Record<string, SkillLevel> = {
       />
       <div>
         <p>
-          <a href="tel:14794595787">
-            <Phone />
-            1 (479) 459-5787
-          </a>
-          <a href="mailto:zach@zmc.dev">
-            <Mail />
-            zach@zmc.dev
-          </a>
-          <a href="https://zmc.dev">
-            <Globe />
-            zmc.dev
-          </a>
+          <a href="tel:14794595787"> 1 (479) 459-5787 </a>
+          <a href="mailto:zach@zmc.dev"> zach@zmc.dev </a>
+          <a href="https://zmc.dev"> zmc.dev </a>
           <a
             href="/ZachCallahanResume.pdf"
             download="Zach Callahan - Resume.pdf"
             class="download-resume no-print"
           >
-            <Download />
             Download PDF
           </a>
           <a href="javascript:window.print()" class="print-resume no-print">
-            <Printer />
             Print
           </a>
         </p>
@@ -169,15 +157,7 @@ const skills: Record<string, SkillLevel> = {
         renderedJobs.map((job) => (
           <div class="job">
             <aside>
-              {
-                job.data.company.logo && (
-                  <Image
-                    src={job.data.company.logo}
-                    alt={`Logo for ${job.data.company.name}`}
-                  />
-                )
-              }
-              <h5>{job.data.company.name}</h5>
+              <h5>{job.data.company}</h5>
               <ul>
                 {job.data.skills.map((skill) => <li>{skill}</li>)}
               </ul>

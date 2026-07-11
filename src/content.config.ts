@@ -9,17 +9,12 @@ const blog = defineCollection({
       return opts.entry.split("/").reverse()[0].split(".")[0];
     },
   }),
-  schema: ({ image }) =>
-    z.object({
-      title: z.string(),
-      tags: z.array(z.string()),
-      date: z.string(z.date()),
-      description: z.string().optional(),
-      cover: z.object({
-        image: image(),
-        alt: z.string(),
-      }).optional(),
-    }),
+  schema: z.object({
+    title: z.string(),
+    tags: z.array(z.string()),
+    date: z.string(z.date()),
+    description: z.string().optional(),
+  }),
 });
 
 const jobs = defineCollection({
@@ -27,26 +22,39 @@ const jobs = defineCollection({
     pattern: "**/*.md",
     base: "./src/data/jobs",
   }),
-  schema: ({ image }) =>
-    z.object({
-      company: z.object({
-        logo: image(),
-        name: z.string(),
+  schema: z.object({
+    company: z.string(),
+    tenure: z.object({
+      start: z.object({
+        month: z.number(),
+        year: z.number(),
       }),
-      tenure: z.object({
-        start: z.object({
+      end: z
+        .object({
           month: z.number(),
           year: z.number(),
-        }),
-        end: z.object({
-          month: z.number(),
-          year: z.number(),
-        }).optional(),
-      }),
-      title: z.string(),
-      isTech: z.boolean(),
-      skills: z.array(z.string()),
+        })
+        .optional(),
     }),
+    title: z.string(),
+    isTech: z.boolean(),
+    skills: z.array(z.string()),
+    summary: z.string().optional(),
+  }),
 });
 
-export const collections = { blog, jobs };
+const projects = defineCollection({
+  loader: glob({
+    pattern: "**/*.md",
+    base: "./src/data/projects",
+  }),
+  schema: z.object({
+    name: z.string(),
+    kind: z.string(),
+    url: z.string().url(),
+    tags: z.array(z.string()),
+    order: z.number(),
+  }),
+});
+
+export const collections = { blog, jobs, projects };

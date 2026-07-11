@@ -6,9 +6,6 @@ description: |
   In this article, I will show you how to prepare and store your dotfiles in a git repository and push them to a remote
   repository. I will also show you how to automate the process of linking your dotfiles to their appropriate
   locations via a shell script. Finally, we'll look at how to automate keeping your dotfiles up to date with a cron job.
-cover:
-  image: ./images/massive-machine.png
-  alt: AI-generated image of a massive machine with a bunch of workers in the foregound.
 ---
 
 ## What are Dotfiles?

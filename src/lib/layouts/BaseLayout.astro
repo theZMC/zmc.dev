@@ -1,127 +1,105 @@
 ---
 import "@styles/global.css";
-import Header from "@components/Header.astro";
-import type Social from "@lib/types/social";
-import { FileUser, Github, Linkedin, Mail } from "@lucide/astro";
-import SocialList from "@components/SocialList.astro";
+import "@fontsource/marcellus/400.css";
+import "@fontsource/cormorant/500-italic.css";
+import "@fontsource/instrument-sans/400.css";
+import "@fontsource/instrument-sans/500.css";
+import "@fontsource/instrument-sans/400-italic.css";
+import "@fontsource/spline-sans-mono/300.css";
+import "@fontsource/spline-sans-mono/400.css";
+import Cosmos from "@components/Cosmos.astro";
+import Footer from "@components/Footer.astro";
+import Nav from "@components/Nav.astro";
 import { ClientRouter } from "astro:transitions";
+
+interface Link {
+  label: string;
+  href: string;
+}
 
 interface Props {
   pageTitle: string;
-  tags?: string[];
   metaDescription?: string;
+  tags?: string[];
   metaImage?: string;
-  isIndex?: boolean;
+  navLinks?: Link[];
+  footerLinks?: Link[];
+  showProgress?: boolean;
+  trimNavOnMobile?: boolean;
 }
 
-const { pageTitle, isIndex } = Astro.props;
-const socials: Social[] = [
-  {
-    name: "LinkedIn",
-    url: "https://www.linkedin.com/in/thezmc/",
-    icon: Linkedin,
-  },
-  {
-    name: "GitHub",
-    url: "https://github.com/theZMC/",
-    icon: Github,
-  },
-  {
-    name: "Email",
-    url: "mailto:inquiries@zmc.dev",
-    icon: Mail,
-  },
-  {
-    name: "Resume",
-    url: "/resume",
-    icon: FileUser,
-  },
-];
+const {
+  pageTitle,
+  metaDescription,
+  tags,
+  metaImage,
+  navLinks,
+  footerLinks,
+  showProgress,
+  trimNavOnMobile,
+} = Astro.props;
 
 const faviconUrl = Astro.site
   ? new URL("/favicon.png", Astro.site).toString()
   : "/favicon.png";
 ---
 
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
+    <script is:inline>
+      // Apply the persisted theme before first paint, and re-apply it after
+      // Astro's client-side navigation swaps the <html> attributes back.
+      (function () {
+        function applyTheme() {
+          var stored = null;
+          try {
+            stored = localStorage.getItem("theme");
+          } catch (e) {}
+          var theme =
+            stored === "dark" || stored === "light"
+              ? stored
+              : window.matchMedia("(prefers-color-scheme: light)").matches
+                ? "light"
+                : "dark";
+          document.documentElement.setAttribute("data-theme", theme);
+        }
+        applyTheme();
+        document.addEventListener("astro:after-swap", applyTheme);
+      })();
+    </script>
     <meta charset="utf-8" />
     <link rel="icon" type="image/png" href={faviconUrl} />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="description" content={Astro.props.metaDescription} />
-    <meta name="keywords" content={Astro.props.tags?.join(", ")} />
-    <meta name="twitter:card" content="summary" />
+    <meta name="description" content={metaDescription} />
+    <meta name="keywords" content={tags?.join(", ")} />
+    <meta
+      name="twitter:card"
+      content={metaImage ? "summary_large_image" : "summary"}
+    />
     <meta name="twitter:site" content="@theZMC" />
     <meta name="twitter:title" content={pageTitle} />
-    <meta name="twitter:description" content={Astro.props.metaDescription} />
-    {
-      Astro.props.metaImage ? (
-        <meta name="twitter:image" content={Astro.props.metaImage} />
-      ) : null
-    }
+    <meta name="twitter:description" content={metaDescription} />
+    {metaImage ? <meta name="twitter:image" content={metaImage} /> : null}
     <meta property="og:title" content={pageTitle} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={Astro.request.url} />
-    {
-      Astro.props.metaImage ? (
-        <meta property="og:image" content={Astro.props.metaImage} />
-      ) : null
-    }
-    <meta property="og:description" content={Astro.props.metaDescription} />
+    {metaImage ? <meta property="og:image" content={metaImage} /> : null}
+    <meta property="og:description" content={metaDescription} />
     <meta property="og:site_name" content="ZMC.DEV" />
     <meta property="og:locale" content="en_US" />
     <ClientRouter />
     <title>{pageTitle}</title>
   </head>
   <body>
-    <div>
-      <Header {isIndex} />
-      <main transition:animate="fade">
-        <slot />
-        {socials.length && <SocialList {socials} />}
-      </main>
-    </div>
+    <Cosmos />
+    <Nav links={navLinks} {showProgress} trimOnMobile={trimNavOnMobile} />
+    <main transition:animate="fade">
+      <slot />
+    </main>
+    <Footer links={footerLinks} />
+    <script>
+      import "@lib/scripts/site";
+    </script>
   </body>
 </html>
-
-<style lang="scss">
-  @reference "tailwindcss";
-
-  @keyframes gradient {
-    0% {
-      background-position: 0% 0%;
-    }
-    100% {
-      background-position: 400% 400%;
-    }
-  }
-
-  body {
-    @apply bg-[#b6e9ff];
-    @apply bg-size-[400%];
-    @apply py-2 px-0;
-    @apply min-h-[100vh];
-    @apply flex items-center justify-center;
-    @apply bg-linear-to-r from-[#ffb879] from-0% via-[#b6e9ff] via-50%
-      to-[#ffb879] to-100%;
-    animation: gradient 300s ease infinite;
-  }
-  div {
-    max-width: 50rem;
-    min-width: 0;
-  }
-  main {
-    @apply m-4;
-    @apply flex flex-col items-center;
-    @apply gap-4;
-  }
-  @media print {
-    body {
-      background: none;
-    }
-    main {
-      margin: 0;
-    }
-  }
-</style>

@@ -1,1 +1,430 @@
-@import "tailwindcss";
+/* ============ THEMES ============ */
+:root,
+[data-theme="dark"] {
+  --bg: #0b0e14;
+  --bg-core: #131a2a;
+  --ink: #e8e4d8;
+  --ink-dim: #9ba0a8;
+  --brass: #c8a96a;
+  --brass-dim: rgba(200, 169, 106, 0.34);
+  --celest: #7a93b8;
+  --hair: rgba(232, 228, 216, 0.1);
+  --row-glow: rgba(200, 169, 106, 0.05);
+  --glass: rgba(15, 19, 29, 0.55);
+  --glass-solid: rgba(15, 19, 29, 0.94);
+  --glass-hair: rgba(232, 228, 216, 0.13);
+  --nav-glass: rgba(11, 14, 20, 0.6);
+  --shimmer-brass: rgba(200, 169, 106, 0.75);
+  --shimmer-core: rgba(240, 235, 220, 0.95);
+  --code-bg: rgba(8, 10, 16, 0.6);
+  --orb-brass: rgba(200, 169, 106, 0.3);
+  --orb-ink: rgba(232, 228, 216, 0.12);
+  --orb-celest: rgba(122, 147, 184, 0.18);
+  --orb-outer: rgba(232, 228, 216, 0.09);
+  --tick: rgba(200, 169, 106, 0.35);
+  --grat: rgba(232, 228, 216, 0.055);
+  --label: rgba(232, 228, 216, 0.4);
+  --label-brass: rgba(200, 169, 106, 0.55);
+  --core-glow-opacity: 0.55;
+  --max: 1120px;
+  --measure: 720px;
+}
+[data-theme="light"] {
+  --bg: #e9e3d3;
+  --bg-core: #f2eddf;
+  --ink: #1a1e29;
+  --ink-dim: #5b5f68;
+  --brass: #8f6f35;
+  --brass-dim: rgba(143, 111, 53, 0.42);
+  --celest: #4e6685;
+  --hair: rgba(26, 30, 41, 0.14);
+  --row-glow: rgba(143, 111, 53, 0.07);
+  --glass: rgba(242, 237, 223, 0.55);
+  --glass-solid: rgba(242, 237, 223, 0.95);
+  --glass-hair: rgba(26, 30, 41, 0.16);
+  --nav-glass: rgba(233, 227, 211, 0.6);
+  --shimmer-brass: rgba(143, 111, 53, 0.8);
+  --shimmer-core: rgba(255, 255, 255, 0.95);
+  --code-bg: rgba(255, 252, 244, 0.5);
+  --orb-brass: rgba(143, 111, 53, 0.42);
+  --orb-ink: rgba(26, 30, 41, 0.22);
+  --orb-celest: rgba(78, 102, 133, 0.3);
+  --orb-outer: rgba(26, 30, 41, 0.16);
+  --tick: rgba(143, 111, 53, 0.5);
+  --grat: rgba(26, 30, 41, 0.075);
+  --label: rgba(26, 30, 41, 0.48);
+  --label-brass: rgba(143, 111, 53, 0.7);
+  --core-glow-opacity: 0.35;
+}
+
+/* ============ RESET / BASE ============ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Instrument Sans", sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+::selection {
+  background: var(--brass);
+  color: var(--bg);
+}
+a {
+  color: inherit;
+}
+a:focus-visible,
+button:focus-visible {
+  outline: 1px solid var(--brass);
+  outline-offset: 4px;
+}
+
+body,
+nav,
+.panel,
+.tag,
+.cta,
+.work-row,
+.svc-row {
+  transition:
+    background-color 0.45s ease,
+    color 0.45s ease,
+    border-color 0.45s ease;
+}
+
+/* ============ VIEW TRANSITION (eclipse reveal) ============ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2;
+}
+
+.mono {
+  font-family: "Spline Sans Mono", monospace;
+  font-weight: 300;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  color: var(--celest);
+}
+
+/* ============ FIXED COSMOS BACKGROUND ============ */
+.cosmos {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background: var(--bg);
+  transition: background 0.45s ease;
+}
+/* Sun anchored just below the nav bar; orbits fan down the page */
+.orrery {
+  position: absolute;
+  left: 50%;
+  top: 84px;
+  width: min(max(200vmin, 150vw), 2800px);
+  height: min(max(200vmin, 150vw), 2800px);
+  transform: translate(-50%, -50%);
+}
+.orbit-group {
+  transform-box: view-box;
+  transform-origin: center;
+  will-change: transform;
+}
+/* cartographic lettering: micro-engraved, inset into the line */
+.orbit-label {
+  font-family: "Cormorant", serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 4.6px;
+  letter-spacing: 0.24em;
+  fill: var(--label);
+  dominant-baseline: central;
+}
+.orbit-label.brass {
+  fill: var(--label-brass);
+}
+.deg-label {
+  font-family: "Spline Sans Mono", monospace;
+  font-weight: 300;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  fill: var(--label);
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+/* ============ NAV (frosted bar) ============ */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.1rem 2.5rem;
+  background: var(--nav-glass);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  backdrop-filter: blur(14px) saturate(1.15);
+  border-bottom: 1px solid var(--hair);
+}
+nav .sigil {
+  font-family: "Marcellus", serif;
+  letter-spacing: 0.34em;
+  font-size: 0.85rem;
+  color: var(--brass);
+  text-decoration: none;
+}
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 2.4rem;
+}
+nav ul {
+  display: flex;
+  gap: 2.4rem;
+  list-style: none;
+}
+nav ul a {
+  text-decoration: none;
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  transition: color 0.3s;
+}
+nav ul a:hover {
+  color: var(--brass);
+}
+
+/* reading progress: an orbit that completes */
+.progress-dial {
+  width: 22px;
+  height: 22px;
+  transform: rotate(-90deg);
+}
+.progress-dial .track {
+  fill: none;
+  stroke: var(--hair);
+  stroke-width: 1.5;
+}
+.progress-dial .arc {
+  fill: none;
+  stroke: var(--brass);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-dasharray: 56.55;
+  stroke-dashoffset: 56.55;
+}
+.progress-dial .body {
+  fill: var(--brass);
+}
+
+.eclipse {
+  --size: 34px;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: none;
+  border: 1px solid var(--brass-dim);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  transition: border-color 0.3s;
+}
+.eclipse:hover {
+  border-color: var(--brass);
+}
+.eclipse .sun {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--brass);
+  position: relative;
+}
+.eclipse .moon {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--bg);
+  transform: translate(11px, -11px);
+  transition:
+    transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.45s ease;
+}
+[data-theme="light"] .eclipse .moon {
+  transform: translate(4px, -4px);
+}
+
+/* ============ CONTENT LAYER ============ */
+main {
+  position: relative;
+  z-index: 1;
+}
+
+/* frosted panels with cursor shimmer.
+   Padding and margin overrides are page-specific — see the page mockups. */
+.panel {
+  max-width: var(--max);
+  margin: 0 auto 5rem;
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  backdrop-filter: blur(18px) saturate(1.15);
+  border: 1px solid var(--glass-hair);
+  border-radius: 14px;
+  position: relative;
+}
+/* border shimmer: gradient painted only into the 1px border ring via mask */
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  padding: 1px;
+  background:
+    radial-gradient(
+      110px circle at var(--mx, 50%) var(--my, 50%),
+      var(--shimmer-core),
+      transparent 70%
+    ),
+    radial-gradient(
+      340px circle at var(--mx, 50%) var(--my, 50%),
+      var(--shimmer-brass),
+      transparent 72%
+    );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+.panel:hover::before {
+  opacity: 1;
+}
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  .panel {
+    background: var(--glass-solid);
+  }
+  nav {
+    background: var(--glass-solid);
+  }
+}
+.panel-wrap {
+  padding: 0 2rem;
+}
+
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  gap: 1.6rem;
+  border-bottom: 1px solid var(--hair);
+  padding-bottom: 1.1rem;
+}
+.sec-head h2 {
+  font-family: "Marcellus", serif;
+  font-weight: 400;
+  font-size: 1.5rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.sec-head .coord {
+  margin-left: auto;
+}
+
+.tag {
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--celest);
+  border: 1px solid var(--orb-celest);
+  border-radius: 999px;
+  padding: 0.28rem 0.7rem;
+  white-space: nowrap;
+  height: fit-content;
+}
+
+footer {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--hair);
+  background: var(--nav-glass);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+.foot-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1.8rem 2.5rem;
+}
+footer .links {
+  display: flex;
+  gap: 2rem;
+}
+footer a {
+  text-decoration: none;
+  color: var(--ink-dim);
+  transition: color 0.3s;
+}
+footer a:hover {
+  color: var(--brass);
+}
+
+@media (max-width: 860px) {
+  nav {
+    padding: 1rem 1.4rem;
+  }
+  .nav-right {
+    gap: 1.4rem;
+  }
+  nav ul {
+    gap: 1.4rem;
+  }
+  nav.trim-mobile ul li:nth-child(n + 3) {
+    display: none;
+  }
+  .panel-wrap {
+    padding: 0 1rem;
+  }
+  .panel {
+    margin-bottom: 3rem;
+    border-radius: 10px;
+  }
+  .foot-inner {
+    padding: 1.6rem 1.4rem;
+  }
+}

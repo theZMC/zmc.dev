@@ -1,7 +1,5 @@
 ---
-company:
-  name: Love's Travel Stops & Country Stores
-  logo: ./images/loves.svg
+company: Love's Travel Stops & Country Stores
 tenure:
   start:
     month: 9
@@ -13,19 +11,13 @@ title: Travel Stop General Manager
 isTech: false
 skills:
 - Leadership
-- Training
-- Budgeting
-- Mentoring
-- Scheduling
 - P&L
-- Inventory
-- Payroll
-- HR
+- Budgeting
+- Training
+- Mentoring
 ---
 
-I was responsible for the day-to-day operations of a 24-hour travel stop. I was
-responsible for managing a staff of 20-30 employees, including hiring, training,
-and scheduling. I was also responsible for managing the store's budget,
-including payroll, inventory, and expenses. I had ~10 managerial direct reports,
-including assistant managers, shift leaders, and profit-center managers and I
-was responsible for their training and development.
+Ran day-to-day operations of a 24-hour travel stop: a staff of 20–30 including
+hiring, training, and scheduling; roughly ten managerial direct reports across
+assistant managers, shift leaders, and profit-center managers; and full
+ownership of the store's budget — payroll, inventory, and expenses.

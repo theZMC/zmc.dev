@@ -5,9 +5,6 @@ tags: ["go", "dynamodb", "testing", "docker"]
 description: |
   DynamoDB is Amazon's premium NoSQL database. It's fast, reliable, and scalable, but it also only lives in AWS. In this post, I'll
   show you how to use the dockertest library to run a local DynamoDB instance via Docker for testing your DynamoDB access patterns.
-cover:
-  image: ./images/futuristic-computer-lab.png
-  alt: AI-generated image of some workers in vehicles waiting for packets to be delivered.
 ---
 
 ## What is `dockertest`?

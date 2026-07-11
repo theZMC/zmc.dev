@@ -1,7 +1,5 @@
 ---
-company:
-  name: Dillards
-  logo: ./images/dillards.svg
+company: Dillard's
 tenure:
   start:
     month: 4
@@ -11,28 +9,25 @@ tenure:
     year: 2022
 title: System Administrator
 isTech: true
+summary: >-
+  Kept the runtime environments of a major ecommerce platform healthy across
+  AIX and RHEL on Power 9, automated a company-wide CVS-to-Git migration, and
+  built out logging and observability on OpenShift.
 skills:
 - Linux
-- Bash
-- Git
-- Docker
-- Kubernetes
-- TypeScript
-- OpenShift
-- Red Hat Enterprise Linux
 - AIX
-- Gitlab
+- RHEL
+- OpenShift
+- GitLab
+- Docker
 - Java
-- Web Security
 - NodeJS
+- Web Security
 ---
 
-I was a member of the infrastructure team and I was primarily tasked with caring
-for the runtime environments of many external and internal applications,
-consisting of Tomcat and WebSphere servers running on a mix of AIX and RHEL
-hosts on Power 9 hardware. I was also one of the key team-members responsible
-for maintaining the company's ecommerce platform. Between these duties, I helped
-automate the company's migration process from CVS to Git and spent a great deal
-of time working with CI/CD pipelines on our internal Gitlab instance. I also
-developed helm charts and build pipelines for our internal Openshift
-environment, mainly focused on the logging and observability stacks.
+Cared for the runtime environments of internal and external applications —
+Tomcat and WebSphere on a mix of AIX and RHEL atop Power 9 hardware — and
+helped keep the company's ecommerce platform running. Helped automate the
+migration from CVS to Git, worked extensively with internal GitLab CI/CD, and
+developed Helm charts and build pipelines for the internal OpenShift
+environment with a focus on logging and observability.

@@ -1,7 +1,5 @@
 ---
-company:
-  name: First Orion
-  logo: ./images/firstorion.svg
+company: First Orion
 tenure:
   start:
     month: 1
@@ -9,36 +7,27 @@ tenure:
   end:
     month: 8
     year: 2024
-title: Software Engineer
+title: Software Engineer, R&D
 isTech: true
+summary: >-
+  Built new products in Go on Kubernetes and AWS, including a polyglot
+  notebook platform bridging Polynote and Databricks for data-engineering
+  workflows. Known on the team as the unblocker.
 skills:
 - Go
 - Kubernetes
-- Docker
-- Linux
-- Bash
 - AWS
-- Terraform
+- gRPC
+- Protobuf
 - TypeScript
 - Vue
-- Protobuf
-- gRPC
-- Git
 - Scala
-- Bitbucket
-- Jira
-- Confluence
-- CodePipeline
-- CodeBuild
+- Terraform
 ---
 
-I worked in the R&D department with a team of engineers to build new products
-and features for our customers. The day-to-day technologies changed often and I
-was given the freedom to explore new technologies for our projects. Most of
-these were written in Go and made heavy use of Kubernetes and AWS. In addition
-to those projects, I created a polyglot notebook application that glues together
-Netflix's polynote project with Databricks for easier data-engineering
-workflows. On my team, I'm known as the unblocker for my ability to troubleshoot
-quickly. I've also put a lot of effort into improving team tooling for
-productivity and I've written several scripts to automate setting up a new
-developer's environment.
+Built new products and features with an R&D team, primarily in Go with heavy
+use of Kubernetes and AWS, with freedom to explore new technologies. Created a
+polyglot notebook application gluing Netflix's Polynote to Databricks for
+smoother data-engineering workflows. Known as the team's unblocker; invested
+heavily in team tooling, including scripts that automate new-developer
+environment setup.

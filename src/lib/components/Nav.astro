@@ -1,0 +1,43 @@
+---
+import EclipseToggle from "@components/EclipseToggle.astro";
+import ProgressDial from "@components/ProgressDial.astro";
+
+interface NavLink {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  links?: NavLink[];
+  showProgress?: boolean;
+  trimOnMobile?: boolean;
+}
+
+const {
+  links = [
+    { label: "Work", href: "/#work" },
+    { label: "Record", href: "/#record" },
+    { label: "Writing", href: "/#writing" },
+    { label: "About", href: "/#about" },
+  ],
+  showProgress = false,
+  trimOnMobile = false,
+} = Astro.props;
+---
+
+<nav class:list={[{ "trim-mobile": trimOnMobile }]}>
+  <a class="sigil" href="/">Z·M·C</a>
+  <div class="nav-right">
+    <ul>
+      {
+        links.map((link) => (
+          <li>
+            <a href={link.href}>{link.label}</a>
+          </li>
+        ))
+      }
+    </ul>
+    {showProgress && <ProgressDial />}
+    <EclipseToggle />
+  </div>
+</nav>
