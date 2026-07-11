@@ -12,7 +12,7 @@ const blog = defineCollection({
   schema: z.object({
     title: z.string(),
     tags: z.array(z.string()),
-    date: z.string(z.date()),
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     description: z.string().optional(),
   }),
 });

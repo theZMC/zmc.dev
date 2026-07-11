@@ -16,7 +16,7 @@ export async function GET(context: APIContext) {
       title: post.data.title,
       description: post.data.description,
       // noon UTC matches how the site renders post dates elsewhere
-      pubDate: new Date(post.data.date + "T12:00:00"),
+      pubDate: new Date(post.data.date + "T12:00:00Z"),
       link: `/posts/${post.id}`,
     })),
   });
