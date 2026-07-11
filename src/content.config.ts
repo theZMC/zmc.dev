@@ -40,6 +40,8 @@ const jobs = defineCollection({
     isTech: z.boolean(),
     skills: z.array(z.string()),
     summary: z.string().optional(),
+    // Accomplishment bullets for the generated resume PDF (tech roles).
+    highlights: z.array(z.string()).optional(),
   }),
 });
 

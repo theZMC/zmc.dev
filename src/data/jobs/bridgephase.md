@@ -11,6 +11,18 @@ summary: >-
   the DoD's DevSecOps reference architecture. Observability and service mesh
   mission teams: Helm charts, Istio, OpenTelemetry, and steering a platform
   that other teams bet their deployments on.
+highlights:
+- >-
+  Contracted with the Air Force on Big Bang, the open-source implementation
+  of the DoD's DevSecOps reference architecture
+- >-
+  Built and maintained Helm charts on the Observability and Service Mesh
+  mission teams — Istio, OpenTelemetry, and Prometheus
+- >-
+  Steered project direction and process improvements for a platform other
+  teams bet their deployments on
+- >-
+  Advised government stakeholders and supported end users of the platform
 skills:
 - Kubernetes
 - Helm

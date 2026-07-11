@@ -13,6 +13,16 @@ summary: >-
   Built new products in Go on Kubernetes and AWS, including a polyglot
   notebook platform bridging Polynote and Databricks for data-engineering
   workflows. Known on the team as the unblocker.
+highlights:
+- >-
+  Built new products with an R&D team, primarily in Go with heavy use of
+  Kubernetes and AWS
+- >-
+  Created a polyglot notebook platform gluing Netflix's Polynote to
+  Databricks for smoother data-engineering workflows
+- >-
+  Known as the team's unblocker; invested heavily in team tooling, including
+  scripts that automate new-developer environment setup
 skills:
 - Go
 - Kubernetes

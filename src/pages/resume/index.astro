@@ -134,6 +134,29 @@ const footerLinks = [
         ))
       }
     </section>
+
+    <section id="credentials" class="panel">
+      <div class="sec-head">
+        <h2><a href="#credentials">Credentials</a></h2>
+        <span class="mono coord">Section IV</span>
+      </div>
+      {
+        resume.certifications.map((cert) => (
+          <div class="cred-row">
+            <div class="cred-when">
+              <span class="mono">{cert.short}</span>
+            </div>
+            <div>
+              <h3>{cert.name}</h3>
+              <span class="mono cred-meta">
+                {cert.issuer}
+                {cert.year ? ` · ${cert.year}` : ""}
+              </span>
+            </div>
+          </div>
+        ))
+      }
+    </section>
   </div>
 </BaseLayout>
 
@@ -344,6 +367,32 @@ const footerLinks = [
     padding: 0.26rem 0.68rem;
   }
 
+  /* ---------- credentials ---------- */
+  .cred-row {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 2.4rem;
+    padding: 1.6rem 0;
+    border-bottom: 1px solid var(--hair);
+  }
+  .cred-row:last-of-type {
+    border-bottom: none;
+    padding-bottom: 0.6rem;
+  }
+  .cred-when .mono {
+    color: var(--brass);
+  }
+  .cred-row h3 {
+    font-family: "Marcellus", serif;
+    font-weight: 400;
+    font-size: 1.2rem;
+    letter-spacing: 0.05em;
+  }
+  .cred-meta {
+    display: block;
+    margin-top: 0.35rem;
+  }
+
   @media (max-width: 860px) {
     .resume {
       padding-top: calc(var(--nav-h) + 2.125rem); /* = 6.5rem */
@@ -367,6 +416,11 @@ const footerLinks = [
       grid-template-columns: 1fr;
       gap: 0.8rem;
       padding: 2rem 0;
+    }
+    .cred-row {
+      grid-template-columns: 1fr;
+      gap: 0.4rem;
+      padding: 1.4rem 0;
     }
     .svc-when .precise {
       margin-top: 0.2rem;
@@ -434,6 +488,15 @@ const footerLinks = [
       padding: 0.8rem 0;
       grid-template-columns: 160px 1fr;
       gap: 1rem;
+    }
+    .cred-row {
+      border-bottom: 0.5pt solid #bbb;
+      padding: 0.6rem 0;
+      grid-template-columns: 160px 1fr;
+      gap: 1rem;
+    }
+    .cred-when .mono {
+      color: #111;
     }
     .svc-row :global(p),
     .profile-grid .body-col p {

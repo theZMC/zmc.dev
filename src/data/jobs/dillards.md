@@ -13,6 +13,16 @@ summary: >-
   Kept the runtime environments of a major ecommerce platform healthy across
   AIX and RHEL on Power 9, automated a company-wide CVS-to-Git migration, and
   built out logging and observability on OpenShift.
+highlights:
+- >-
+  Cared for the runtime environments of a major ecommerce platform — Tomcat
+  and WebSphere across AIX and RHEL atop Power 9 hardware
+- >-
+  Helped automate the company-wide migration from CVS to Git and worked
+  extensively with internal GitLab CI/CD
+- >-
+  Developed Helm charts and build pipelines for the internal OpenShift
+  environment with a focus on logging and observability
 skills:
 - Linux
 - AIX
