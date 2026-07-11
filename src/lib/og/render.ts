@@ -230,7 +230,9 @@ export const renderPostImage = async ({
     ],
   );
 
-  const svg = await satori(tree, {
+  // The tree mimics React elements structurally; satori's ReactNode
+  // parameter only became visible to tsc once @types/react was installed.
+  const svg = await satori(tree as unknown as import("react").ReactNode, {
     width: WIDTH,
     height: HEIGHT,
     fonts: [

@@ -1,5 +1,5 @@
 ---
-company: Love's Travel Stops & Country Stores
+company: Love’s Travel Stops & Country Stores
 tenure:
   start:
     month: 9

@@ -1,5 +1,5 @@
 ---
-company: Dillard's
+company: Dillard’s
 tenure:
   start:
     month: 4
