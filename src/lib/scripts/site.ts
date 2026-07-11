@@ -2,6 +2,7 @@ import {
   cacheOrbitRefs,
   cutLabelGaps,
   generateGraticule,
+  orreryTargetY,
   updateOrbits,
 } from "./orrery";
 import { applyStoredTheme, toggleTheme } from "./theme";
@@ -11,8 +12,19 @@ const DIAL_CIRC = 2 * Math.PI * 9; // progress dial circumference
 // Docked orrery position for the frame before <nav> exists (never in
 // practice — every page renders one). Keep in sync with --nav-h in global.css.
 const NAV_H_FALLBACK = 70;
+// Time constant for the eased virtual scroll: ~95% settled after 3τ (¼s).
+const SMOOTH_TAU = 80;
 
 let ticking = false;
+
+/* Wheel steps land as instant ~100px jumps in scrollY. The scroll-driven
+   decoration (orrery position, orbit counter-rotation) chases scrollY through
+   this exponentially eased virtual value instead of reading it raw, so wheel
+   users get a glide where the document steps. Informational surfaces (cue
+   fade, reading progress) and the reduced-motion path stay on the real
+   scrollY, 1:1 with the document. */
+let smoothY = 0;
+let lastFrameAt = 0;
 
 /* Per-page-view element refs, captured on astro:page-load so the scroll
    handler never re-queries the DOM per frame. Client-side navs swap these
@@ -20,6 +32,8 @@ let ticking = false;
 let nav: HTMLElement | null = null;
 let orrery: SVGSVGElement | null = null;
 let orreryAnchor: Element | null = null;
+let orreryDock: Element | null = null;
+let orreryDockMargin = 0;
 let cue: HTMLElement | null = null;
 let post: HTMLElement | null = null;
 let progressArc: HTMLElement | null = null;
@@ -29,31 +43,48 @@ function cacheScrollRefs(): void {
   nav = document.querySelector("nav");
   orrery = document.querySelector<SVGSVGElement>("svg.orrery");
   orreryAnchor = document.querySelector("[data-orrery-anchor]");
+  orreryDock = document.querySelector("[data-orrery-dock]");
+  // scroll-margin-top marks where the dock section settles when anchored;
+  // a fixed length in the stylesheet, so read it once per page view.
+  orreryDockMargin = orreryDock
+    ? parseFloat(getComputedStyle(orreryDock).scrollMarginTop) || 0
+    : 0;
   cue = document.querySelector<HTMLElement>(".scroll-cue");
   post = document.getElementById("post");
   progressArc = document.getElementById("progressArc");
   progressBody = document.getElementById("progressBody");
 }
 
-function updateScrollState(): void {
+function updateScrollState(now?: number): void {
   const y = window.scrollY;
+
+  const dt = now && lastFrameAt ? now - lastFrameAt : 17;
+  lastFrameAt = now ?? 0;
+  if (prefersReduced.matches || Math.abs(y - smoothY) < 0.5) {
+    smoothY = y;
+  } else {
+    smoothY += (y - smoothY) * (1 - Math.exp(-dt / SMOOTH_TAU));
+  }
 
   /* All layout reads happen up front, before the first style write, so the
      frame never forces a reflow against its own mutations. */
   const dock = nav ? nav.getBoundingClientRect().bottom : NAV_H_FALLBACK;
   const anchorRect = orreryAnchor?.getBoundingClientRect();
+  const dockRect = orreryDock?.getBoundingClientRect();
   const cueRect = cue ? cue.getBoundingClientRect() : null;
   const viewH = window.innerHeight;
   const postEnd = post ? post.offsetTop + post.offsetHeight - viewH : 0;
 
-  // The orrery's centre rides the page's hero anchor (when one exists) until
-  // it docks on the nav's bottom border. This mirrors ordinary document
-  // scrolling — not added motion — so it stays live under reduced motion.
   if (orrery) {
-    let target = dock;
-    if (anchorRect) {
-      target = Math.max(dock, anchorRect.top + anchorRect.height / 2);
-    }
+    const target = orreryTargetY({
+      dock,
+      anchorCentre: anchorRect ? anchorRect.top + anchorRect.height / 2 : null,
+      y,
+      smoothY,
+      dockTop: dockRect ? dockRect.top : null,
+      dockMargin: orreryDockMargin,
+      reduced: prefersReduced.matches,
+    });
     orrery.style.setProperty("--orrery-y", `${target}px`);
   }
 
@@ -72,7 +103,7 @@ function updateScrollState(): void {
   }
 
   if (!prefersReduced.matches) {
-    updateOrbits(y);
+    updateOrbits(smoothY);
   }
 
   // reading progress: how far through the article the viewport bottom has
@@ -88,7 +119,15 @@ function updateScrollState(): void {
     }
   }
 
-  ticking = false;
+  // The glide outlives the scroll events that caused it: keep the frame loop
+  // alive until the virtual scroll converges (it snaps inside 0.5px above).
+  if (smoothY !== y) {
+    ticking = true;
+    window.requestAnimationFrame(updateScrollState);
+  } else {
+    ticking = false;
+    lastFrameAt = 0;
+  }
 }
 
 function onScroll(): void {
@@ -144,9 +183,8 @@ function applyGlint(): void {
   glintPending = false;
   // Shimmer surfaces nest (rows inside panels): feed the cursor position to
   // every enclosing surface so both rings track it.
-  let surface: Element | null | undefined = glintTarget?.closest(
-    ".panel, .glint-row",
-  );
+  let surface: Element | null | undefined =
+    glintTarget?.closest(".panel, .glint-row");
   while (surface instanceof HTMLElement) {
     const r = surface.getBoundingClientRect();
     surface.style.setProperty("--mx", `${glintX - r.left}px`);
@@ -183,6 +221,9 @@ document.addEventListener("astro:page-load", () => {
   applyStoredTheme();
   cacheScrollRefs();
   cacheOrbitRefs();
+  // A fresh page view starts wherever the browser restored the scroll —
+  // snap the virtual scroll there rather than gliding in from the old page.
+  smoothY = window.scrollY;
 
   const svg = orrery;
   if (svg) {
@@ -200,20 +241,18 @@ document.addEventListener("astro:page-load", () => {
   // Copy buttons on article code blocks (idempotent per page view). Each pre
   // gets a .code-frame wrapper with the button as a sibling, not a child —
   // inside the pre its label concatenates into the code's accessible text.
-  document
-    .querySelectorAll<HTMLPreElement>(".post-body pre")
-    .forEach((pre) => {
-      if (pre.parentElement?.classList.contains("code-frame")) return;
-      const frame = document.createElement("div");
-      frame.className = "code-frame";
-      const btn = document.createElement("button");
-      btn.className = "copy-code mono";
-      btn.type = "button";
-      btn.textContent = "Copy";
-      btn.setAttribute("aria-label", "Copy code to clipboard");
-      pre.replaceWith(frame);
-      frame.append(pre, btn);
-    });
+  document.querySelectorAll<HTMLPreElement>(".post-body pre").forEach((pre) => {
+    if (pre.parentElement?.classList.contains("code-frame")) return;
+    const frame = document.createElement("div");
+    frame.className = "code-frame";
+    const btn = document.createElement("button");
+    btn.className = "copy-code mono";
+    btn.type = "button";
+    btn.textContent = "Copy";
+    btn.setAttribute("aria-label", "Copy code to clipboard");
+    pre.replaceWith(frame);
+    frame.append(pre, btn);
+  });
 
   updateScrollState();
 });

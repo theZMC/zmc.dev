@@ -99,8 +99,7 @@ export function cutLabelGaps(svg: SVGSVGElement): void {
     if (!ring || !tp) return;
 
     const C = ring.getTotalLength();
-    const tracking =
-      parseFloat(getComputedStyle(label).letterSpacing) || 0;
+    const tracking = parseFloat(getComputedStyle(label).letterSpacing) || 0;
     const L =
       label.getComputedTextLength() +
       deficit * label.getNumberOfChars() * tracking;
@@ -156,6 +155,48 @@ export function cometPosition(scrollY: number): CometPosition {
   };
 }
 
+/** One scroll frame's geometry, as measured by the site scroll handler. */
+export interface OrreryFrame {
+  /** Nav bottom border (viewport px) — the docked/final position. */
+  dock: number;
+  /** Hero anchor centre (viewport px), or null when the page has none. */
+  anchorCentre: number | null;
+  /** Real scrollY. */
+  y: number;
+  /** Eased virtual scroll chasing y. */
+  smoothY: number;
+  /** [data-orrery-dock] section top (viewport px), or null when absent. */
+  dockTop: number | null;
+  /** That section's scroll-margin-top. */
+  dockMargin: number;
+  /** prefers-reduced-motion. */
+  reduced: boolean;
+}
+
+/**
+ * The orrery's centre (viewport px) for a scroll frame. It starts on the
+ * page's hero anchor (when one exists) and eases up to dock on the nav's
+ * bottom border. With a dock section present, it parallaxes: docking
+ * completes exactly as that section reaches its scroll-margin anchor point,
+ * so the orrery climbs slower than the hero. Parallax is added motion, so
+ * reduced motion falls back to riding the anchor 1:1 — that mirrors
+ * ordinary document scrolling.
+ */
+export function orreryTargetY(f: OrreryFrame): number {
+  if (f.anchorCentre === null) return f.dock;
+  if (f.reduced) return Math.max(f.dock, f.anchorCentre);
+  /* Rects are viewport-relative and move with the real scroll, so lift the
+     geometry into document coords (scroll-invariant) before evaluating it
+     at the eased position. */
+  const anchorDoc = f.anchorCentre + f.y;
+  const dockScroll = f.dockTop !== null ? f.dockTop + f.y - f.dockMargin : 0;
+  if (dockScroll > 0) {
+    const p = Math.min(1, Math.max(0, f.smoothY / dockScroll));
+    return Math.max(f.dock, anchorDoc + p * (f.dock - anchorDoc));
+  }
+  return Math.max(f.dock, anchorDoc - f.smoothY);
+}
+
 /* Orbit refs and their data-* rates, captured once per page view —
    updateOrbits runs every scroll frame and must not re-query or re-parse.
    Module-scope lets, DOM touched only inside functions (node-import safe). */
@@ -171,9 +212,9 @@ let cometTail: HTMLElement | null = null;
  * so the previous page's refs would otherwise animate detached nodes.
  */
 export function cacheOrbitRefs(): void {
-  orbitGroups = [
-    ...document.querySelectorAll<SVGGElement>(".orbit-group"),
-  ].map((el) => ({ el, rate: parseFloat(el.dataset.rate || "0") }));
+  orbitGroups = [...document.querySelectorAll<SVGGElement>(".orbit-group")].map(
+    (el) => ({ el, rate: parseFloat(el.dataset.rate || "0") }),
+  );
   moonOrbits = [...document.querySelectorAll<SVGGElement>(".moon-orbit")].map(
     (el) => ({
       el,
