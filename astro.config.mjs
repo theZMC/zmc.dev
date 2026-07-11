@@ -6,6 +6,8 @@ import { rehypeHeadingIds } from "@astrojs/markdown-remark";
 
 import relativeLinks from "astro-relative-links";
 
+import { zmcDark, zmcLight } from "./src/lib/shiki/zmc-themes.mjs";
+
 // https://astro.build/config
 export default defineConfig({
   site: "https://zmc.dev",
@@ -20,8 +22,8 @@ export default defineConfig({
   markdown: {
     shikiConfig: {
       themes: {
-        light: "github-light",
-        dark: "github-dark",
+        light: zmcLight,
+        dark: zmcDark,
       },
       // Emit only --shiki-dark/--shiki-light custom props (no inline color),
       // so the theme CSS can pick the right one per data-theme.
