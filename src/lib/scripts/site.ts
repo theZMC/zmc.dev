@@ -8,14 +8,14 @@ let ticking = false;
 
 function updateScrollState(): void {
   const y = window.scrollY;
+  const nav = document.querySelector("nav");
+  const dock = nav ? nav.getBoundingClientRect().bottom : 70;
 
   // The orrery's centre rides the page's hero anchor (when one exists) until
   // it docks on the nav's bottom border. This mirrors ordinary document
   // scrolling — not added motion — so it stays live under reduced motion.
   const orrery = document.querySelector<SVGSVGElement>("svg.orrery");
   if (orrery) {
-    const nav = document.querySelector("nav");
-    const dock = nav ? nav.getBoundingClientRect().bottom : 70;
     const anchor = document.querySelector("[data-orrery-anchor]");
     let target = dock;
     if (anchor) {
@@ -23,6 +23,17 @@ function updateScrollState(): void {
       target = Math.max(dock, r.top + r.height / 2);
     }
     orrery.style.setProperty("--orrery-y", `${target}px`);
+  }
+
+  // The descend cue fades once the user complies: opaque until it climbs to
+  // the viewport's midline, gone before it slips under the docked nav.
+  const cue = document.querySelector<HTMLElement>(".scroll-cue");
+  if (cue) {
+    const r = cue.getBoundingClientRect();
+    const fadeStart = window.innerHeight / 2;
+    const fadeEnd = dock + 48;
+    const t = (r.top + r.height / 2 - fadeEnd) / Math.max(1, fadeStart - fadeEnd);
+    cue.style.opacity = `${Math.min(1, Math.max(0, t))}`;
   }
 
   if (!prefersReduced.matches) {
