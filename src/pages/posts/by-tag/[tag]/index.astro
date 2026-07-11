@@ -48,7 +48,9 @@ const formatDate = (date: string) =>
           <a class="tx-row glint-row" href={`/posts/${post.id}`}>
             <h3>{post.data.title}</h3>
             <span class="tx-meta">
-              <span class="mono">{formatDate(post.data.date)}</span>
+              <time class="mono" datetime={post.data.date}>
+                {formatDate(post.data.date)}
+              </time>
               <span class="arrow">→</span>
             </span>
           </a>

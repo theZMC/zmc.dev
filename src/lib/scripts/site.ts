@@ -104,18 +104,47 @@ document.addEventListener("click", (e) => {
   }
 });
 
-document.addEventListener("pointermove", (e) => {
+/* Shimmer tracking coalesced to one write per frame: high-rate mice fire
+   pointermove up to 1000Hz, so stash the latest pointer state and let a
+   single rAF apply it. */
+let glintPending = false;
+let glintTarget: Element | null = null;
+let glintX = 0;
+let glintY = 0;
+
+function applyGlint(): void {
+  glintPending = false;
   // Shimmer surfaces nest (rows inside panels): feed the cursor position to
   // every enclosing surface so both rings track it.
-  let surface: Element | null | undefined = (
-    e.target as Element | null
-  )?.closest(".panel, .glint-row");
+  let surface: Element | null | undefined = glintTarget?.closest(
+    ".panel, .glint-row",
+  );
   while (surface instanceof HTMLElement) {
     const r = surface.getBoundingClientRect();
-    surface.style.setProperty("--mx", `${e.clientX - r.left}px`);
-    surface.style.setProperty("--my", `${e.clientY - r.top}px`);
+    surface.style.setProperty("--mx", `${glintX - r.left}px`);
+    surface.style.setProperty("--my", `${glintY - r.top}px`);
     surface = surface.parentElement?.closest(".panel, .glint-row");
   }
+}
+
+document.addEventListener("pointermove", (e) => {
+  glintTarget = e.target as Element | null;
+  glintX = e.clientX;
+  glintY = e.clientY;
+  if (!glintPending) {
+    window.requestAnimationFrame(applyGlint);
+    glintPending = true;
+  }
+});
+
+/* Cold-cache hardening: fonts.status can read "loaded" before layout has
+   requested Cormorant (deferred rendering, background tabs), so the gaps get
+   cut against the fallback serif. When a real face lands later, re-cut them —
+   cutLabelGaps is idempotent. Module-scope like the bindings above, so it
+   never stacks across client-side navs; it re-queries the current svg. */
+document.fonts.addEventListener("loadingdone", () => {
+  const svg = document.querySelector<SVGSVGElement>("svg.orrery");
+  if (svg) cutLabelGaps(svg);
 });
 
 window.addEventListener("scroll", onScroll, { passive: true });
