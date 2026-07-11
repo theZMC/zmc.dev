@@ -96,7 +96,7 @@ const faviconUrl = Astro.site
   <body>
     <Cosmos />
     <Nav links={navLinks} {showProgress} trimOnMobile={trimNavOnMobile} />
-    <main transition:animate="fade">
+    <main>
       <slot />
     </main>
     <Footer links={footerLinks} />

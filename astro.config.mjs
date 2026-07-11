@@ -23,8 +23,9 @@ export default defineConfig({
         light: "github-light",
         dark: "github-dark",
       },
-      // Inline the dark colors; light theme swaps to --shiki-light via CSS.
-      defaultColor: "dark",
+      // Emit only --shiki-dark/--shiki-light custom props (no inline color),
+      // so the theme CSS can pick the right one per data-theme.
+      defaultColor: false,
     },
     rehypePlugins: [
       rehypeHeadingIds,
