@@ -198,17 +198,42 @@ function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
     position: relative;
   }
   /* legibility scrim: a soft pool of the page colour that quiets the chart's
-     strokes beneath the hero lettering */
-  .hero-inner::before {
+     strokes beneath the hero lettering. The eased stops avoid the Mach bands
+     a two-stop linear ramp shows at its ends. */
+  .hero-inner::before,
+  .hero-inner::after {
     content: "";
     position: absolute;
     inset: -4rem -6rem;
     z-index: -1;
     pointer-events: none;
+  }
+  .hero-inner::before {
     background: radial-gradient(
       ellipse closest-side,
       color-mix(in srgb, var(--bg) 85%, transparent) 30%,
+      color-mix(in srgb, var(--bg) 74%, transparent) 52%,
+      color-mix(in srgb, var(--bg) 48%, transparent) 71%,
+      color-mix(in srgb, var(--bg) 20%, transparent) 87%,
       transparent
+    );
+  }
+  /* fine grain over the same ellipse dithers away the 8-bit banding the
+     gradient ramp would otherwise show on wide-gamut displays */
+  .hero-inner::after {
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")
+      repeat;
+    background-size: 160px 160px;
+    opacity: 0.035;
+    -webkit-mask-image: radial-gradient(
+      ellipse closest-side,
+      #000 25%,
+      transparent 82%
+    );
+    mask-image: radial-gradient(
+      ellipse closest-side,
+      #000 25%,
+      transparent 82%
     );
   }
   .hero-inner .epoch {
