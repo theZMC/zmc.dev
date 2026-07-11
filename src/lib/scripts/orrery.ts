@@ -60,6 +60,29 @@ export function generateGraticule(svg: SVGSVGElement): void {
 }
 
 /**
+ * WebKit's getComputedTextLength() ignores CSS letter-spacing while the
+ * text-on-path layout applies it, so gaps sized from the measurement come up
+ * one tracking-width short per character. Detect the deficit once by
+ * measuring a probe string with and without letter-spacing; returns 1 when
+ * the engine under-measures (compensate), 0 when it measures faithfully.
+ */
+let trackingDeficit: number | null = null;
+function measureTrackingDeficit(svg: SVGSVGElement): number {
+  const probe = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  probe.setAttribute(
+    "style",
+    "font-family: monospace; font-size: 10px; letter-spacing: 0px",
+  );
+  probe.textContent = "MM";
+  svg.appendChild(probe);
+  const plain = probe.getComputedTextLength();
+  probe.style.letterSpacing = "10px";
+  const tracked = probe.getComputedTextLength();
+  probe.remove();
+  return tracked - plain >= 5 ? 0 : 1;
+}
+
+/**
  * Inset labels: gap each ring exactly where its text sits.
  * Ring paths share geometry (and therefore arc-length parameterization) with
  * their label paths, so a label at startOffset s% occupies the ring's arc
@@ -68,6 +91,7 @@ export function generateGraticule(svg: SVGSVGElement): void {
  * the gap must fit the rendered lettering.
  */
 export function cutLabelGaps(svg: SVGSVGElement): void {
+  const deficit = (trackingDeficit ??= measureTrackingDeficit(svg));
   svg.querySelectorAll<SVGTextElement>("text.orbit-label").forEach((label) => {
     const group = label.closest("g");
     const ring = group && group.querySelector<SVGPathElement>(".gap-ring");
@@ -75,7 +99,11 @@ export function cutLabelGaps(svg: SVGSVGElement): void {
     if (!ring || !tp) return;
 
     const C = ring.getTotalLength();
-    const L = label.getComputedTextLength();
+    const tracking =
+      parseFloat(getComputedStyle(label).letterSpacing) || 0;
+    const L =
+      label.getComputedTextLength() +
+      deficit * label.getNumberOfChars() * tracking;
     const pad = parseFloat(ring.dataset.labelPad || "5");
     const s = (parseFloat(tp.getAttribute("startOffset") || "0") / 100) * C;
 
