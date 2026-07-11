@@ -1,0 +1,97 @@
+name: Zach Callahan
+designation: SysAdmin turned Software Engineer
+location: Arkansas, United States
+email: zach@zmc.dev
+phone:
+  display: 1 (479) 459-5787
+  tel: "14794595787"
+site: zmc.dev
+github: https://github.com/theZMC
+linkedin: https://www.linkedin.com/in/thezmc/
+
+# Conventional-resume summary (PDF only; the site renders `profile` instead).
+summary: >-
+  Software engineer by way of system administration — self-taught, working
+  with Linux daily since 2006. Builds automation and tooling in Go and Bash;
+  leadership forged in retail management and six years as an Army National
+  Guard combat medic. Teaches frontend fundamentals at the Arkansas Coding
+  Academy.
+
+# Site profile prose. Strings may carry inline HTML (rendered via set:html).
+profile:
+  lede: >-
+    Software engineer by way of system administration — and before that,
+    retail floors and field medicine. Automation and tooling are the passion;
+    the goal is to <em>make my team's job easier today than it was
+    yesterday.</em> Mostly self-taught, working with Linux daily since 2006,
+    and a firm believer that the best solutions are built by communities.
+  body:
+    - >-
+      Bash and Go are the languages I reach for most, but I'm always adding
+      to the toolbox. Whether on a team or solo, I strive to leave things
+      better than I found them.
+    - >-
+      Nine years in retail management taught me how to identify people's
+      strengths and develop them — everyone has at least one. Six years as a
+      combat medic in the Arkansas Army National Guard (honorably discharged
+      2017) taught me leadership and teamwork under pressure.
+    - >-
+      I also teach frontend fundamentals at the Arkansas Coding Academy. Off
+      the clock: tinkering with computers and electronics, my girlfriend, and
+      our three dogs.
+
+# Array order is the site's display order; the PDF groups by category.
+skills:
+  - name: Go
+    level: expert
+    category: Languages & Frameworks
+  - name: Kubernetes
+    level: expert
+    category: Infrastructure & Cloud
+  - name: Linux
+    level: expert
+    category: Infrastructure & Cloud
+  - name: Bash
+    level: expert
+    category: Languages & Frameworks
+  - name: Docker
+    level: expert
+    category: Infrastructure & Cloud
+  - name: AWS
+    level: expert
+    category: Infrastructure & Cloud
+  - name: Terraform
+    level: expert
+    category: Infrastructure & Cloud
+  - name: HTML / CSS
+    level: expert
+    category: Languages & Frameworks
+  - name: TypeScript
+    level: advanced
+    category: Languages & Frameworks
+  - name: Svelte / SvelteKit
+    level: advanced
+    category: Languages & Frameworks
+  - name: Java
+    level: advanced
+    category: Languages & Frameworks
+  - name: Pulumi
+    level: advanced
+    category: Infrastructure & Cloud
+  - name: OpenTelemetry
+    level: advanced
+    category: Practices & Tooling
+  - name: Technical Writing
+    level: advanced
+    category: Practices & Tooling
+  - name: Git
+    level: advanced
+    category: Practices & Tooling
+
+certifications:
+  - name: Certified Kubernetes Administrator
+    short: CKA
+    issuer: CNCF
+  - name: Certified Kubernetes Security Specialist
+    short: CKS
+    issuer: CNCF

@@ -43,6 +43,46 @@ const jobs = defineCollection({
   }),
 });
 
+const resume = defineCollection({
+  loader: glob({
+    pattern: "*.yaml",
+    base: "./src/data/resume",
+  }),
+  schema: z.object({
+    name: z.string(),
+    designation: z.string(),
+    location: z.string(),
+    email: z.string().email(),
+    phone: z.object({
+      display: z.string(),
+      tel: z.string(),
+    }),
+    site: z.string(),
+    github: z.string().url(),
+    linkedin: z.string().url(),
+    summary: z.string(),
+    profile: z.object({
+      lede: z.string(),
+      body: z.array(z.string()),
+    }),
+    skills: z.array(
+      z.object({
+        name: z.string(),
+        level: z.enum(["expert", "advanced"]),
+        category: z.string(),
+      }),
+    ),
+    certifications: z.array(
+      z.object({
+        name: z.string(),
+        short: z.string(),
+        issuer: z.string(),
+        year: z.number().optional(),
+      }),
+    ),
+  }),
+});
+
 const projects = defineCollection({
   loader: glob({
     pattern: "**/*.md",
@@ -57,4 +97,4 @@ const projects = defineCollection({
   }),
 });
 
-export const collections = { blog, jobs, projects };
+export const collections = { blog, jobs, projects, resume };

@@ -1,32 +1,12 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
 import { toRoman } from "@lib/utils/roman";
-import { getCollection, render } from "astro:content";
+import { monthKey, shortDate } from "@lib/utils/tenure";
+import { getCollection, getEntry, render } from "astro:content";
 
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
-
-interface Month {
-  month: number;
-  year: number;
-}
-
-const monthKey = (m?: Month) =>
-  m ? m.year * 12 + m.month : Number.POSITIVE_INFINITY;
-
-const shortDate = (m: Month) => `${MONTHS[m.month - 1]} ${m.year}`;
+const resumeEntry = await getEntry("resume", "resume");
+if (!resumeEntry) throw new Error("resume collection entry missing");
+const resume = resumeEntry.data;
 
 const jobs = await getCollection("jobs");
 
@@ -48,36 +28,11 @@ const renderedJobs = await Promise.all(
     }),
 );
 
-type SkillLevel = "expert" | "advanced";
-
-interface Skill {
-  name: string;
-  level: SkillLevel;
-}
-
-const skills: Skill[] = [
-  { name: "Go", level: "expert" },
-  { name: "Kubernetes", level: "expert" },
-  { name: "Linux", level: "expert" },
-  { name: "Bash", level: "expert" },
-  { name: "Docker", level: "expert" },
-  { name: "AWS", level: "expert" },
-  { name: "Terraform", level: "expert" },
-  { name: "HTML / CSS", level: "expert" },
-  { name: "TypeScript", level: "advanced" },
-  { name: "Svelte / SvelteKit", level: "advanced" },
-  { name: "Java", level: "advanced" },
-  { name: "Pulumi", level: "advanced" },
-  { name: "OpenTelemetry", level: "advanced" },
-  { name: "Technical Writing", level: "advanced" },
-  { name: "Git", level: "advanced" },
-];
-
 const eyebrow = `Personnel Dossier · ${toRoman(new Date().getFullYear())}`;
 
 const footerLinks = [
-  { label: "GitHub", href: "https://github.com/theZMC" },
-  { label: "LinkedIn", href: "https://www.linkedin.com/in/thezmc/" },
+  { label: "GitHub", href: resume.github },
+  { label: "LinkedIn", href: resume.linkedin },
   { label: "Writing", href: "/posts" },
   { label: "Home", href: "/" },
 ];
@@ -94,9 +49,9 @@ const footerLinks = [
       <div class="dossier-head">
         <div>
           <span class="mono eyebrow">{eyebrow}</span>
-          <h1>ZACH CALLAHAN</h1>
-          <p class="designation">SysAdmin turned Software Engineer</p>
-          <span class="mono loc">Arkansas, United States · zmc.dev</span>
+          <h1>{resume.name.toUpperCase()}</h1>
+          <p class="designation">{resume.designation}</p>
+          <span class="mono loc">{resume.location} · {resume.site}</span>
         </div>
         <div class="actions">
           <a
@@ -109,11 +64,11 @@ const footerLinks = [
           <button class="action" onclick="window.print()">
             Print Dossier <span class="glyph">⎙</span>
           </button>
-          <a class="action" href="mailto:zach@zmc.dev">
-            zach@zmc.dev <span class="glyph">→</span>
+          <a class="action" href={`mailto:${resume.email}`}>
+            {resume.email} <span class="glyph">→</span>
           </a>
-          <a class="action" href="tel:14794595787">
-            1 (479) 459-5787 <span class="glyph">→</span>
+          <a class="action" href={`tel:${resume.phone.tel}`}>
+            {resume.phone.display} <span class="glyph">→</span>
           </a>
         </div>
       </div>
@@ -125,31 +80,9 @@ const footerLinks = [
         <span class="mono coord">Section I</span>
       </div>
       <div class="profile-grid">
-        <p class="lede">
-          Software engineer by way of system administration — and before that,
-          retail floors and field medicine. Automation and tooling are the
-          passion; the goal is to <em
-            >make my team's job easier today than it was yesterday.</em
-          > Mostly self-taught, working with Linux daily since 2006, and a firm
-          believer that the best solutions are built by communities.
-        </p>
+        <p class="lede" set:html={resume.profile.lede} />
         <div class="body-col">
-          <p>
-            Bash and Go are the languages I reach for most, but I'm always
-            adding to the toolbox. Whether on a team or solo, I strive to leave
-            things better than I found them.
-          </p>
-          <p>
-            Nine years in retail management taught me how to identify people's
-            strengths and develop them — everyone has at least one. Six years
-            as a combat medic in the Arkansas Army National Guard (honorably
-            discharged 2017) taught me leadership and teamwork under pressure.
-          </p>
-          <p>
-            I also teach frontend fundamentals at the Arkansas Coding Academy.
-            Off the clock: tinkering with computers and electronics, my
-            girlfriend, and our three dogs.
-          </p>
+          {resume.profile.body.map((para) => <p set:html={para} />)}
         </div>
       </div>
     </section>
@@ -165,7 +98,7 @@ const footerLinks = [
       </div>
       <div class="skills">
         {
-          skills.map((skill) => (
+          resume.skills.map((skill) => (
             <span class="skill">
               <i class={`dot ${skill.level}`} /> {skill.name}
             </span>
@@ -308,7 +241,8 @@ const footerLinks = [
     font-size: 1.2rem;
     line-height: 1.75;
   }
-  .profile-grid .lede em {
+  /* :global — the lede is injected via set:html, so its em is unscoped */
+  .profile-grid .lede :global(em) {
     font-style: normal;
     color: var(--brass);
   }
@@ -489,7 +423,7 @@ const footerLinks = [
     .svc-when .span,
     .svc-row .post,
     .dossier-head .eyebrow,
-    .profile-grid .lede em {
+    .profile-grid .lede :global(em) {
       color: #111;
     }
     .sec-head {
