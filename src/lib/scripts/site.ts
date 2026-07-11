@@ -26,14 +26,17 @@ function updateScrollState(): void {
   }
 
   // The descend cue fades once the user complies: opaque until it climbs to
-  // the viewport's midline, gone before it slips under the docked nav.
+  // the viewport's midline, gone before it slips under the docked nav. It is
+  // a link, so it also stops being clickable once invisible.
   const cue = document.querySelector<HTMLElement>(".scroll-cue");
   if (cue) {
     const r = cue.getBoundingClientRect();
     const fadeStart = window.innerHeight / 2;
     const fadeEnd = dock + 48;
     const t = (r.top + r.height / 2 - fadeEnd) / Math.max(1, fadeStart - fadeEnd);
-    cue.style.opacity = `${Math.min(1, Math.max(0, t))}`;
+    const opacity = Math.min(1, Math.max(0, t));
+    cue.style.opacity = `${opacity}`;
+    cue.style.pointerEvents = opacity === 0 ? "none" : "";
   }
 
   if (!prefersReduced.matches) {

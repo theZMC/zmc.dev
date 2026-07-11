@@ -438,6 +438,14 @@ main {
 .sec-head .coord {
   margin-left: auto;
 }
+/* a coord caption that is a real destination (e.g. the GitHub handle) */
+.sec-head a.coord {
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.sec-head a.coord:hover {
+  color: var(--brass);
+}
 
 .tag {
   font-family: "Spline Sans Mono", monospace;

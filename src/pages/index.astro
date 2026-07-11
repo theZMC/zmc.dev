@@ -45,14 +45,16 @@ function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
       </p>
       <div class="hero-rule"></div>
     </div>
-    <p class="mono scroll-cue">Descend ↓</p>
+    <a class="mono scroll-cue" href="#work">Descend ↓</a>
   </header>
 
   <div class="panel-wrap">
     <section id="work" class="panel">
       <div class="sec-head">
         <h2><a href="#work">Selected Work</a></h2>
-        <span class="mono coord">Open Source · github.com/theZMC</span>
+        <a class="mono coord" href="https://github.com/theZMC"
+          >Open Source · github.com/theZMC</a
+        >
       </div>
 
       {
@@ -298,6 +300,11 @@ function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
     left: 50%;
     transform: translateX(-50%);
     color: var(--ink-dim);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .scroll-cue:hover {
+    color: var(--brass);
   }
 
   .panel {
