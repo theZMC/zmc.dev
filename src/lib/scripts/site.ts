@@ -87,11 +87,17 @@ document.addEventListener("click", (e) => {
 });
 
 document.addEventListener("pointermove", (e) => {
-  const panel = (e.target as Element | null)?.closest(".panel");
-  if (!(panel instanceof HTMLElement)) return;
-  const r = panel.getBoundingClientRect();
-  panel.style.setProperty("--mx", `${e.clientX - r.left}px`);
-  panel.style.setProperty("--my", `${e.clientY - r.top}px`);
+  // Shimmer surfaces nest (rows inside panels): feed the cursor position to
+  // every enclosing surface so both rings track it.
+  let surface: Element | null | undefined = (
+    e.target as Element | null
+  )?.closest(".panel, .glint-row");
+  while (surface instanceof HTMLElement) {
+    const r = surface.getBoundingClientRect();
+    surface.style.setProperty("--mx", `${e.clientX - r.left}px`);
+    surface.style.setProperty("--my", `${e.clientY - r.top}px`);
+    surface = surface.parentElement?.closest(".panel, .glint-row");
+  }
 });
 
 window.addEventListener("scroll", onScroll, { passive: true });

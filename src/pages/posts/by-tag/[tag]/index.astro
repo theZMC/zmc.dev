@@ -45,7 +45,7 @@ const formatDate = (date: string) =>
 
       {
         posts.map((post) => (
-          <a class="tx-row" href={`/posts/${post.id}`}>
+          <a class="tx-row glint-row" href={`/posts/${post.id}`}>
             <h3>{post.data.title}</h3>
             <span class="tx-meta">
               <span class="mono">{formatDate(post.data.date)}</span>
@@ -82,12 +82,8 @@ const formatDate = (date: string) =>
     align-items: baseline;
     gap: 2rem;
     justify-content: space-between;
-    padding: 1.7rem 0;
-    border-bottom: 1px solid var(--hair);
+    padding: 1.7rem var(--row-pad);
     text-decoration: none;
-  }
-  .tx-row:last-of-type {
-    border-bottom: none;
   }
   .tx-row h3 {
     font-family: "Marcellus", serif;

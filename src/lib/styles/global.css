@@ -9,7 +9,6 @@
   --brass-dim: rgba(200, 169, 106, 0.34);
   --celest: #7a93b8;
   --hair: rgba(232, 228, 216, 0.1);
-  --row-glow: rgba(200, 169, 106, 0.05);
   --glass: rgba(15, 19, 29, 0.55);
   --glass-solid: rgba(15, 19, 29, 0.94);
   --glass-hair: rgba(232, 228, 216, 0.13);
@@ -38,7 +37,6 @@
   --brass-dim: rgba(143, 111, 53, 0.42);
   --celest: #4e6685;
   --hair: rgba(26, 30, 41, 0.14);
-  --row-glow: rgba(143, 111, 53, 0.07);
   --glass: rgba(242, 237, 223, 0.55);
   --glass-solid: rgba(242, 237, 223, 0.95);
   --glass-hair: rgba(26, 30, 41, 0.16);
@@ -103,7 +101,6 @@ nav,
 .panel,
 .tag,
 .cta,
-.work-row,
 .svc-row {
   transition:
     background-color 0.45s ease,
@@ -312,8 +309,33 @@ main {
   border-radius: 14px;
   position: relative;
 }
+/* hoverable index rows: the panels' border shimmer at row scale is the
+   hover highlight. --row-pad insets the text from the clickable surface;
+   pages reuse it in their padding so the two stay in lockstep. The hairline
+   separator lives on ::after so it spans the text column, not the ring. */
+.glint-row {
+  --row-pad: 1.4rem;
+  position: relative;
+  border-radius: 10px;
+  margin: 0 calc(-1 * var(--row-pad));
+}
+.glint-row::after {
+  content: "";
+  position: absolute;
+  left: var(--row-pad);
+  right: var(--row-pad);
+  bottom: 0;
+  height: 1px;
+  background: var(--hair);
+  transition: background-color 0.45s ease;
+}
+.glint-row:last-of-type::after {
+  display: none;
+}
+
 /* border shimmer: gradient painted only into the 1px border ring via mask */
-.panel::before {
+.panel::before,
+.glint-row::before {
   content: "";
   position: absolute;
   inset: -1px;
@@ -342,7 +364,27 @@ main {
   opacity: 0;
   transition: opacity 0.45s ease;
 }
-.panel:hover::before {
+/* Rows lack the panel's resting border, so their ring carries its own
+   hairline base layer under the shimmer and floats clear of the row
+   separators; otherwise it reads as a tint on the hairlines, not an
+   outline. */
+.glint-row::before {
+  inset: 0.45rem -1px;
+  background:
+    radial-gradient(
+      110px circle at var(--mx, 50%) var(--my, 50%),
+      var(--shimmer-core),
+      transparent 70%
+    ),
+    radial-gradient(
+      340px circle at var(--mx, 50%) var(--my, 50%),
+      var(--shimmer-brass),
+      transparent 72%
+    ),
+    linear-gradient(var(--glass-hair) 0 0);
+}
+.panel:hover::before,
+.glint-row:hover::before {
   opacity: 1;
 }
 @supports not (
@@ -440,6 +482,9 @@ footer a:hover {
   .panel {
     margin-bottom: 3rem;
     border-radius: 10px;
+  }
+  .glint-row {
+    --row-pad: 1rem;
   }
   .foot-inner {
     padding: 1.6rem 1.4rem;

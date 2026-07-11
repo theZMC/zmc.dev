@@ -57,7 +57,7 @@ function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
 
       {
         projects.map((project) => (
-          <a class="work-row" href={project.data.url}>
+          <a class="work-row glint-row" href={project.data.url}>
             <span class="mono kind">{project.data.kind}</span>
             <div>
               <h3>{project.data.name}</h3>
@@ -116,7 +116,7 @@ function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
 
       {
         posts.map((post) => (
-          <a class="tx-row" href={`/posts/${post.id}`}>
+          <a class="tx-row glint-row" href={`/posts/${post.id}`}>
             <h3>{post.data.title}</h3>
             <span class="arrow">→</span>
           </a>
@@ -306,16 +306,8 @@ function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
     display: grid;
     grid-template-columns: 110px 1fr 300px;
     gap: 2.4rem;
-    padding: 2.4rem 0;
-    border-bottom: 1px solid var(--hair);
+    padding: 2.4rem var(--row-pad);
     text-decoration: none;
-    position: relative;
-  }
-  .work-row:last-of-type {
-    border-bottom: none;
-  }
-  .work-row:hover {
-    background: linear-gradient(to right, var(--row-glow), transparent 70%);
   }
   .work-row .kind {
     padding-top: 0.45rem;
@@ -385,12 +377,8 @@ function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
     align-items: baseline;
     gap: 2rem;
     justify-content: space-between;
-    padding: 1.7rem 0;
-    border-bottom: 1px solid var(--hair);
+    padding: 1.7rem var(--row-pad);
     text-decoration: none;
-  }
-  .tx-row:last-of-type {
-    border-bottom: none;
   }
   .tx-row h3 {
     font-family: "Marcellus", serif;
@@ -491,7 +479,7 @@ function tenureSpan(tenure: (typeof jobs)[number]["data"]["tenure"]): string {
     .work-row {
       grid-template-columns: 1fr;
       gap: 0.9rem;
-      padding: 2rem 0;
+      padding: 2rem var(--row-pad);
     }
     .work-row .tags {
       justify-content: flex-start;
