@@ -200,16 +200,37 @@ const { Content } = await render(post);
     letter-spacing: 0.08em;
     margin: 2.2rem 0 0.9rem;
   }
+  .post-body h4 {
+    font-family: "Marcellus", serif;
+    font-weight: 400;
+    font-size: 1.05rem;
+    letter-spacing: 0.06em;
+    margin: 1.8rem 0 0.7rem;
+  }
+  .post-body h5,
+  .post-body h6 {
+    font-family: "Marcellus", serif;
+    font-weight: 400;
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+    margin: 1.5rem 0 0.6rem;
+  }
   /* rehype-autolink-headings wraps heading text in an anchor link;
      keep it visually indistinguishable from plain heading text. */
   .post-body h2 a.anchor,
-  .post-body h3 a.anchor {
+  .post-body h3 a.anchor,
+  .post-body h4 a.anchor,
+  .post-body h5 a.anchor,
+  .post-body h6 a.anchor {
     color: inherit;
     text-decoration: none;
     border-bottom: none;
   }
   .post-body h2 a.anchor:hover,
-  .post-body h3 a.anchor:hover {
+  .post-body h3 a.anchor:hover,
+  .post-body h4 a.anchor:hover,
+  .post-body h5 a.anchor:hover,
+  .post-body h6 a.anchor:hover {
     border-bottom: none;
   }
   .post-body ul {
