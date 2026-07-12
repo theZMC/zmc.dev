@@ -445,9 +445,8 @@ main {
   background:
     radial-gradient(circle closest-side, var(--brass-dim) 68%, transparent 72%)
       left var(--row-pad) bottom 0 / 5px 5px no-repeat,
-    linear-gradient(to right, var(--brass-dim), transparent)
-      left calc(var(--row-pad) + 4px) bottom 2px / min(26rem, 65%) 1px
-      no-repeat;
+    linear-gradient(to right, var(--brass-dim), transparent) left
+      calc(var(--row-pad) + 4px) bottom 2px / min(26rem, 65%) 1px no-repeat;
 }
 
 /* border shimmer: gradient painted only into the 1px border ring via mask */
@@ -784,4 +783,18 @@ footer a:hover {
   .sec-head h2 {
     font-size: 1.25rem;
   }
+}
+
+/* Screen-reader skip link: visually hidden at all times (deliberately not
+   revealed on focus), but first in the tab/reading order so assistive tech
+   can jump past the nav and cosmos chrome to the main content. */
+.skip-link {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

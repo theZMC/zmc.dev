@@ -31,7 +31,6 @@ const footerLinks = [
   pageTitle="Zach Callahan — Resume · zmc.dev"
   metaDescription="Zach Callahan's professional resume"
   {footerLinks}
- 
 >
   <div class="resume panel-wrap">
     <section class="panel">
@@ -56,10 +55,12 @@ const footerLinks = [
             <span class="glyph">⎙</span>
           </button>
           <a class="action" href={`mailto:${resume.email}`}>
-            {resume.email} <span class="glyph">→</span>
+            {resume.email}
+            <span class="glyph">→</span>
           </a>
           <a class="action" href={`tel:${resume.phone.tel}`}>
-            {resume.phone.display} <span class="glyph">→</span>
+            {resume.phone.display}
+            <span class="glyph">→</span>
           </a>
         </div>
       </div>
@@ -340,7 +341,7 @@ const footerLinks = [
   /* :global — the lede is injected via set:html, so its em is unscoped */
   .profile-grid .lede :global(em) {
     font-style: normal;
-    color: var(--brass);
+    font-weight: 600;
   }
   .profile-grid .body-col p {
     color: var(--ink-dim);
@@ -563,8 +564,7 @@ const footerLinks = [
     .dossier-head .designation,
     .svc-when .span,
     .svc-row .post,
-    .dossier-head .eyebrow,
-    .profile-grid .lede :global(em) {
+    .dossier-head .eyebrow {
       color: #111;
     }
     .sec-head {

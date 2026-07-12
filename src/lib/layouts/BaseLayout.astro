@@ -4,6 +4,7 @@ import "@fontsource/marcellus/400.css";
 import "@fontsource/cormorant/500-italic.css";
 import "@fontsource/instrument-sans/400.css";
 import "@fontsource/instrument-sans/500.css";
+import "@fontsource/instrument-sans/600.css";
 import "@fontsource/instrument-sans/400-italic.css";
 import "@fontsource/spline-sans-mono/300.css";
 import "@fontsource/spline-sans-mono/400.css";
@@ -38,7 +39,6 @@ const {
   footerLinks,
   showProgress,
 } = Astro.props;
-
 ---
 
 <html lang="en" data-theme="dark">
@@ -97,9 +97,10 @@ const {
     <title>{pageTitle}</title>
   </head>
   <body>
+    <a class="skip-link" href="#content">Skip to content</a>
     <Cosmos />
     <Nav links={navLinks} {showProgress} />
-    <main>
+    <main id="content">
       <slot />
     </main>
     <Footer links={footerLinks} />
