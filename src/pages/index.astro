@@ -66,7 +66,9 @@ const talks = (await getCollection("talks"))
           >
             <span class="mono kind">{project.data.kind}</span>
             <div>
-              <h3>{project.data.name}</h3>
+              <h3>
+                {project.data.name} <span class="arrow">↗</span>
+              </h3>
               <p>{project.body?.trim()}</p>
             </div>
             <div class="tags">
@@ -141,7 +143,7 @@ const talks = (await getCollection("talks"))
           </div>
 
           {talks.map((talk) => (
-            <div class="talk-row">
+            <div class="talk-row glint-row">
               <span class="venue">
                 {talk.data.event.url ? (
                   <a
@@ -395,6 +397,11 @@ const talks = (await getCollection("talks"))
   .work-row:hover h3 {
     color: var(--brass);
   }
+  .work-row .arrow {
+    color: var(--brass);
+    font-family: "Spline Sans Mono", monospace;
+    font-size: 0.85em;
+  }
   .work-row p {
     color: var(--ink-dim);
     font-size: 0.95rem;
@@ -414,10 +421,10 @@ const talks = (await getCollection("talks"))
     grid-template-columns: 210px 1fr;
     gap: 2.4rem;
     padding: 2.2rem 0;
-    border-bottom: 1px solid var(--hair);
+    background: var(--brass-rule) center bottom / 100% 1px no-repeat;
   }
   .svc-row:last-of-type {
-    border-bottom: none;
+    background: none;
   }
   .svc-row .span {
     font-family: "Marcellus", serif;
@@ -467,17 +474,27 @@ const talks = (await getCollection("talks"))
     font-family: "Spline Sans Mono", monospace;
   }
 
-  /* symposia: the deck opens in a new tab (a full-window Slidev SPA outside
-     the site shell), hence the ↗ instead of the row-link → */
+  /* symposia: glint rows like the other indexes, but venue and recording
+     are links of their own and anchors don't nest — so the title anchor is
+     stretched: its ::after blankets the row (the glint-row's position:
+     relative is the containing block) and the inner links ride above it.
+     The ↗ marks the deck opening in a new tab (a full-window Slidev SPA
+     outside the site shell). */
   .talk-row {
     display: grid;
     grid-template-columns: 210px 1fr;
     gap: 2.4rem;
-    padding: 2.2rem 0;
-    border-bottom: 1px solid var(--hair);
+    padding: 2.2rem var(--row-pad);
   }
-  .talk-row:last-of-type {
-    border-bottom: none;
+  .talk-row h3 a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+  .talk-row .venue a,
+  .talk-row .rec {
+    position: relative;
+    z-index: 1;
   }
   .talk-row .venue {
     font-family: "Marcellus", serif;
@@ -504,7 +521,7 @@ const talks = (await getCollection("talks"))
     text-decoration: none;
     transition: color 0.3s;
   }
-  .talk-row h3 a:hover {
+  .talk-row:hover h3 a {
     color: var(--brass);
   }
   .talk-row .arrow {
@@ -553,7 +570,7 @@ const talks = (await getCollection("talks"))
   }
   .instruments {
     margin-top: 2.2rem;
-    border-top: 1px solid var(--hair);
+    background: var(--brass-rule) center top / 100% 1px no-repeat;
     padding-top: 1.4rem;
   }
   .instruments dt {
@@ -609,6 +626,23 @@ const talks = (await getCollection("talks"))
     border-color: var(--brass);
   }
 
+  /* the rows' brass rule is a background, which print drops — hand the job
+     back to a border (same trade the global print block makes for
+     .sec-head) */
+  @media print {
+    .svc-row {
+      background: none;
+      border-bottom: 1px solid var(--hair);
+    }
+    .svc-row:last-of-type {
+      border-bottom: none;
+    }
+    .instruments {
+      background: none;
+      border-top: 1px solid var(--hair);
+    }
+  }
+
   @media (max-width: 860px) {
     .panel {
       --head-gap: 1.4rem;
@@ -630,7 +664,7 @@ const talks = (await getCollection("talks"))
     .talk-row {
       grid-template-columns: 1fr;
       gap: 0.6rem;
-      padding: 1.9rem 0;
+      padding: 1.9rem var(--row-pad);
     }
     .about-grid {
       grid-template-columns: 1fr;

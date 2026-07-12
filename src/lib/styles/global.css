@@ -32,6 +32,17 @@
      docks against the nav derives from this token; site.ts mirrors it as a
      pre-measure fallback. */
   --nav-h: 4.375rem;
+  /* the shared 1px rule: full-bodied through the middle, the hints holding
+     each tail long toward the sides. Row separators and section headings
+     paint the same image so every static rule speaks one language. */
+  --brass-rule: linear-gradient(
+    to right,
+    transparent,
+    27%,
+    var(--brass-dim) 38% 62%,
+    73%,
+    transparent
+  );
 }
 [data-theme="light"] {
   --bg: #e9e3d3;
@@ -430,11 +441,12 @@ main {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
-/* hoverable index rows: separated by a comet (dot at the text's left edge,
-   tail fading right — kin to the orrery's comet), and hover draws the
-   panels' border shimmer at row scale. --row-pad insets the text from the
-   clickable surface; pages reuse it in their padding so the two stay in
-   lockstep. */
+/* hoverable index rows: separated by the brass rule, and hover draws the
+   panels' border shimmer at row scale. The ring's inset (below) puts its
+   horizontals on the rule's exact pixel track, so the hover border reads
+   as the static rule extending into a full outline. --row-pad insets the
+   text from the clickable surface; pages reuse it in their padding so the
+   two stay in lockstep. */
 .glint-row {
   --row-pad: 1.4rem;
   position: relative;
@@ -442,11 +454,7 @@ main {
   margin: 0 calc(-1 * var(--row-pad));
 }
 .glint-row:not(:last-of-type) {
-  background:
-    radial-gradient(circle closest-side, var(--brass-dim) 68%, transparent 72%)
-      left var(--row-pad) bottom 0 / 5px 5px no-repeat,
-    linear-gradient(to right, var(--brass-dim), transparent) left
-      calc(var(--row-pad) + 4px) bottom 2px / min(26rem, 65%) 1px no-repeat;
+  background: var(--brass-rule) center bottom / 100% 1px no-repeat;
 }
 
 /* border shimmer: gradient painted only into the 1px border ring via mask */
@@ -557,21 +565,23 @@ main {
   opacity: 0;
   transition: opacity 0.45s ease;
 }
-/* Rows' ring floats at an inset — the halo band tracks it. */
+/* Rows' ring hugs the row box — the halo band tracks it. */
 .glint-row::after {
   --halo-r: 10px;
-  inset: calc(0.45rem - 16px) -17px;
+  inset: -17px -17px -16px;
 }
 .panel:hover::after,
 .glint-row:hover::after {
   opacity: 0.1;
 }
 /* Rows lack the panel's resting border, so their ring carries its own
-   hairline base layer under the shimmer and floats clear of the row
-   separators; otherwise it reads as a tint on the hairlines, not an
-   outline. */
+   hairline base layer under the shimmer. The asymmetric inset is load-
+   bearing: the separator lives in each row's bottom pixel, so -1px on top
+   lands the ring's upper border on the previous row's rule and bottom 0
+   lands its lower border on this row's own — the ring overlays the static
+   rules exactly instead of doubling beside them. */
 .glint-row::before {
-  inset: 0.45rem -1px;
+  inset: -1px -1px 0;
   background:
     radial-gradient(
       110px circle at var(--mx, 50%) var(--my, 50%),
@@ -607,7 +617,7 @@ main {
   display: flex;
   align-items: baseline;
   gap: 1.6rem;
-  border-bottom: 1px solid var(--hair);
+  background: var(--brass-rule) center bottom / 100% 1px no-repeat;
   /* panels set --head-gap to their own top padding, so the heading sits
      centred between the container edge and its own rule */
   padding-bottom: var(--head-gap, 1.4rem);
@@ -745,6 +755,12 @@ footer a:hover {
   }
   main {
     padding-top: 0;
+  }
+  /* the heading's brass rule is a background, which print drops — hand the
+     job back to a border */
+  .sec-head {
+    background: none;
+    border-bottom: 1px solid var(--hair);
   }
   /* Shiki dual-theme tokens: print always reads the light set, whatever
      data-theme the screen was in. */

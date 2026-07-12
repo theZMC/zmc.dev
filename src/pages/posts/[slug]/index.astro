@@ -135,7 +135,7 @@ const { Content } = await render(post);
     align-items: baseline;
     margin-top: 1.6rem;
     padding-bottom: 2.2rem;
-    border-bottom: 1px solid var(--hair);
+    background: var(--brass-rule) center bottom / 100% 1px no-repeat;
   }
   .post-meta .tags {
     display: flex;
@@ -179,14 +179,22 @@ const { Content } = await render(post);
     letter-spacing: 0.1em;
     margin: 3rem 0 1.2rem;
     padding-top: 2.2rem;
-    border-top: 1px solid var(--hair);
+    background: var(--brass-rule) center top / 100% 1px no-repeat;
   }
   /* A post that opens with a heading otherwise stacks the meta rule and
      the heading's own top rule around an empty band. */
   .post-body > h2:first-child {
     margin-top: 0;
     padding-top: 0;
-    border-top: none;
+    background: none;
+  }
+  /* markdown thematic breaks (---): no post uses one yet, but the default
+     bevelled hr would land far off-language if one ever does */
+  .post-body hr {
+    border: none;
+    height: 1px;
+    background: var(--brass-rule) center / 100% 1px no-repeat;
+    margin: 3rem 0;
   }
   .post-body h3 {
     font-family: "Marcellus", serif;
@@ -345,6 +353,27 @@ const { Content } = await render(post);
       width: 100%;
       margin-inline: 0;
     }
+    /* the brass rules are backgrounds, which print drops — hand each job
+       back to a border (same trade the global print block makes) */
+    .post-meta {
+      background: none;
+      border-bottom: 1px solid var(--hair);
+    }
+    .post-body h2 {
+      background: none;
+      border-top: 1px solid var(--hair);
+    }
+    .post-body > h2:first-child {
+      border-top: none;
+    }
+    .post-body hr {
+      background: none;
+      border-top: 1px solid var(--hair);
+    }
+    .end-mark {
+      background: none;
+      border-top: 1px solid var(--hair);
+    }
   }
   .post-body pre,
   .post-body .astro-code {
@@ -425,7 +454,7 @@ const { Content } = await render(post);
     text-align: center;
     margin-top: 3.4rem;
     padding-top: 2.4rem;
-    border-top: 1px solid var(--hair);
+    background: var(--brass-rule) center top / 100% 1px no-repeat;
     color: var(--brass);
     letter-spacing: 0.3em;
   }
