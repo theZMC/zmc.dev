@@ -84,6 +84,7 @@ const footerLinks = [
         <span class="mono coord">Section II</span>
       </div>
       <div class="cal-legend mono">
+        <span class="key">Key</span>
         <span><i class="dot expert"></i> Expert</span>
         <span><i class="dot advanced"></i> Advanced</span>
       </div>
@@ -348,15 +349,29 @@ const footerLinks = [
   }
 
   /* ---------- skills / calibration ---------- */
+  /* Chart-key furniture, not content: label-toned and smaller than the
+     skill rows, tagged KEY in brass, closed off by a dashed rule. */
   .cal-legend {
     display: flex;
-    gap: 2rem;
+    align-items: center;
+    gap: 1.5rem;
     padding: 1.6rem 0 0.4rem;
+    font-size: 0.62rem;
+    color: var(--ink-dim);
+  }
+  .cal-legend .key {
+    color: var(--brass);
+    letter-spacing: 0.3em;
   }
   .cal-legend span {
     display: flex;
     align-items: center;
     gap: 0.55rem;
+  }
+  .cal-legend::after {
+    content: "";
+    flex: 1;
+    border-top: 1px dashed var(--hair);
   }
   .dot {
     width: 8px;
