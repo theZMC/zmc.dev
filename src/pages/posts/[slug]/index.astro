@@ -176,14 +176,27 @@ const { Content } = await render(post);
     padding: 0.08em 0.12em 0 0;
     color: var(--brass);
   }
+  /* links rest bare — brass alone marks them — and the rail returns on
+     hover; transparent (not none) keeps the layout stable */
   .post-body a {
     color: var(--brass);
     text-decoration: none;
-    border-bottom: 1px solid var(--brass-dim);
+    border-bottom: 1px solid transparent;
     transition: border-color 0.3s;
   }
   .post-body a:hover {
     border-color: var(--brass);
+  }
+  /* external destinations wear a departure glyph — rehype-external-links
+     stamps target="_blank" on every absolute URL. The doubled content
+     declaration is the alt-text syntax: supporting browsers keep the
+     glyph out of the accessible name, older ones fall back to plain. */
+  .post-body a[target="_blank"]::after {
+    content: "↗";
+    content: "↗" / "";
+    font-size: 0.7em;
+    margin-left: 0.18em;
+    vertical-align: 0.18em;
   }
   .post-body h2 {
     font-family: "Marcellus", serif;
