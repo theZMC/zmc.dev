@@ -23,15 +23,16 @@
     "react": "^19.2.7",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-external-links": "^3.0.0",
+    "rehype-github-alerts": "^4.2.0",
     "satori": "^0.26.0",
     "sharp": "^0.34.4"
   },
   "devDependencies": {
     "@slidev/cli": "^52.17.0",
     "@types/react": "^19.2.17",
-    "slidev-theme-zmc": "workspace:*",
     "prettier": "^3.6.2",
     "prettier-plugin-astro": "^0.14.1",
+    "slidev-theme-zmc": "workspace:*",
     "typescript": "^5.9.2",
     "vitest": "^4.1.10",
     "yaml": "^2.9.0"

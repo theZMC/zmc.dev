@@ -60,10 +60,11 @@ git repository). You can call it whatever you want, but I like to call mine
 if you think there's any chance you might now or in the future store sensitive
 information in your dotfiles.
 
-> **⚠️ NOTE:** I advise against ever storing sensitive information in a git
-> repository, but if you do, make absolutely sure you mark your repository as
-> private. Common examples of sensitive information are API keys (like for AWS
-> or Digital Ocean), SSH keys, and passwords.
+> [!WARNING]
+> I advise against ever storing sensitive information in a git repository, but
+> if you do, make absolutely sure you mark your repository as private. Common
+> examples of sensitive information are API keys (like for AWS or Digital
+> Ocean), SSH keys, and passwords.
 
 ### Step 2: Clone Your Repository
 
@@ -124,7 +125,8 @@ ln -sf ~/dotfiles/.vimrc ~/
 ln -sf ~/dotfiles/.gitconfig ~/
 ```
 
-> **ℹ What this script does:** Creates a symlink for each file listed in the for
+> [!NOTE]
+> **What this script does:** Creates a symlink for each file listed in the for
 > loop. A symlink is a special type of file that points to another file. In this
 > case, the symlink points to the file in your dotfiles repository. This way,
 > when you make changes to your dotfiles, you can push them to your remote
@@ -160,7 +162,8 @@ You should see something similar to:
 lrwxrwxrwx 1 user user 17 Sep  1 12:00 .vimrc -> /home/user/.vimrc
 ```
 
-> **ℹ What this output means:** The `l` at the beginning of the line indicates
+> [!NOTE]
+> **What this output means:** The `l` at the beginning of the line indicates
 > that this is a symlink and the arrow indicates which file the symlink points
 > to. Awesome! Now any time you change your dotfiles in your home directory,
 > your git repository will be know about it and track the changes.
@@ -177,8 +180,9 @@ git commit -m "added dotfiles; added setup.sh"
 git push
 ```
 
-> **⚠️ NOTE:** If you're using a private repository, you'll need to add your SSH
-> key to your GitHub account.
+> [!NOTE]
+> If you're using a private repository, you'll need to add your SSH key to your
+> GitHub account.
 > [You can find instructions for doing this here](https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/).
 
 ### Step 7: Clone Your Repository to a New Machine
@@ -276,11 +280,11 @@ And add the following line to the bottom of the file:
 */30 * * * * ~/dotfiles/sync.sh
 ```
 
-> **ℹ What this line does:** Runs the `sync.sh` script every 30 minutes.
+> [!NOTE]
+> **What this line does:** Runs the `sync.sh` script every 30 minutes.
 > [You can read more about cron syntax here](https://en.wikipedia.org/wiki/Cron#CRON_expression).
 
-> #### ⚠ Disclaimer
->
+> [!CAUTION]
 > Using cron to constantly push and pull to your repo is a great way to keep
 > your dotfiles synced, but it's not perfect. If you're constantly fiddling with
 > your dotfiles on multiple machines, you may run into merge conflicts. If and

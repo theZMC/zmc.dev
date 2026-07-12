@@ -5,28 +5,28 @@ tags: ["meta", "testing", "design"]
 published: false
 description: |
   A fixture post that exercises the entire markdown surface this site can render — every heading level, both
-  list families, tables, footnotes, task lists, images, and the inline-HTML long tail — so the theme has
-  nowhere to hide.
+  list families, tables, footnotes, task lists, GFM alerts, images, and the inline-HTML long tail — so the
+  theme has nowhere to hide.
 ---
 
 This opening paragraph exists to receive the drop cap and to hold one of
-everything inline: a [link to another post](/posts/how-to-store-your-dotfiles-on-github),
-an [external link](https://astro.build) that should open in a new tab, some
-**bold text**, some _italic text_, some **_bold italic_**, some
-~~strikethrough~~, and an inline code span like `astro.config.mjs`. It also
-tests "smart quotes," an em dash -- like this one -- and an ellipsis...
-rendered by SmartyPants.
+everything inline: a
+[link to another post](/posts/how-to-store-your-dotfiles-on-github), an
+[external link](https://astro.build) that should open in a new tab, some **bold
+text**, some _italic text_, some **_bold italic_**, some ~~strikethrough~~, and
+an inline code span like `astro.config.mjs`. It also tests "smart quotes," an em
+dash -- like this one -- and an ellipsis... rendered by SmartyPants.
 
 Here is a second paragraph so spacing between plain paragraphs is visible. It
 contains a bare autolink, https://zmc.dev, and a footnote reference[^1] whose
-rendering lands at the very bottom of the page. And here is a very long
-unbroken identifier to stress inline-code wrapping:
+rendering lands at the very bottom of the page. And here is a very long unbroken
+identifier to stress inline-code wrapping:
 `ThisIsAnAbsurdlyLongGeneratedTypeNameFromSomeCodeGeneratorThatNobodyAskedForButEveryoneHasSeen_v2_final_FINAL`.
 
 ## Second-Level Heading with `inline code`
 
-Body copy under an H2. The heading above should carry the brass rule and a
-piece of inline code that sits comfortably in the serif line.
+Body copy under an H2. The heading above should carry the brass rule and a piece
+of inline code that sits comfortably in the serif line.
 
 ### Third-Level Heading
 
@@ -42,8 +42,8 @@ Body copy under an H5.
 
 ###### Sixth-Level Heading
 
-Body copy under an H6 — if H5 and H6 look identical, that is the current
-theme's actual behavior, not an accident of this document.
+Body copy under an H6 — if H5 and H6 look identical, that is the current theme's
+actual behavior, not an accident of this document.
 
 ## Lists of Every Kind
 
@@ -79,8 +79,8 @@ A deeply nested mixed list:
   2. Nested ordered two
      - Unordered inside ordered
 - An item with a paragraph long enough to wrap onto multiple lines, so the
-  hanging indent of wrapped list text can be judged against the marker
-  position above it.
+  hanging indent of wrapped list text can be judged against the marker position
+  above it.
 
 A GFM task list:
 
@@ -93,42 +93,73 @@ A GFM task list:
 
 A table with all three column alignments:
 
-| Body        |     Kind | Orbital Period | Notes                                   |
-| :---------- | -------: | :------------: | --------------------------------------- |
-| Mercury     |   Planet |    88 days     | Smallest                                |
-| Venus       |   Planet |    225 days    | Retrograde rotation                     |
-| Earth       |   Planet |    365 days    | You are here                            |
-| Halley      |    Comet |    75 years    | Returns 2061                            |
-| Ceres       |    Dwarf |   4.6 years    | Largest object in the asteroid belt     |
+| Body    |   Kind | Orbital Period | Notes                               |
+| :------ | -----: | :------------: | ----------------------------------- |
+| Mercury | Planet |    88 days     | Smallest                            |
+| Venus   | Planet |    225 days    | Retrograde rotation                 |
+| Earth   | Planet |    365 days    | You are here                        |
+| Halley  |  Comet |    75 years    | Returns 2061                        |
+| Ceres   |  Dwarf |   4.6 years    | Largest object in the asteroid belt |
 
 A deliberately wide table to test horizontal overflow behavior inside the
 measure:
 
-| Identifier                             | Environment | Region       | Instance Type | Availability Zone | Status  | Uptime  | Last Deploy Commit                         |
-| -------------------------------------- | ----------- | ------------ | ------------- | ----------------- | ------- | ------- | ------------------------------------------ |
-| `prod-api-gateway-primary-useast1-001` | production  | us-east-1    | c6i.4xlarge   | us-east-1a        | healthy | 42 days | `a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0` |
-| `prod-api-gateway-replica-uswest2-002` | production  | us-west-2    | c6i.4xlarge   | us-west-2b        | healthy | 42 days | `a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0` |
-| `stage-worker-batch-euwest1-011`       | staging     | eu-west-1    | m6i.2xlarge   | eu-west-1c        | degraded| 3 days  | `f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0` |
+| Identifier                             | Environment | Region    | Instance Type | Availability Zone | Status   | Uptime  | Last Deploy Commit                         |
+| -------------------------------------- | ----------- | --------- | ------------- | ----------------- | -------- | ------- | ------------------------------------------ |
+| `prod-api-gateway-primary-useast1-001` | production  | us-east-1 | c6i.4xlarge   | us-east-1a        | healthy  | 42 days | `a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0` |
+| `prod-api-gateway-replica-uswest2-002` | production  | us-west-2 | c6i.4xlarge   | us-west-2b        | healthy  | 42 days | `a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0` |
+| `stage-worker-batch-euwest1-011`       | staging     | eu-west-1 | m6i.2xlarge   | eu-west-1c        | degraded | 3 days  | `f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0` |
 
 ## Blockquotes
 
 A plain quote:
 
-> The heavens themselves, the planets and this centre, observe degree,
-> priority and place.
+> The heavens themselves, the planets and this centre, observe degree, priority
+> and place.
 
 A multi-paragraph quote with nested elements:
 
 > First paragraph of the quotation, which continues long enough to wrap.
 >
-> Second paragraph, containing `inline code` and **bold text** to check how
-> the italic quote style composes with them.
+> Second paragraph, containing `inline code` and **bold text** to check how the
+> italic quote style composes with them.
 >
-> > A nested quotation inside the first, to see whether the second border
-> > rail reads as intentional.
+>> A nested quotation inside the first, to see whether the second border rail
+>> reads as intentional.
 >
 > - A list inside a blockquote
 > - Because documentation quotes do this constantly
+
+### GFM Alerts
+
+All five alert types, which must read as marginalia rather than quotation —
+upright type, not italic, each announced in its own voice:
+
+> [!NOTE]
+> Highlights information that users should take into account, even when
+> skimming.
+
+> [!TIP]
+> Optional information to help a user be more successful.
+
+> [!IMPORTANT]
+> Crucial information necessary for users to succeed.
+
+> [!WARNING]
+> Critical content demanding immediate user attention due to potential risks.
+
+> [!CAUTION]
+> Negative potential consequences of an action.
+
+And one alert with a body busy enough to catch composition bugs:
+
+> [!NOTE]
+> A multi-paragraph alert containing `inline code`, **bold text**, and an
+> [external link](https://example.com) that should still wear its departure
+> glyph.
+>
+> - A list inside an alert
+> - Because release notes do this constantly
 
 ## Code
 
@@ -161,8 +192,8 @@ A diff:
   return { radius, period };
 ```
 
-A block with pathologically long lines, to test the overflow fade and the
-expand affordance:
+A block with pathologically long lines, to test the overflow fade and the expand
+affordance:
 
 ```bash
 curl -X POST "https://api.example.com/v1/observations?telescope=meridian&catalog=messier&object=M31&exposure=1200&filter=h-alpha&binning=2x2&format=fits" -H "Authorization: Bearer 9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e" -H "Content-Type: application/json"
@@ -185,8 +216,8 @@ And a paragraph after the rule, so its spacing can be judged from both sides.
 
 Markdown permits raw HTML, and technical writing leans on it. Keyboard input:
 press <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> to open the palette.
-Highlighted text uses <mark>the mark element</mark>. Chemistry needs
-subscripts like H<sub>2</sub>O and math needs superscripts like E = mc<sup>2</sup>.
+Highlighted text uses <mark>the mark element</mark>. Chemistry needs subscripts
+like H<sub>2</sub>O and math needs superscripts like E = mc<sup>2</sup>.
 Abbreviations like <abbr title="Cascading Style Sheets">CSS</abbr> carry
 title-text underlines in most browsers.
 

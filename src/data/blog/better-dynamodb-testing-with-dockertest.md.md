@@ -73,8 +73,7 @@ This interface is pretty straightforward. We have two methods for retrieving
 transactions, one by user ID and one by transaction ID. We also have a method
 for adding new transactions to the table.
 
-> #### ⚠️ Note
->
+> [!NOTE]
 > You'll notice that `GetTransactionByID` takes a `userID` as well as a
 > `transactionID`. This is due to the nature of DynamoDB's keying system.
 > DynamoDB tables are keyed by a partition (hash) key and an optional sort
@@ -333,8 +332,7 @@ var testTransactions = []*model.Transaction{
 }
 ```
 
-> #### ⚠️ Note
->
+> [!IMPORTANT]
 > Be mindful of the `ID` field when creating your test data. The `ID` field is
 > your sort key and must be unique for each item in your table. Additionally,
 > the `ID` field will be sorted in ascending order, so if you're comparing the
@@ -394,8 +392,7 @@ daemon's address. If we pass an empty string, `dockertest` will try to connect
 to the default Docker daemon address at `/var/run/docker.sock`. Our test fails
 right here if we can't connect to the Docker daemon.
 
-> #### ⚠️ Note
->
+> [!NOTE]
 > If you're running your tests in a container, you'll need to mount the Docker
 > socket into your container. You can do this by adding the following to your
 > `docker run` command:
@@ -502,8 +499,7 @@ write capacity units to 1. This is the minimum amount of capacity we can set for
 a table and we don't actually care, but the client will fail to write or read
 from the table if we don't set it.
 
-> #### ⚠️ Note
->
+> [!IMPORTANT]
 > Here's where you're setting the partition key and sort key for your table.
 > Make sure these match up with the partition key and sort key you've defined
 > (or will define) on your actual transactions table in DynamoDB, otherwise this

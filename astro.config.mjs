@@ -3,6 +3,7 @@ import { defineConfig } from "astro/config";
 
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeExternalLinks from "rehype-external-links";
+import { rehypeGithubAlerts } from "rehype-github-alerts";
 import { rehypeHeadingIds } from "@astrojs/markdown-remark";
 
 import relativeLinks from "astro-relative-links";
@@ -17,6 +18,30 @@ import { zmcDark, zmcLight } from "./src/lib/shiki/zmc-themes.mjs";
 // whose jsx-dev-runtime lacks jsxDEV, and the resume PDF chunk dies on click.
 // Point build at its own cache so the two never fight.
 const isBuild = process.argv.includes("build");
+
+// GFM alerts ([!NOTE] etc.) — custom build instead of the default one,
+// which bakes GitHub's octicon SVGs into the title; here the title is a
+// bare text node so the post CSS can set the glyph and voice itself.
+/** @type {import("rehype-github-alerts").DefaultBuildType} */
+const alertBuild = (alertOptions, originalChildren) => ({
+  type: "element",
+  tagName: "aside",
+  properties: {
+    className: [
+      "markdown-alert",
+      `markdown-alert-${alertOptions.keyword.toLowerCase()}`,
+    ],
+  },
+  children: [
+    {
+      type: "element",
+      tagName: "p",
+      properties: { className: ["markdown-alert-title"] },
+      children: [{ type: "text", value: alertOptions.title }],
+    },
+    ...originalChildren,
+  ],
+});
 
 // https://astro.build/config
 export default defineConfig({
@@ -45,6 +70,7 @@ export default defineConfig({
       defaultColor: false,
     },
     rehypePlugins: [
+      [rehypeGithubAlerts, { build: alertBuild }],
       rehypeHeadingIds,
       [
         rehypeAutolinkHeadings,

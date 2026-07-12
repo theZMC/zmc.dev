@@ -331,6 +331,56 @@ const { Content } = await render(post);
   .post-body blockquote > :last-child {
     margin-bottom: 0;
   }
+  /* GFM alerts (rehype-github-alerts, custom aside build): chart
+     marginalia, not quotations — body copy stays upright and full-ink,
+     the type announces itself in the eyebrow voice, and each type keeps
+     the quote's hairline rail but in its own hue over a faint wash */
+  .post-body .markdown-alert {
+    --alert-hue: var(--celest);
+    margin: 2.2rem 0;
+    padding: 1rem 1.6rem;
+    border-left: 1px solid var(--alert-hue);
+    border-radius: 0 10px 10px 0;
+    background: color-mix(in srgb, var(--alert-hue) 7%, transparent);
+  }
+  .post-body .markdown-alert > :last-child {
+    margin-bottom: 0;
+  }
+  .post-body .markdown-alert-title {
+    font-family: "Spline Sans Mono", monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--alert-hue);
+    margin-bottom: 0.7rem;
+  }
+  /* the glyph escalates with the stakes: open diamond → filled diamond
+     for notice, guiding star for tips, open triangle → filled triangle
+     (the chart's hazard mark) for danger. Doubled content declaration is
+     the alt-text syntax, kin to the departure glyph above. */
+  .post-body .markdown-alert-title::before {
+    content: var(--alert-glyph) "  ";
+    content: var(--alert-glyph) "  " / "";
+  }
+  .post-body .markdown-alert-note {
+    --alert-glyph: "◇";
+  }
+  .post-body .markdown-alert-tip {
+    --alert-hue: var(--verdigris);
+    --alert-glyph: "✦";
+  }
+  .post-body .markdown-alert-important {
+    --alert-hue: var(--heliotrope);
+    --alert-glyph: "◆";
+  }
+  .post-body .markdown-alert-warning {
+    --alert-hue: var(--brass);
+    --alert-glyph: "△";
+  }
+  .post-body .markdown-alert-caution {
+    --alert-hue: var(--cinnabar);
+    --alert-glyph: "▲";
+  }
   /* Bare-table rules are the no-JS rendering (kin to the bare-pre rules):
      block + auto overflow so a wide table scrolls inside the measure
      instead of wrapping every cell. */

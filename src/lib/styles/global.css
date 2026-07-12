@@ -8,6 +8,12 @@
   --brass: #c8a96a;
   --brass-dim: rgba(200, 169, 106, 0.34);
   --celest: #7a93b8;
+  /* alert hues, tuned to brass/celest luminance: verdigris is brass
+     oxidized (tips), heliotrope sits beside celest (important), cinnabar
+     is the rubrication red of old charts (caution) */
+  --verdigris: #7cab8c;
+  --heliotrope: #9d8dc2;
+  --cinnabar: #c4735d;
   --hair: rgba(232, 228, 216, 0.1);
   --glass: rgba(15, 19, 29, 0.55);
   --glass-solid: rgba(15, 19, 29, 0.94);
@@ -52,6 +58,9 @@
   --brass: #8f6f35;
   --brass-dim: rgba(143, 111, 53, 0.42);
   --celest: #4e6685;
+  --verdigris: #40745a;
+  --heliotrope: #665792;
+  --cinnabar: #9c4a33;
   --hair: rgba(26, 30, 41, 0.14);
   --glass: rgba(242, 237, 223, 0.55);
   --glass-solid: rgba(242, 237, 223, 0.95);
