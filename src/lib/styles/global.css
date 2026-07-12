@@ -406,18 +406,13 @@ main {
   border-radius: 10px;
   margin: 0 calc(-1 * var(--row-pad));
 }
-.glint-row:not(:last-of-type)::after {
-  content: "";
-  position: absolute;
-  left: var(--row-pad);
-  right: var(--row-pad);
-  bottom: -3px;
-  height: 5px;
+.glint-row:not(:last-of-type) {
   background:
     radial-gradient(circle closest-side, var(--brass-dim) 68%, transparent 72%)
-      left center / 5px 5px no-repeat,
+      left var(--row-pad) bottom 0 / 5px 5px no-repeat,
     linear-gradient(to right, var(--brass-dim), transparent)
-      4px 50% / min(26rem, 65%) 1px no-repeat;
+      left calc(var(--row-pad) + 4px) bottom 2px / min(26rem, 65%) 1px
+      no-repeat;
 }
 
 /* border shimmer: gradient painted only into the 1px border ring via mask */
@@ -450,6 +445,92 @@ main {
   mask-composite: exclude;
   opacity: 0;
   transition: opacity 0.45s ease;
+}
+/* Outward radiance, kin to the sigil's bloom — but barely there. The
+   halo is painted directly into the 16px band outside the border: four
+   edge fades that die at the band's rim plus four radial corner fills
+   that wrap the band around the box continuously (a filtered ring can't
+   do this — masks clip after filters, and border-image goes dark at its
+   corner slices). A soft radial mask at the cursor feathers the reach,
+   and the hover opacity is the loudness knob. Interpolation hints pull
+   every fade's midpoint toward its source, so the light keeps a hot
+   core and dies in a long tail instead of arriving as a flat wash. */
+.panel::after,
+.glint-row::after {
+  --halo: var(--shimmer-brass);
+  /* the surface's border-radius: corner glow starts at the arc, not the
+     pseudo's square corner, so the light stays glued to the curve */
+  --halo-r: 14px;
+  --halo-c: calc(var(--halo-r) + 16px);
+  content: "";
+  position: absolute;
+  inset: -16px;
+  pointer-events: none;
+  background:
+    linear-gradient(to top, var(--halo), 30%, transparent) center top /
+      calc(100% - 2 * var(--halo-c)) 16px,
+    linear-gradient(to bottom, var(--halo), 30%, transparent) center bottom /
+      calc(100% - 2 * var(--halo-c)) 16px,
+    linear-gradient(to left, var(--halo), 30%, transparent) left center / 16px
+      calc(100% - 2 * var(--halo-c)),
+    linear-gradient(to right, var(--halo), 30%, transparent) right center / 16px
+      calc(100% - 2 * var(--halo-c)),
+    radial-gradient(
+        circle var(--halo-c) at 100% 100%,
+        transparent calc(var(--halo-r) - 1px),
+        var(--halo) var(--halo-r),
+        calc(var(--halo-r) + 5px),
+        transparent
+      )
+      left top / var(--halo-c) var(--halo-c),
+    radial-gradient(
+        circle var(--halo-c) at 0 100%,
+        transparent calc(var(--halo-r) - 1px),
+        var(--halo) var(--halo-r),
+        calc(var(--halo-r) + 5px),
+        transparent
+      )
+      right top / var(--halo-c) var(--halo-c),
+    radial-gradient(
+        circle var(--halo-c) at 100% 0,
+        transparent calc(var(--halo-r) - 1px),
+        var(--halo) var(--halo-r),
+        calc(var(--halo-r) + 5px),
+        transparent
+      )
+      left bottom / var(--halo-c) var(--halo-c),
+    radial-gradient(
+        circle var(--halo-c) at 0 0,
+        transparent calc(var(--halo-r) - 1px),
+        var(--halo) var(--halo-r),
+        calc(var(--halo-r) + 5px),
+        transparent
+      )
+      right bottom / var(--halo-c) var(--halo-c);
+  background-repeat: no-repeat;
+  -webkit-mask: radial-gradient(
+    240px circle at calc(var(--mx, 50%) + 16px) calc(var(--my, 50%) + 16px),
+    #fff,
+    25%,
+    transparent 70%
+  );
+  mask: radial-gradient(
+    240px circle at calc(var(--mx, 50%) + 16px) calc(var(--my, 50%) + 16px),
+    #fff,
+    25%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+/* Rows' ring floats at an inset — the halo band tracks it. */
+.glint-row::after {
+  --halo-r: 10px;
+  inset: calc(0.45rem - 16px) -17px;
+}
+.panel:hover::after,
+.glint-row:hover::after {
+  opacity: 0.1;
 }
 /* Rows lack the panel's resting border, so their ring carries its own
    hairline base layer under the shimmer and floats clear of the row
