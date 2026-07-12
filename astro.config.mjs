@@ -9,6 +9,13 @@ import relativeLinks from "astro-relative-links";
 
 import { zmcDark, zmcLight } from "./src/lib/shiki/zmc-themes.mjs";
 
+// `astro build` re-runs the Vite dep optimizer in production mode, and with a
+// shared cache dir it overwrites the dev server's pre-bundle in place — any
+// dev server running (or started) after a build then serves production react,
+// whose jsx-dev-runtime lacks jsxDEV, and the resume PDF chunk dies on click.
+// Point build at its own cache so the two never fight.
+const isBuild = process.argv.includes("build");
+
 // https://astro.build/config
 export default defineConfig({
   site: "https://zmc.dev",
@@ -54,4 +61,20 @@ export default defineConfig({
   },
 
   integrations: [relativeLinks()],
+
+  vite: {
+    cacheDir: isBuild ? "node_modules/.vite-build" : undefined,
+    optimizeDeps: {
+      // The resume PDF chunk is dynamic-imported on button click, so the dev
+      // scanner never discovers these deps up front. Without pre-bundling,
+      // the first click triggers a re-optimization mid-flight and the import
+      // fails with 504 "outdated optimize dep".
+      include: [
+        "react",
+        "react/jsx-runtime",
+        "react/jsx-dev-runtime",
+        "@react-pdf/renderer",
+      ],
+    },
+  },
 });
