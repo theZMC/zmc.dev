@@ -20,14 +20,16 @@ const TICK = "rgba(200, 169, 106, 0.35)";
 // The orrery's compass star (Cosmos.astro), redrawn as a filled eight-point
 // star so it survives 16px tab rendering: long cardinal points, short
 // diagonals, and the sun glyph ☉ read in negative space — a hole punched
-// around a solid core. Sixteen vertices alternate point and waist radii,
-// stepping 22.5° from 12 o'clock.
-const STAR_POINTS = Array.from({ length: 16 }, (_, i) => {
-  const r = i % 4 === 0 ? 56 : i % 2 === 0 ? 36 : 14;
-  const t = (i * 22.5 * Math.PI) / 180;
-  const [x, y] = [64 + r * Math.sin(t), 64 - r * Math.cos(t)];
-  return `${i === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`;
-}).join(" ");
+// around a solid core. Sixteen vertices alternate point and waist radii
+// (cardinals R, diagonals 9R/14, waists R/4), stepping 22.5° from 12
+// o'clock. The orrery itself carries the same silhouette at R=48.
+export const starPath = (cx: number, cy: number, R: number): string =>
+  Array.from({ length: 16 }, (_, i) => {
+    const r = i % 4 === 0 ? R : i % 2 === 0 ? (R * 9) / 14 : R / 4;
+    const t = (i * 22.5 * Math.PI) / 180;
+    const [x, y] = [cx + r * Math.sin(t), cy - r * Math.cos(t)];
+    return `${i === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`;
+  }).join(" ") + " Z";
 
 export const faviconSvg = (size?: number): string => `<svg xmlns="http://www.w3.org/2000/svg"${size ? ` width="${size}" height="${size}"` : ""} viewBox="0 0 128 128">
   <defs>
@@ -37,7 +39,7 @@ export const faviconSvg = (size?: number): string => `<svg xmlns="http://www.w3.
     </mask>
   </defs>
   <g fill="${BRASS}">
-    <path mask="url(#sol)" d="${STAR_POINTS} Z"/>
+    <path mask="url(#sol)" d="${starPath(64, 64, 56)}"/>
     <circle cx="64" cy="64" r="7"/>
   </g>
   <style>
@@ -74,11 +76,12 @@ const body = (r: number, thetaDeg: number, size: number, color: string): string 
   return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${size}" fill="${color}"/>`;
 };
 
-// The orrery's compass star and ☉ sun glyph, at half the chart's scale.
+// The filled compass star at half the chart's scale (orrery R=48 → 24),
+// hole and sun ring at the same proportions so the ☉ reads in negative
+// space here too.
 const compassStar = `
-  <path d="M ${CX} ${CY - 24} L ${CX + 2.5} ${CY - 2.5} L ${CX + 24} ${CY} L ${CX + 2.5} ${CY + 2.5} L ${CX} ${CY + 24} L ${CX - 2.5} ${CY + 2.5} L ${CX - 24} ${CY} L ${CX - 2.5} ${CY - 2.5} Z" fill="none" stroke="${TICK}" stroke-width="0.7"/>
-  <path d="M ${CX + 12} ${CY - 12} L ${CX + 3} ${CY - 3} M ${CX + 12} ${CY + 12} L ${CX + 3} ${CY + 3} M ${CX - 12} ${CY + 12} L ${CX - 3} ${CY + 3} M ${CX - 12} ${CY - 12} L ${CX - 3} ${CY - 3}" fill="none" stroke="${TICK}" stroke-width="0.5"/>
-  <circle cx="${CX}" cy="${CY}" r="6" fill="none" stroke="${BRASS}" stroke-width="1"/>
+  <path mask="url(#starHole)" fill="${TICK}" d="${starPath(CX, CY, 24)}"/>
+  <circle cx="${CX}" cy="${CY}" r="5.5" fill="none" stroke="${BRASS}" stroke-width="1"/>
   <circle cx="${CX}" cy="${CY}" r="1.8" fill="${BRASS}"/>`;
 
 const appleTouchSvg = (): string => {
@@ -89,6 +92,10 @@ const appleTouchSvg = (): string => {
       <stop offset="0%" stop-color="${BG_CORE}"/>
       <stop offset="100%" stop-color="${BG_CORE}" stop-opacity="0"/>
     </radialGradient>
+    <mask id="starHole">
+      <rect width="${SIZE}" height="${SIZE}" fill="#fff"/>
+      <circle cx="${CX}" cy="${CY}" r="7" fill="#000"/>
+    </mask>
   </defs>
   <rect width="${SIZE}" height="${SIZE}" fill="${BG}"/>
   <circle cx="${CX}" cy="${CY}" r="85" fill="url(#core)" opacity="0.55"/>

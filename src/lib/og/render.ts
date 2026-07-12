@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import satori from "satori";
 import sharp from "sharp";
+import { starPath } from "@lib/icons/render";
 import { formatPostDate } from "@lib/utils/dates";
 
 const WIDTH = 1200;
@@ -16,6 +17,7 @@ const CELEST = "#7a93b8";
 const HAIR = "rgba(232, 228, 216, 0.1)";
 const ORB_BRASS = "rgba(200, 169, 106, 0.3)";
 const ORB_INK = "rgba(232, 228, 216, 0.12)";
+const TICK = "rgba(200, 169, 106, 0.35)";
 
 // satori can't parse woff2; load the plain WOFF cuts from @fontsource.
 // The build always runs from the repo root, so resolve via cwd.
@@ -43,71 +45,56 @@ const div = (
   children?: (Node | string)[] | string,
 ): Node => ({ type: "div", props: { style, children } });
 
-// A hairline orbit circle centered at (cx, cy) with radius r.
-const orbit = (cx: number, cy: number, r: number, color: string): Node =>
-  div({
-    position: "absolute",
-    left: cx - r,
-    top: cy - r,
-    width: r * 2,
-    height: r * 2,
-    borderRadius: "50%",
-    borderWidth: 1,
-    borderStyle: "solid",
-    borderColor: color,
-  });
+// ---- engraved chart base: a partial orrery breaking off the top/right ----
+// Rendered as raw SVG (not satori divs) so the compass star can carry the
+// same filled silhouette as the orrery and the icons; the satori-rendered
+// text composites on top.
 
-// A small filled body sitting on an orbit at angle theta (degrees).
-const body = (
-  cx: number,
-  cy: number,
-  r: number,
-  thetaDeg: number,
-  size: number,
-  color: string,
-): Node => {
+const CHART_CX = 1120;
+const CHART_CY = -30;
+
+const at = (r: number, thetaDeg: number): { x: number; y: number } => {
   const t = (thetaDeg * Math.PI) / 180;
-  return div({
-    position: "absolute",
-    left: cx + r * Math.cos(t) - size / 2,
-    top: cy + r * Math.sin(t) - size / 2,
-    width: size,
-    height: size,
-    borderRadius: "50%",
-    backgroundColor: color,
-  });
+  return { x: CHART_CX + r * Math.cos(t), y: CHART_CY + r * Math.sin(t) };
 };
 
-// The brass sun glyph (☉ style): a bordered circle with a filled center,
-// sitting on an orbit at angle theta (degrees).
-const sun = (cx: number, cy: number, r: number, thetaDeg: number): Node => {
-  const t = (thetaDeg * Math.PI) / 180;
-  const outer = 30;
-  return div(
-    {
-      position: "absolute",
-      left: cx + r * Math.cos(t) - outer / 2,
-      top: cy + r * Math.sin(t) - outer / 2,
-      width: outer,
-      height: outer,
-      borderRadius: "50%",
-      borderWidth: 1,
-      borderStyle: "solid",
-      borderColor: BRASS,
-      backgroundColor: BG,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    [
-      div({
-        width: 10,
-        height: 10,
-        borderRadius: "50%",
-        backgroundColor: BRASS,
-      }),
-    ],
-  );
+// A hairline orbit circle around the chart center.
+const orbit = (r: number, color: string): string =>
+  `<circle cx="${CHART_CX}" cy="${CHART_CY}" r="${r}" fill="none" stroke="${color}" stroke-width="1"/>`;
+
+// A small filled body of the given diameter, on orbit r at angle theta.
+const body = (r: number, thetaDeg: number, size: number, color: string): string => {
+  const { x, y } = at(r, thetaDeg);
+  return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${size / 2}" fill="${color}"/>`;
+};
+
+// The filled compass star with the ☉ sun glyph in its punched core
+// (orrery proportions from R=48/ring 11, scaled to the ring 15 sun the
+// chart has always carried), sitting on the r=290 orbit at 115°.
+const chartSvg = (): string => {
+  const sun = at(290, 115);
+  const [sx, sy] = [Number(sun.x.toFixed(1)), Number(sun.y.toFixed(1))];
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
+  <defs>
+    <mask id="starHole">
+      <rect width="${WIDTH}" height="${HEIGHT}" fill="#fff"/>
+      <circle cx="${sx}" cy="${sy}" r="19" fill="#000"/>
+    </mask>
+  </defs>
+  <rect width="${WIDTH}" height="${HEIGHT}" fill="${BG}"/>
+  ${orbit(130, ORB_INK)}
+  ${orbit(210, ORB_BRASS)}
+  ${orbit(290, ORB_INK)}
+  ${orbit(380, ORB_BRASS)}
+  ${orbit(470, ORB_INK)}
+  ${body(130, 150, 8, ORB_INK)}
+  ${body(210, 95, 7, BRASS)}
+  ${body(380, 103, 6, CELEST)}
+  ${body(470, 96, 5, ORB_BRASS)}
+  <path mask="url(#starHole)" fill="${TICK}" d="${starPath(sx, sy, 65)}"/>
+  <circle cx="${sx}" cy="${sy}" r="15" fill="${BG}" stroke="${BRASS}" stroke-width="1"/>
+  <circle cx="${sx}" cy="${sy}" r="5" fill="${BRASS}"/>
+</svg>`;
 };
 
 export interface RenderPostImageInput {
@@ -123,34 +110,19 @@ export const renderPostImage = async ({
 }: RenderPostImageInput): Promise<Buffer> => {
   const longDate = formatPostDate(date);
 
-  // Partial orrery breaking off the top/right edge.
-  const cx = 1120;
-  const cy = -30;
-
+  // Text only — the engraved chart renders separately as chartSvg() and
+  // this tree composites over it, so no backgroundColor here.
   const tree = div(
     {
       width: WIDTH,
       height: HEIGHT,
       display: "flex",
       flexDirection: "column",
-      backgroundColor: BG,
       padding: 80,
       position: "relative",
       overflow: "hidden",
     },
     [
-      // ---- engraved chart motifs ----
-      orbit(cx, cy, 130, ORB_INK),
-      orbit(cx, cy, 210, ORB_BRASS),
-      orbit(cx, cy, 290, ORB_INK),
-      orbit(cx, cy, 380, ORB_BRASS),
-      orbit(cx, cy, 470, ORB_INK),
-      sun(cx, cy, 290, 115),
-      body(cx, cy, 130, 150, 8, ORB_INK),
-      body(cx, cy, 210, 95, 7, BRASS),
-      body(cx, cy, 380, 103, 6, CELEST),
-      body(cx, cy, 470, 96, 5, ORB_BRASS),
-
       // ---- eyebrow ----
       div(
         {
@@ -246,5 +218,9 @@ export const renderPostImage = async ({
     ],
   });
 
-  return sharp(Buffer.from(svg)).png().toBuffer();
+  const text = await sharp(Buffer.from(svg)).png().toBuffer();
+  return sharp(Buffer.from(chartSvg()))
+    .composite([{ input: text }])
+    .png()
+    .toBuffer();
 };
