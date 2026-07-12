@@ -39,9 +39,6 @@ const {
   showProgress,
 } = Astro.props;
 
-const faviconUrl = Astro.site
-  ? new URL("/favicon.png", Astro.site).toString()
-  : "/favicon.png";
 ---
 
 <html lang="en" data-theme="dark">
@@ -68,7 +65,9 @@ const faviconUrl = Astro.site
       })();
     </script>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/png" href={faviconUrl} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={metaDescription} />
