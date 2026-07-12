@@ -279,7 +279,9 @@ const posts = (await getCollection("blog")).sort(byDateDesc);
   .hero-rule::after {
     content: "";
     position: absolute;
-    top: -2.5px;
+    /* content-box (the * reset skips pseudo-elements): 8px rendered height,
+       so -3.5px centers the circles on the 1px rule */
+    top: -3.5px;
     width: 6px;
     height: 6px;
     border-radius: 50%;
