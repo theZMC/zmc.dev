@@ -1,12 +1,16 @@
 <script setup lang="ts">
 /**
- * A static rendition of the site's orrery: the layouts' celestial backdrop.
- * `bold` draws the full chart — rings, planets, belt, compass star, labels —
- * for cover/section/end plates; `faint` keeps only the graticule and a pair
- * of ring arcs so content slides stay legible. No animation: decks must
- * survive PDF export unchanged.
+ * The site's orrery as the layouts' celestial backdrop. `bold` draws the
+ * full chart — rings, planets, belt, compass star, labels — for
+ * cover/section/end plates, and sets it turning: the site's scroll-driven
+ * motion re-geared to a clock, so the plates breathe while they're on
+ * screen. `faint` keeps only the graticule and a pair of static ring arcs
+ * so content slides stay legible. Motion never starts in print/export
+ * mode — the PDF gets exactly the static chart — and prefers-reduced-motion
+ * holds the chart still.
  */
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useNav } from '@slidev/client'
 
 const props = withDefaults(
   defineProps<{
@@ -116,6 +120,84 @@ function cutLabelGaps(svg: SVGSVGElement): boolean {
 
 let visibilityRetry: IntersectionObserver | undefined
 
+/**
+ * Time-based motion: the site's orrery turns with scroll (data-rate = deg
+ * per scroll px); here a clock stands in for the scroll bar. `travel`
+ * accrues at DRIFT virtual px per second and feeds the same rotation math,
+ * so the plates keep the site's gear ratios — inner rings quick, outer
+ * rings stately, moon retrograde, comet on its Kepler track.
+ */
+const DRIFT = 24
+
+/** Keplerian elements for the comet track (SVG user units). */
+const COMET = { a: 235, b: 131.15, e: 195 / 235, mRate: 0.0021, tail: 16 } as const
+
+/**
+ * Solves Kepler's equation (M = E − e·sinE) for the comet's position in the
+ * track wrapper's local coordinates. The sun sits at the focus (500, 500);
+ * perihelion points toward −X of the track frame. The tail always points
+ * anti-sunward.
+ */
+function cometPosition(travel: number) {
+  const M = (travel * COMET.mRate) % (2 * Math.PI)
+  let E = M
+  for (let i = 0; i < 6; i++)
+    E -= (E - COMET.e * Math.sin(E) - M) / (1 - COMET.e * Math.cos(E))
+  const xf = COMET.a * (Math.cos(E) - COMET.e)
+  const yf = COMET.b * Math.sin(E)
+  const x = 500 - xf
+  const y = 500 - yf
+  const r = Math.hypot(xf, yf) || 1
+  return { x, y, tailX: x - (xf / r) * COMET.tail, tailY: y - (yf / r) * COMET.tail }
+}
+
+const cometBody = ref<SVGCircleElement | null>(null)
+const cometTail = ref<SVGLineElement | null>(null)
+
+let orbitGroups: { el: SVGGElement, rate: number }[] = []
+let moonOrbits: { el: SVGGElement, rate: number, cx: string, cy: string }[] = []
+let raf = 0
+let lastT = 0
+let travel = 0
+
+function frame(t: number) {
+  // cap dt: background-tab throttling and overview pauses resume as a
+  // gentle continuation, not a fast-forward lurch
+  travel += Math.min(Math.max(t - lastT, 0) / 1000, 0.1) * DRIFT
+  lastT = t
+  for (const { el, rate } of orbitGroups)
+    el.style.transform = `rotate(${travel * rate}deg)`
+  for (const { el, rate, cx, cy } of moonOrbits)
+    el.setAttribute('transform', `rotate(${travel * rate} ${cx} ${cy})`)
+  if (cometBody.value && cometTail.value) {
+    const { x, y, tailX, tailY } = cometPosition(travel)
+    cometBody.value.setAttribute('cx', `${x}`)
+    cometBody.value.setAttribute('cy', `${y}`)
+    cometTail.value.setAttribute('x1', `${x}`)
+    cometTail.value.setAttribute('y1', `${y}`)
+    cometTail.value.setAttribute('x2', `${tailX}`)
+    cometTail.value.setAttribute('y2', `${tailY}`)
+  }
+  raf = requestAnimationFrame(frame)
+}
+
+const { isPrintMode } = useNav()
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+let inView = false
+let viewWatch: IntersectionObserver | undefined
+
+function syncMotion() {
+  const run = inView && !reducedMotion.matches && !isPrintMode.value
+  if (run && !raf) {
+    lastT = performance.now()
+    raf = requestAnimationFrame(frame)
+  }
+  else if (!run && raf) {
+    cancelAnimationFrame(raf)
+    raf = 0
+  }
+}
+
 onMounted(() => {
   if (!bold.value)
     return
@@ -132,9 +214,37 @@ onMounted(() => {
     if (svgEl.value)
       visibilityRetry.observe(svgEl.value)
   })
+
+  if (!svgEl.value)
+    return
+  orbitGroups = [...svgEl.value.querySelectorAll<SVGGElement>('g.orbit-group')]
+    .map(el => ({ el, rate: Number.parseFloat(el.dataset.rate || '0') }))
+  moonOrbits = [...svgEl.value.querySelectorAll<SVGGElement>('g.moon-orbit')]
+    .map(el => ({
+      el,
+      rate: Number.parseFloat(el.dataset.rate || '0'),
+      cx: el.dataset.cx ?? '',
+      cy: el.dataset.cy ?? '',
+    }))
+  // run only while on screen: overview and preloaded slides stay parked
+  viewWatch = new IntersectionObserver((entries) => {
+    inView = entries.some(e => e.isIntersecting)
+    syncMotion()
+  })
+  viewWatch.observe(svgEl.value)
+  reducedMotion.addEventListener('change', syncMotion)
 })
 
-onBeforeUnmount(() => visibilityRetry?.disconnect())
+watch(isPrintMode, syncMotion)
+
+onBeforeUnmount(() => {
+  visibilityRetry?.disconnect()
+  viewWatch?.disconnect()
+  reducedMotion.removeEventListener('change', syncMotion)
+  if (raf)
+    cancelAnimationFrame(raf)
+  raf = 0
+})
 </script>
 
 <template>
@@ -203,14 +313,18 @@ onBeforeUnmount(() => visibilityRetry?.disconnect())
         <circle cx="500" cy="500" r="11" fill="none" stroke="var(--brass)" stroke-width="0.8" />
         <circle cx="500" cy="500" r="2.6" fill="var(--brass)" />
 
-        <!-- orbits -->
-        <circle cx="500" cy="500" r="72" fill="none" stroke="var(--orb-brass)" stroke-width="0.6" />
-        <circle cx="572" cy="500" r="1.8" fill="var(--brass)" />
+        <!-- orbits: data-rate = degrees per virtual scroll px, the site's gearing -->
+        <g class="orbit-group" data-rate="0.10">
+          <circle cx="500" cy="500" r="72" fill="none" stroke="var(--orb-brass)" stroke-width="0.6" />
+          <circle cx="572" cy="500" r="1.8" fill="var(--brass)" />
+        </g>
 
-        <circle cx="500" cy="500" r="110" fill="none" stroke="var(--orb-ink)" stroke-width="0.6" />
-        <circle cx="500" cy="390" r="2.2" fill="var(--ink)" opacity="0.75" />
+        <g class="orbit-group" data-rate="-0.078">
+          <circle cx="500" cy="500" r="110" fill="none" stroke="var(--orb-ink)" stroke-width="0.6" />
+          <circle cx="500" cy="390" r="2.2" fill="var(--ink)" opacity="0.75" />
+        </g>
 
-        <g>
+        <g class="orbit-group" data-rate="0.058">
           <path
             class="gap-ring"
             data-label-pad="5"
@@ -221,7 +335,9 @@ onBeforeUnmount(() => visibilityRetry?.disconnect())
           />
           <circle cx="652" cy="500" r="3" fill="var(--brass)" />
           <circle cx="652" cy="500" r="9" fill="none" stroke="var(--orb-brass)" stroke-width="0.4" />
-          <circle cx="661" cy="500" r="1.1" fill="var(--ink)" opacity="0.8" />
+          <g class="moon-orbit" data-rate="-0.45" data-cx="652" data-cy="500">
+            <circle cx="661" cy="500" r="1.1" fill="var(--ink)" opacity="0.8" />
+          </g>
           <text class="orbit-label brass">
             <textPath :href="`#${uid}-lp152`" startOffset="55%">
               <tspan dy="2.33">ORBIS·III · LVNA·RETROGRADA</tspan>
@@ -229,43 +345,51 @@ onBeforeUnmount(() => visibilityRetry?.disconnect())
           </text>
         </g>
 
-        <circle cx="500" cy="500" r="196" fill="none" stroke="var(--orb-celest)" stroke-width="0.6" />
-        <circle cx="361" cy="361" r="2.4" fill="var(--celest)" />
+        <g class="orbit-group" data-rate="-0.044">
+          <circle cx="500" cy="500" r="196" fill="none" stroke="var(--orb-celest)" stroke-width="0.6" />
+          <circle cx="361" cy="361" r="2.4" fill="var(--celest)" />
+        </g>
 
-        <circle cx="500" cy="500" r="242" fill="none" stroke="var(--orb-ink)" stroke-width="0.6" />
-        <circle cx="742" cy="500" r="4" fill="var(--ink)" opacity="0.8" />
-        <ellipse
-          cx="742"
-          cy="500"
-          rx="9.5"
-          ry="3.2"
-          fill="none"
-          stroke="var(--orb-brass)"
-          stroke-width="0.6"
-          transform="rotate(-18 742 500)"
-        />
+        <g class="orbit-group" data-rate="0.033">
+          <circle cx="500" cy="500" r="242" fill="none" stroke="var(--orb-ink)" stroke-width="0.6" />
+          <circle cx="742" cy="500" r="4" fill="var(--ink)" opacity="0.8" />
+          <ellipse
+            cx="742"
+            cy="500"
+            rx="9.5"
+            ry="3.2"
+            fill="none"
+            stroke="var(--orb-brass)"
+            stroke-width="0.6"
+            transform="rotate(-18 742 500)"
+          />
+        </g>
 
         <!-- asteroid belt -->
-        <circle cx="500" cy="500" r="286" fill="none" stroke="var(--orb-ink)" stroke-width="0.45" stroke-dasharray="1 6" />
-        <circle cx="500" cy="500" r="302" fill="none" stroke="var(--orb-ink)" stroke-width="0.45" stroke-dasharray="1 6" />
-        <circle cx="793" cy="512" r="1.1" fill="var(--ink)" opacity="0.55" />
-        <circle cx="760" cy="644" r="1.3" fill="var(--brass)" opacity="0.5" />
-        <circle cx="643" cy="759" r="1.2" fill="var(--celest)" opacity="0.6" />
-        <circle cx="348" cy="752" r="1.3" fill="var(--brass)" opacity="0.45" />
-        <circle cx="240" cy="644" r="1.2" fill="var(--celest)" opacity="0.55" />
-        <circle cx="294" cy="288" r="1.2" fill="var(--ink)" opacity="0.5" />
-        <circle cx="503" cy="207" r="1.2" fill="var(--ink)" opacity="0.55" />
-        <circle cx="711" cy="293" r="1.2" fill="var(--ink)" opacity="0.5" />
-        <text class="orbit-label">
-          <textPath :href="`#${uid}-lp294`" startOffset="40%">
-            <tspan dy="2.33">CINGVLVM·ASTEROIDVM</tspan>
-          </textPath>
-        </text>
+        <g class="orbit-group" data-rate="-0.020">
+          <circle cx="500" cy="500" r="286" fill="none" stroke="var(--orb-ink)" stroke-width="0.45" stroke-dasharray="1 6" />
+          <circle cx="500" cy="500" r="302" fill="none" stroke="var(--orb-ink)" stroke-width="0.45" stroke-dasharray="1 6" />
+          <circle cx="793" cy="512" r="1.1" fill="var(--ink)" opacity="0.55" />
+          <circle cx="760" cy="644" r="1.3" fill="var(--brass)" opacity="0.5" />
+          <circle cx="643" cy="759" r="1.2" fill="var(--celest)" opacity="0.6" />
+          <circle cx="348" cy="752" r="1.3" fill="var(--brass)" opacity="0.45" />
+          <circle cx="240" cy="644" r="1.2" fill="var(--celest)" opacity="0.55" />
+          <circle cx="294" cy="288" r="1.2" fill="var(--ink)" opacity="0.5" />
+          <circle cx="503" cy="207" r="1.2" fill="var(--ink)" opacity="0.55" />
+          <circle cx="711" cy="293" r="1.2" fill="var(--ink)" opacity="0.5" />
+          <text class="orbit-label">
+            <textPath :href="`#${uid}-lp294`" startOffset="40%">
+              <tspan dy="2.33">CINGVLVM·ASTEROIDVM</tspan>
+            </textPath>
+          </text>
+        </g>
 
-        <circle cx="500" cy="500" r="356" fill="none" stroke="var(--orb-celest)" stroke-width="0.6" />
-        <circle cx="147.5" cy="450.2" r="2.6" fill="var(--celest)" />
+        <g class="orbit-group" data-rate="0.016">
+          <circle cx="500" cy="500" r="356" fill="none" stroke="var(--orb-celest)" stroke-width="0.6" />
+          <circle cx="147.5" cy="450.2" r="2.6" fill="var(--celest)" />
+        </g>
 
-        <g>
+        <g class="orbit-group" data-rate="-0.011">
           <path
             class="gap-ring"
             data-label-pad="5"
@@ -292,8 +416,8 @@ onBeforeUnmount(() => visibilityRetry?.disconnect())
             stroke="var(--orb-celest)"
             stroke-width="0.55"
           />
-          <circle cx="460" cy="500" r="1.8" fill="var(--celest)" />
-          <line x1="460" y1="500" x2="444" y2="500" stroke="var(--orb-celest)" stroke-width="0.8" />
+          <circle ref="cometBody" cx="460" cy="500" r="1.8" fill="var(--celest)" />
+          <line ref="cometTail" x1="460" y1="500" x2="444" y2="500" stroke="var(--orb-celest)" stroke-width="0.8" />
         </g>
       </template>
     </svg>
@@ -301,6 +425,11 @@ onBeforeUnmount(() => visibilityRetry?.disconnect())
 </template>
 
 <style>
+.zmc-backdrop .orbit-group {
+  transform-box: view-box;
+  transform-origin: center;
+  will-change: transform;
+}
 .zmc-backdrop .orbit-label {
   font-family: "Cormorant", serif;
   font-style: italic;
