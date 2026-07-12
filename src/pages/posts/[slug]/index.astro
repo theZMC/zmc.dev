@@ -267,6 +267,34 @@ const { Content } = await render(post);
   .post-body .code-frame pre {
     margin: 0;
   }
+  /* Right-edge fade while a long line continues past the clip edge
+     (site.ts toggles data-clipped as the pre scrolls). Two gradient layers
+     because --code-bg is translucent glass — --bg underneath lands the fade
+     on the block's true composite color. Insets and radius tuck it inside
+     the pre's 1px border. */
+  .post-body .code-frame::after {
+    content: "";
+    position: absolute;
+    top: 1px;
+    bottom: 1px;
+    right: 1px;
+    width: 3.25rem;
+    border-radius: 0 9px 9px 0;
+    background:
+      linear-gradient(to left, var(--code-bg), transparent),
+      linear-gradient(to left, var(--bg), transparent);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .post-body .code-frame[data-clipped]::after {
+    opacity: 1;
+  }
+  @media print {
+    .post-body .code-frame::after {
+      display: none;
+    }
+  }
   .post-body pre,
   .post-body .astro-code {
     margin: 2rem 0;
@@ -289,6 +317,8 @@ const { Content } = await render(post);
   }
   .post-body .copy-code {
     position: absolute;
+    /* above the code-frame ::after fade, which follows it in paint order */
+    z-index: 1;
     top: 0.6rem;
     right: 0.6rem;
     cursor: pointer;

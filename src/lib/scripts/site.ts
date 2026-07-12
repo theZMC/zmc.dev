@@ -256,6 +256,17 @@ document.addEventListener("astro:page-load", () => {
     btn.setAttribute("aria-label", "Copy code to clipboard");
     pre.replaceWith(frame);
     frame.append(pre, btn);
+    // data-clipped drives the right-edge fade: on while content continues
+    // past the clip edge, off once scrolled to the end. ResizeObserver fires
+    // on observe, so the initial state needs no separate call.
+    const updateClipped = () => {
+      frame.toggleAttribute(
+        "data-clipped",
+        pre.scrollWidth - pre.clientWidth - pre.scrollLeft > 1,
+      );
+    };
+    pre.addEventListener("scroll", updateClipped, { passive: true });
+    new ResizeObserver(updateClipped).observe(pre);
   });
 
   updateScrollState();
