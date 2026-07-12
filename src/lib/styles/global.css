@@ -400,6 +400,36 @@ main {
   border-radius: 14px;
   position: relative;
 }
+/* The frost pane (planted by site.ts) carries the panel's blur on a
+   sticky viewport-height child: WebKit drops backdrop-filter outright
+   once a layer passes ~24.5k px, which long transmissions exceed. The
+   pane rides the scroll so the filtered texture never outgrows the
+   viewport; min() keeps it inside panels shorter than the screen. It
+   samples the panel's own glass tint beneath it, which blurs to itself,
+   so the look is identical to the on-panel filter. */
+.panel-frost {
+  position: absolute;
+  inset: 0;
+  /* under the panel's in-flow content — the frost blurs the cosmos, not
+     the prose; the :has() below makes the panel the stacking context
+     this negative z-index resolves against */
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.panel-frost > div {
+  position: sticky;
+  top: 0;
+  height: min(100%, 100vh);
+  border-radius: inherit;
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  backdrop-filter: blur(18px) saturate(1.15);
+}
+.panel:has(> .panel-frost) {
+  z-index: 0;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
 /* hoverable index rows: separated by a comet (dot at the text's left edge,
    tail fading right — kin to the orrery's comet), and hover draws the
    panels' border shimmer at row scale. --row-pad insets the text from the
@@ -704,7 +734,8 @@ footer a:hover {
   }
   .cosmos,
   nav,
-  footer {
+  footer,
+  .panel-frost {
     display: none !important;
   }
   body {

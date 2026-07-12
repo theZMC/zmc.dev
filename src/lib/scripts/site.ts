@@ -252,6 +252,23 @@ document.addEventListener("astro:page-load", () => {
     }
   }
 
+  // Frost pane in every panel (idempotent per page view): WebKit silently
+  // drops backdrop-filter once a layer passes ~24.5k px (1.5× its 16384px
+  // texture cap), and a long transmission's panel sails past it. The pane
+  // is a sticky, viewport-height child that carries the blur instead, so
+  // the filtered texture never exceeds one viewport however tall the panel
+  // grows. CSS turns the panel's own backdrop-filter off via :has() —
+  // without JS the panel keeps it, so the no-JS glass still works
+  // everywhere but the longest posts.
+  document.querySelectorAll<HTMLElement>(".panel").forEach((panel) => {
+    if (panel.querySelector(":scope > .panel-frost")) return;
+    const frost = document.createElement("div");
+    frost.className = "panel-frost";
+    frost.setAttribute("aria-hidden", "true");
+    frost.append(document.createElement("div"));
+    panel.prepend(frost);
+  });
+
   // Header strip on article code blocks (idempotent per page view): language
   // hint left, expand/copy buttons right. Each pre gets a .code-frame wrapper
   // with the header as a sibling, not a child — inside the pre its labels
