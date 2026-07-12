@@ -9,8 +9,8 @@ description: |
 
 ## What is `dockertest`?
 
-`dockertest` is a Go library that enables programmatic control of Docker
-containers. The only requirement is that you have Docker (or a compatible
+At its core, `dockertest` is a Go library that enables programmatic control of
+Docker containers. The only requirement is that you have Docker (or a compatible
 container runtime) installed on your machine with a docker socket available to
 you. Having the ability to spin up docker containers at a whim straight from
 your test code is invaluable for making sure application code behaves as
