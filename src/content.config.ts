@@ -15,6 +15,10 @@ const blog = defineCollection({
     tags: z.array(z.string()),
     date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     description: z.string().optional(),
+    // Gates listings, tag pages, RSS, and prev/next nav — an unpublished
+    // post still builds to its /posts/<slug>/ URL (the talks contract).
+    // Defaults on, so regular posts never carry the flag.
+    published: z.boolean().default(true),
   }),
 });
 

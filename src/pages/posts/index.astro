@@ -3,7 +3,9 @@ import BaseLayout from "@layouts/BaseLayout.astro";
 import { byDateDesc, formatPostDate } from "@lib/utils/dates";
 import { getCollection } from "astro:content";
 
-const posts = (await getCollection("blog")).sort(byDateDesc);
+const posts = (await getCollection("blog"))
+  .filter((post) => post.data.published)
+  .sort(byDateDesc);
 ---
 
 <BaseLayout pageTitle="Transmissions — Zach Callahan">

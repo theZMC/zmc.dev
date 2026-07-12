@@ -19,7 +19,9 @@ const projects = (await getCollection("projects")).sort(
 const resume = await loadResume();
 const jobs = resume.jobs.filter((job) => job.isTech).sort(byTenureDesc);
 
-const posts = (await getCollection("blog")).sort(byDateDesc);
+const posts = (await getCollection("blog"))
+  .filter((post) => post.data.published)
+  .sort(byDateDesc);
 
 // Unpublished talks still build to /talks/<slug>/ — the flag only gates
 // this listing, so a WIP deck stays unlisted rather than unreachable.

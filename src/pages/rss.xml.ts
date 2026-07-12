@@ -4,7 +4,9 @@ import { getCollection } from "astro:content";
 import { byDateDesc } from "@lib/utils/dates";
 
 export async function GET(context: APIContext) {
-  const posts = (await getCollection("blog")).sort(byDateDesc);
+  const posts = (await getCollection("blog"))
+    .filter((post) => post.data.published)
+    .sort(byDateDesc);
 
   return rss({
     title: "zmc.dev · Transmissions",

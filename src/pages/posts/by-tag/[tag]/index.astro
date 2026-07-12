@@ -4,7 +4,10 @@ import { byDateDesc, formatPostDate } from "@lib/utils/dates";
 import { getCollection } from "astro:content";
 
 export async function getStaticPaths() {
-  const allPosts = await getCollection("blog");
+  // filtered before tag harvesting, so a draft's tags can't mint pages
+  const allPosts = (await getCollection("blog")).filter(
+    (post) => post.data.published,
+  );
   const tags = allPosts.flatMap((post) => post.data.tags || []);
   const uniqueTags = [...new Set(tags)];
 
