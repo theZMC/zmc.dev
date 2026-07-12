@@ -7,6 +7,8 @@ import { rehypeHeadingIds } from "@astrojs/markdown-remark";
 
 import relativeLinks from "astro-relative-links";
 
+import talks from "./src/lib/talks/integration.mjs";
+
 import { zmcDark, zmcLight } from "./src/lib/shiki/zmc-themes.mjs";
 
 // `astro build` re-runs the Vite dep optimizer in production mode, and with a
@@ -60,7 +62,7 @@ export default defineConfig({
     ],
   },
 
-  integrations: [relativeLinks()],
+  integrations: [relativeLinks(), talks()],
 
   vite: {
     cacheDir: isBuild ? "node_modules/.vite-build" : undefined,

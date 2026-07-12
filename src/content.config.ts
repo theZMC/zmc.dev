@@ -40,4 +40,33 @@ const projects = defineCollection({
   }),
 });
 
-export const collections = { blog, projects, resume };
+const talks = defineCollection({
+  loader: glob({
+    pattern: "*/talk.yaml",
+    base: "./src/data/talks",
+    // Slug is the talk's directory name; the deck lives beside talk.yaml as
+    // slides.md and ships to /talks/<slug>/.
+    generateId: (opts) => opts.entry.split("/")[0],
+  }),
+  schema: z.object({
+    title: z.string(),
+    // YAML parses an unquoted 2026-07-11 as a Date; fold it back to the
+    // YYYY-MM-DD string the rest of the site's date utils expect.
+    date: z.preprocess(
+      (value) =>
+        value instanceof Date ? value.toISOString().slice(0, 10) : value,
+      z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    ),
+    description: z.string(),
+    // Gates the home-page listing only — unpublished decks still build to
+    // their /talks/<slug>/ URL.
+    published: z.boolean().default(false),
+    event: z.object({
+      name: z.string(),
+      url: z.string().url().optional(),
+    }),
+    recording: z.string().url().optional(),
+  }),
+});
+
+export const collections = { blog, projects, resume, talks };

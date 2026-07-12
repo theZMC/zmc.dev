@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
-import { byDateDesc } from "@lib/utils/dates";
+import { byDateDesc, formatPostDate } from "@lib/utils/dates";
 import { toRoman } from "@lib/utils/roman";
 import { loadResume } from "@lib/resume/load";
 import { byTenureDesc, romanSpan } from "@lib/utils/tenure";
@@ -20,6 +20,12 @@ const resume = await loadResume();
 const jobs = resume.jobs.filter((job) => job.isTech).sort(byTenureDesc);
 
 const posts = (await getCollection("blog")).sort(byDateDesc);
+
+// Unpublished talks still build to /talks/<slug>/ — the flag only gates
+// this listing, so a WIP deck stays unlisted rather than unreachable.
+const talks = (await getCollection("talks"))
+  .filter((talk) => talk.data.published)
+  .sort(byDateDesc);
 ---
 
 <BaseLayout {pageTitle} {metaDescription}>
@@ -29,9 +35,9 @@ const posts = (await getCollection("blog")).sort(byDateDesc);
       <h1 data-orrery-anchor>ZACH CALLAHAN</h1>
       <p class="tagline">Feet on the ground. Head in the cloud.</p>
       <p class="role">
-        Full-stack developer, Kubernetes evangelist, and open-source
-        enthusiast. I build the platforms other engineers stand on — and the
-        tooling that makes tomorrow's work easier than today's.
+        Full-stack developer, Kubernetes evangelist, and open-source enthusiast.
+        I build the platforms other engineers stand on — and the tooling that
+        makes tomorrow's work easier than today's.
       </p>
       <div class="hero-rule"></div>
     </div>
@@ -124,6 +130,62 @@ const posts = (await getCollection("blog")).sort(byDateDesc);
       }
     </section>
 
+    {
+      talks.length > 0 && (
+        <section id="talks" class="panel">
+          <div class="sec-head">
+            <h2>
+              <a href="#talks">Symposia</a>
+            </h2>
+            <span class="mono coord">Spoken Word · Slides</span>
+          </div>
+
+          {talks.map((talk) => (
+            <div class="talk-row">
+              <span class="venue">
+                {talk.data.event.url ? (
+                  <a
+                    href={talk.data.event.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {talk.data.event.name}
+                  </a>
+                ) : (
+                  talk.data.event.name
+                )}
+              </span>
+              <div>
+                <h3>
+                  <a
+                    href={`/talks/${talk.id}/`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {talk.data.title} <span class="arrow">↗</span>
+                  </a>
+                </h3>
+                <time class="mono when" datetime={talk.data.date}>
+                  {formatPostDate(talk.data.date)}
+                </time>
+                <p>{talk.data.description}</p>
+                {talk.data.recording && (
+                  <a
+                    class="mono rec"
+                    href={talk.data.recording}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Recording ↗
+                  </a>
+                )}
+              </div>
+            </div>
+          ))}
+        </section>
+      )
+    }
+
     <section id="about" class="panel">
       <div class="sec-head">
         <h2><a href="#about">About</a></h2>
@@ -138,10 +200,9 @@ const posts = (await getCollection("blog")).sort(byDateDesc);
         </p>
         <div class="body-col">
           <p>
-            Automation and tooling are the through-line — from keeping
-            ecommerce runtimes alive at 3 a.m. to hardening DoD platform
-            infrastructure. Bash and Go are the daily drivers, but the toolbox
-            is always open.
+            Automation and tooling are the through-line — from keeping ecommerce
+            runtimes alive at 3 a.m. to hardening DoD platform infrastructure.
+            Bash and Go are the daily drivers, but the toolbox is always open.
           </p>
           <p>
             Before tech: nine years of retail management and six as a combat
@@ -406,6 +467,70 @@ const posts = (await getCollection("blog")).sort(byDateDesc);
     font-family: "Spline Sans Mono", monospace;
   }
 
+  /* symposia: the deck opens in a new tab (a full-window Slidev SPA outside
+     the site shell), hence the ↗ instead of the row-link → */
+  .talk-row {
+    display: grid;
+    grid-template-columns: 210px 1fr;
+    gap: 2.4rem;
+    padding: 2.2rem 0;
+    border-bottom: 1px solid var(--hair);
+  }
+  .talk-row:last-of-type {
+    border-bottom: none;
+  }
+  .talk-row .venue {
+    font-family: "Marcellus", serif;
+    color: var(--brass);
+    font-size: 1rem;
+    letter-spacing: 0.12em;
+    padding-top: 0.2rem;
+  }
+  .talk-row .venue a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .talk-row .venue a:hover {
+    text-decoration: underline;
+  }
+  .talk-row h3 {
+    font-family: "Marcellus", serif;
+    font-weight: 400;
+    font-size: 1.3rem;
+    letter-spacing: 0.05em;
+  }
+  .talk-row h3 a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .talk-row h3 a:hover {
+    color: var(--brass);
+  }
+  .talk-row .arrow {
+    color: var(--brass);
+    font-family: "Spline Sans Mono", monospace;
+    font-size: 0.85em;
+  }
+  .talk-row .when {
+    display: block;
+    margin-bottom: 0.55rem;
+  }
+  .talk-row p {
+    color: var(--ink-dim);
+    font-size: 0.95rem;
+    max-width: 52em;
+  }
+  .talk-row .rec {
+    display: inline-block;
+    margin-top: 0.8rem;
+    color: var(--brass);
+    text-decoration: none;
+  }
+  .talk-row .rec:hover {
+    text-decoration: underline;
+  }
+
   /* about */
   .about-grid {
     display: grid;
@@ -498,6 +623,11 @@ const posts = (await getCollection("blog")).sort(byDateDesc);
       justify-content: flex-start;
     }
     .svc-row {
+      grid-template-columns: 1fr;
+      gap: 0.6rem;
+      padding: 1.9rem 0;
+    }
+    .talk-row {
       grid-template-columns: 1fr;
       gap: 0.6rem;
       padding: 1.9rem 0;

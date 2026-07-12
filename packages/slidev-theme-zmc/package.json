@@ -19,6 +19,7 @@
     "highlighter": "shiki",
     "defaults": {
       "transition": "fade",
+      "routerMode": "hash",
       "fonts": {
         "provider": "none",
         "sans": "Instrument Sans",

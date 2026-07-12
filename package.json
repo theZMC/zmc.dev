@@ -7,6 +7,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "talk": "node scripts/talk.mjs",
     "test": "vitest run"
   },
   "dependencies": {
@@ -26,7 +27,9 @@
     "sharp": "^0.34.4"
   },
   "devDependencies": {
+    "@slidev/cli": "^52.17.0",
     "@types/react": "^19.2.17",
+    "slidev-theme-zmc": "workspace:*",
     "prettier": "^3.6.2",
     "prettier-plugin-astro": "^0.14.1",
     "typescript": "^5.9.2",

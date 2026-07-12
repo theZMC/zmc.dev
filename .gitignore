@@ -1,5 +1,7 @@
 # build output
 dist/
+# slidev decks land in public/ during `astro build` (see src/lib/talks)
+public/talks/
 *.pdf
 # generated types
 .astro/

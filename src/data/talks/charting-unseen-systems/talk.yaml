@@ -1,0 +1,10 @@
+# Site-facing metadata for the deck in slides.md. Slidev's own headmatter
+# (title/theme/layout…) stays in slides.md; the two never share keys.
+title: Charting Unseen Systems
+date: 2026-07-11
+description: >-
+  A field guide to observability in production — and the demo deck for
+  slidev-theme-zmc, exercising every layout the theme ships.
+published: false
+event:
+  name: Stellar Summit
