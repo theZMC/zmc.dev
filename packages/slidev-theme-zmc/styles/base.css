@@ -1,0 +1,291 @@
+/* ============ TOKENS ============
+   Lifted verbatim from the site's global.css. The site keys its themes off
+   [data-theme]; Slidev keys off the `dark` class on <html>, so light lives
+   on :root and dark on html.dark. */
+:root {
+  --bg: #e9e3d3;
+  --bg-core: #f2eddf;
+  --ink: #1a1e29;
+  --ink-dim: #5b5f68;
+  --brass: #8f6f35;
+  --brass-dim: rgba(143, 111, 53, 0.42);
+  /* a step darker than the site's #4e6685: projectors wash out micro-caps
+     that read fine on a laptop panel */
+  --celest: #435a76;
+  --hair: rgba(26, 30, 41, 0.14);
+  --glass: rgba(242, 237, 223, 0.55);
+  --glass-solid: rgba(242, 237, 223, 0.95);
+  --glass-hair: rgba(26, 30, 41, 0.16);
+  --nav-glass: rgba(233, 227, 211, 0.6);
+  --shimmer-brass: rgba(143, 111, 53, 0.8);
+  --shimmer-core: rgba(255, 255, 255, 0.95);
+  --code-bg: rgba(255, 252, 244, 0.5);
+  --orb-brass: rgba(143, 111, 53, 0.42);
+  --orb-ink: rgba(26, 30, 41, 0.22);
+  --orb-celest: rgba(78, 102, 133, 0.3);
+  --orb-outer: rgba(26, 30, 41, 0.16);
+  --tick: rgba(143, 111, 53, 0.5);
+  --grat: rgba(26, 30, 41, 0.075);
+  --label: rgba(26, 30, 41, 0.48);
+  --label-brass: rgba(143, 111, 53, 0.7);
+  --core-glow-opacity: 0.35;
+  --code-head-h: 2.2rem;
+}
+html.dark {
+  --bg: #0b0e14;
+  --bg-core: #131a2a;
+  --ink: #e8e4d8;
+  --ink-dim: #9ba0a8;
+  --brass: #c8a96a;
+  --brass-dim: rgba(200, 169, 106, 0.34);
+  --celest: #7a93b8;
+  --hair: rgba(232, 228, 216, 0.1);
+  --glass: rgba(15, 19, 29, 0.55);
+  --glass-solid: rgba(15, 19, 29, 0.94);
+  --glass-hair: rgba(232, 228, 216, 0.13);
+  --nav-glass: rgba(11, 14, 20, 0.6);
+  --shimmer-brass: rgba(200, 169, 106, 0.75);
+  --shimmer-core: rgba(240, 235, 220, 0.95);
+  --code-bg: rgba(8, 10, 16, 0.6);
+  --orb-brass: rgba(200, 169, 106, 0.3);
+  --orb-ink: rgba(232, 228, 216, 0.12);
+  --orb-celest: rgba(122, 147, 184, 0.18);
+  --orb-outer: rgba(232, 228, 216, 0.09);
+  --tick: rgba(200, 169, 106, 0.35);
+  --grat: rgba(232, 228, 216, 0.055);
+  --label: rgba(232, 228, 216, 0.4);
+  --label-brass: rgba(200, 169, 106, 0.55);
+  --core-glow-opacity: 0.55;
+}
+
+/* ============ CANVAS ============ */
+.slidev-layout {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  padding: 2.5rem 3.25rem 3.2rem;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Instrument Sans", sans-serif;
+  font-size: 1.02rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  transition:
+    background-color 0.45s ease,
+    color 0.45s ease,
+    border-color 0.45s ease;
+}
+/* Everything that isn't the celestial backdrop floats above it. */
+.slidev-layout > *:not(.zmc-backdrop) {
+  position: relative;
+  z-index: 1;
+}
+.slidev-layout ::selection {
+  background: var(--brass);
+  color: var(--bg);
+}
+
+/* ============ TYPE ============ */
+.slidev-layout h1,
+.slidev-layout h2,
+.slidev-layout h3,
+.slidev-layout h4,
+.slidev-layout h5,
+.slidev-layout h6 {
+  font-family: "Marcellus", serif;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.25;
+}
+.slidev-layout h1 {
+  font-size: 1.6rem;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.9rem;
+}
+.slidev-layout h2 {
+  font-size: 1.35rem;
+  letter-spacing: 0.1em;
+  margin: 1.4rem 0 0.7rem;
+}
+.slidev-layout h3 {
+  font-size: 1.12rem;
+  letter-spacing: 0.06em;
+  margin: 1.2rem 0 0.5rem;
+}
+.slidev-layout p {
+  margin: 0.7rem 0;
+}
+.slidev-layout strong {
+  font-weight: 500;
+  color: var(--brass);
+}
+.slidev-layout a {
+  color: var(--brass);
+  text-decoration: underline;
+  text-decoration-color: var(--brass-dim);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.3s;
+}
+.slidev-layout a:hover {
+  text-decoration-color: var(--brass);
+}
+
+/* chart-key micro-caps — the site's .mono utility */
+.zmc-eyebrow,
+.slidev-layout .mono {
+  font-family: "Spline Sans Mono", monospace;
+  font-weight: 300;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  color: var(--celest);
+}
+
+/* ============ PROSE FURNITURE ============ */
+/* explicit list-style: Slidev's preflight strips markers, and wrapped items
+   with no disc lose their boundaries */
+.slidev-layout ul {
+  list-style: disc outside;
+  padding-left: 1.25em;
+  margin: 0.7rem 0;
+}
+.slidev-layout ol {
+  list-style: decimal outside;
+  padding-left: 1.25em;
+  margin: 0.7rem 0;
+}
+.slidev-layout li {
+  margin: 0.4em 0;
+}
+.slidev-layout li::marker {
+  color: var(--brass);
+}
+.slidev-layout blockquote {
+  margin: 1.4rem 0;
+  padding: 0.3rem 0 0.3rem 1.3rem;
+  border-left: 1px solid var(--brass);
+  font-style: italic;
+  color: var(--ink-dim);
+}
+.slidev-layout hr {
+  border: none;
+  height: 5px;
+  margin: 1.6rem 0;
+  background:
+    radial-gradient(circle closest-side, var(--brass-dim) 68%, transparent 72%)
+      left bottom 0 / 5px 5px no-repeat,
+    linear-gradient(to right, var(--brass-dim), transparent) 4px bottom 2px /
+      min(26rem, 65%) 1px no-repeat;
+}
+.slidev-layout table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.1rem 0;
+}
+.slidev-layout th {
+  font-family: "Spline Sans Mono", monospace;
+  font-weight: 300;
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--celest);
+  text-align: left;
+  padding: 0.5rem 0.8rem;
+  border-bottom: 1px solid var(--brass-dim);
+}
+.slidev-layout td {
+  padding: 0.55rem 0.8rem;
+  border-bottom: 1px solid var(--hair);
+}
+
+/* tag pill, for inline <Tag>-style annotations in decks */
+.zmc-tag {
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--celest);
+  border: 1px solid var(--orb-celest);
+  border-radius: 999px;
+  padding: 0.28rem 0.7rem;
+  white-space: nowrap;
+}
+
+/* Slidev chrome pieces that leak the default theme's white */
+.slidev-page {
+  background: var(--bg);
+}
+/* quick-overview & friends: Slidev's 75%-opaque overlay lets the live slide
+   ghost through between thumbnails — frost it like the site's nav instead */
+div.z-modal.bg-main {
+  background-color: color-mix(in srgb, var(--bg) 94%, transparent) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  backdrop-filter: blur(14px) saturate(1.15);
+}
+
+/* the default fade lingers long enough that outgoing text sits legibly on
+   the incoming slide — keep the crossfade, quicken the beat */
+.slidev-page .fade-enter-active,
+.slidev-page .fade-leave-active,
+#slide-container .fade-enter-active,
+#slide-container .fade-leave-active {
+  transition-duration: 0.25s !important;
+}
+
+/* ============ PRINT ============
+   Whatever mode the screen was in, paper gets the site's print palette:
+   ink on white, brass muted for toner, all glass gone solid. */
+@media print {
+  :root,
+  html.dark {
+    --bg: #fff;
+    --bg-core: #fff;
+    --ink: #111;
+    --ink-dim: #444;
+    --brass: #6d5426;
+    --brass-dim: rgba(109, 84, 38, 0.5);
+    --celest: #3d4f66;
+    --hair: rgba(0, 0, 0, 0.22);
+    --glass: transparent;
+    --glass-solid: transparent;
+    --glass-hair: rgba(0, 0, 0, 0.25);
+    --nav-glass: transparent;
+    --code-bg: transparent;
+    --orb-brass: rgba(109, 84, 38, 0.3);
+    --orb-ink: rgba(0, 0, 0, 0.14);
+    --orb-celest: rgba(61, 79, 102, 0.25);
+    --orb-outer: rgba(0, 0, 0, 0.12);
+    --tick: rgba(109, 84, 38, 0.35);
+    --grat: rgba(0, 0, 0, 0.06);
+    --label: rgba(0, 0, 0, 0.4);
+    --label-brass: rgba(109, 84, 38, 0.55);
+    --core-glow-opacity: 0;
+  }
+  .slidev-layout .shiki,
+  .slidev-layout .shiki span {
+    color: var(--shiki-light) !important;
+  }
+  .slidev-layout pre.slidev-code,
+  .slidev-layout .shiki-magic-move-container {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .zmc-panel,
+  .zmc-foot {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  /* on paper the whisper-faint graticule prints as hard strokes through
+     text — the site hides its cosmos in print, so content slides do too;
+     the bold plates keep theirs as engraving */
+  .zmc-backdrop[data-variant="faint"] {
+    display: none;
+  }
+}
+/* slidev export renders in screen media with a `print` class instead of
+   @media print — PDF rasterization turns the low-alpha graticule into hard
+   black strokes through text, so content slides shed it there too */
+.print .zmc-backdrop[data-variant="faint"],
+html.print .zmc-backdrop[data-variant="faint"] {
+  display: none;
+}

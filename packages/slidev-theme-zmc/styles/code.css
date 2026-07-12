@@ -1,0 +1,188 @@
+/* ============ CODE ============
+   The site's code-frame chrome, minus the Copy/Expand buttons (pointless
+   mid-presentation and dead weight in PDF export). The language chip is
+   painted from the data-lang attribute stamped by setup/shiki.ts. */
+
+/* inline code: the site's pill */
+.slidev-layout :not(pre) > code {
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 0.86em;
+  background: var(--code-bg);
+  border: 1px solid var(--hair);
+  border-radius: 5px;
+  padding: 0.1em 0.4em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* fenced blocks: the pre owns the frame, the inner code owns the scroll —
+   so the absolutely-positioned lang chip never rides along on a horizontal
+   scroll of long lines. */
+.slidev-layout pre.slidev-code {
+  position: relative;
+  margin: 1.2rem 0;
+  /* !important: Slidev's client styles land after the theme's and pad the
+     pre; the frame needs the spacing on the inner code so the chip strip
+     stays put while long lines scroll. */
+  padding: 0 !important;
+  overflow: hidden;
+  background: var(--code-bg);
+  /* the site's code blocks live inside frosted panels; on slides the pre
+     carries its own frost so chart art washes soft behind the glass
+     instead of passing through the syntax */
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  backdrop-filter: blur(18px) saturate(1.15);
+  border: 1px solid var(--glass-hair);
+  border-radius: 10px;
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  .slidev-layout pre.slidev-code {
+    background: var(--glass-solid);
+  }
+}
+.slidev-layout pre.slidev-code > code {
+  display: block;
+  overflow-x: auto;
+  padding: 1.15rem 1.4rem 1.2rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--brass-dim) transparent;
+}
+.slidev-layout pre.slidev-code > code::-webkit-scrollbar {
+  height: 8px;
+}
+.slidev-layout pre.slidev-code > code::-webkit-scrollbar-thumb {
+  background: var(--brass-dim);
+  border-radius: 4px;
+}
+
+/* the code-head strip: language chip left, joined 10px frame */
+.slidev-layout pre.slidev-code[data-lang] > code {
+  padding-top: calc(var(--code-head-h) + 1.05rem);
+}
+.slidev-layout pre.slidev-code[data-lang]::before {
+  content: attr(data-lang);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--code-head-h);
+  display: flex;
+  align-items: center;
+  padding: 0 1.4rem;
+  background: var(--code-bg);
+  border-bottom: 1px solid var(--glass-hair);
+  /* no radius of its own: the strip sits inside the pre's 1px border, where
+     the inner curve is 9px — a self-rounded 10px corner pulls away from it
+     and lets the slide bleed through. The pre's rounded overflow clip
+     already shapes the corners exactly. */
+  font-family: "Spline Sans Mono", monospace;
+  font-weight: 300;
+  font-size: 0.62rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+/* a fence meta title (```ts title="orrery.ts") outranks the bare lang */
+.slidev-layout pre.slidev-code[data-title]::before {
+  content: attr(data-title);
+}
+/* on parchment the pale-gold chip needs half a step more ink to inform */
+html:not(.dark) .slidev-layout pre.slidev-code::before {
+  font-weight: 400;
+}
+
+/* Shiki dual themes (defaultColor: false): every token carries only the
+   --shiki-dark/--shiki-light custom props; pick one per scheme. */
+.slidev-layout .shiki,
+.slidev-layout .shiki span {
+  color: var(--shiki-dark);
+}
+/* strip Shiki's per-token inline backgrounds — but NOT on .line spans,
+   whose background is the line-highlight wash */
+.slidev-layout .shiki,
+.slidev-layout .shiki span:not(.line) {
+  background-color: transparent !important;
+}
+html:not(.dark) .slidev-layout .shiki,
+html:not(.dark) .slidev-layout .shiki span {
+  color: var(--shiki-light);
+}
+
+/* line ranges (```ts {2,5-7}) light up in brass.
+   inline-block, not block: Shiki keeps a newline text node between line
+   spans, and block boxes would stack on top of those newlines — doubling
+   the leading. */
+.slidev-layout .shiki .line {
+  display: inline-block;
+  width: 100%;
+  min-height: 1em;
+}
+.slidev-layout .shiki .line.highlighted {
+  background: color-mix(in srgb, var(--brass) 16%, transparent);
+  box-shadow: inset 3px 0 0 var(--brass);
+  width: calc(100% + 2.8rem);
+  margin: 0 -1.4rem;
+  padding: 0 1.4rem;
+}
+/* brass wash needs more pigment on parchment to carry past the front row */
+html:not(.dark) .slidev-layout .shiki .line.highlighted {
+  background: color-mix(in srgb, var(--brass) 26%, transparent);
+}
+/* Slidev dims non-highlighted lines to 0.3 via its `dishonored` class —
+   from the back of a room that reads as missing lines, not context. Keep
+   them subdued, never extinguished. */
+.slidev-layout pre.slidev-code .line.dishonored,
+.slidev-layout .shiki .slidev-code-dishonored {
+  opacity: 0.78 !important;
+  transition: opacity 0.3s ease;
+}
+/* cream washes out faster than midnight under projector glare */
+html:not(.dark) .slidev-layout pre.slidev-code .line.dishonored,
+html:not(.dark) .slidev-layout .shiki .slidev-code-dishonored {
+  opacity: 0.85 !important;
+}
+
+/* magic-move gets the frame without a chip (the languages shift mid-flight) */
+.slidev-layout .shiki-magic-move-container {
+  display: block;
+  margin: 1.2rem 0;
+  padding: 1.15rem 1.4rem 1.2rem;
+  background: var(--code-bg) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  backdrop-filter: blur(18px) saturate(1.15);
+  border: 1px solid var(--glass-hair);
+  border-radius: 10px;
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  overflow-x: auto;
+}
+
+/* ============ MERMAID ============ */
+/* Slidev renders mermaid into a shadow root on the .mermaid host, so page
+   CSS can't restyle the diagram's internals — only the host. */
+.slidev-layout .mermaid {
+  display: flex;
+  justify-content: center;
+}
+/* setup/mermaid.ts commits diagrams to the dark glass (mermaid can't follow
+   the live toggle, and the shadow boundary blocks per-token overrides).
+   Parchment mode flips lightness and swings hue back, landing close enough
+   to the ink-on-cream palette. */
+html:not(.dark) .slidev-layout .mermaid {
+  /* sepia pulls the inverted greys toward parchment warmth */
+  filter: invert(1) hue-rotate(180deg) sepia(0.35) saturate(1.15);
+}
+
+/* Monaco / editor embeds inherit the frame */
+.slidev-layout .slidev-monaco-container {
+  border: 1px solid var(--glass-hair);
+  border-radius: 10px;
+  overflow: hidden;
+}

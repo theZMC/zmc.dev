@@ -1,0 +1,506 @@
+/* ============ SHARED LAYOUT FURNITURE ============
+   Layout CSS lives here rather than in scoped <style> blocks: markdown slot
+   content compiles into the slide component's scope, so scoped layout styles
+   would never reach it. */
+
+/* the celestial backdrop the layouts plant behind their content */
+.zmc-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.zmc-backdrop svg {
+  position: absolute;
+}
+.zmc-backdrop[data-variant="bold"] svg {
+  width: 1150px;
+  height: 1150px;
+}
+.zmc-backdrop[data-variant="faint"] svg {
+  width: 1500px;
+  height: 1500px;
+  opacity: 0.6;
+}
+.zmc-backdrop[data-anchor="right"] svg {
+  left: 74%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.zmc-backdrop[data-anchor="left"] svg {
+  left: 26%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.zmc-backdrop[data-anchor="center"] svg {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+/* section plates: the chart's heart sinks below the slide edge so the
+   rings arc up behind the title instead of the star sitting inside it */
+.zmc-backdrop[data-anchor="bottom"] svg {
+  left: 50%;
+  top: 112%;
+  transform: translate(-50%, -50%);
+}
+
+/* frosted panel — the site's .panel */
+.zmc-panel {
+  position: relative;
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  backdrop-filter: blur(18px) saturate(1.15);
+  border: 1px solid var(--glass-hair);
+  border-radius: 14px;
+  padding: 1.9rem 2.2rem;
+  transition:
+    background-color 0.45s ease,
+    border-color 0.45s ease;
+}
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  .zmc-panel {
+    background: var(--glass-solid);
+  }
+}
+
+/* section-head title: an h1 leading a panel takes the site's .sec-head form */
+.zmc-panel h1:first-child,
+.zmc-head {
+  font-family: "Marcellus", serif;
+  font-weight: 400;
+  font-size: 1.4rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--hair);
+  padding-bottom: 1rem;
+  margin: 0 0 1.3rem;
+}
+
+/* the hero rule: brass line with hollow circles at each end */
+.zmc-rule {
+  position: relative;
+  width: 64px;
+  height: 1px;
+  margin: 1.5rem 16px;
+  background: var(--brass);
+}
+.zmc-rule::before,
+.zmc-rule::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--brass);
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+.zmc-rule::before {
+  left: -14px;
+}
+.zmc-rule::after {
+  right: -14px;
+}
+
+/* ============ GLOBAL FOOTER (coordinate strip) ============ */
+.zmc-foot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 1.8rem;
+  padding: 0.6rem 3.25rem 0.7rem;
+  /* the site nav's frosted bar, inverted to the slide's foot */
+  background: var(--nav-glass);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  backdrop-filter: blur(14px) saturate(1.15);
+  border-top: 1px solid var(--hair);
+  font-family: "Spline Sans Mono", monospace;
+  font-weight: 300;
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  pointer-events: none;
+}
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  .zmc-foot {
+    background: var(--glass-solid);
+  }
+}
+.zmc-foot-sec {
+  color: var(--celest);
+}
+.zmc-foot-count {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--label-brass);
+}
+/* 70%-alpha brass at 9px vanishes on a bright projector */
+html:not(.dark) .zmc-foot-count {
+  color: var(--brass);
+}
+.progress-dial {
+  width: 16px;
+  height: 16px;
+  transform: rotate(-90deg);
+}
+.progress-dial .track {
+  fill: none;
+  stroke: var(--hair);
+  stroke-width: 1.5;
+}
+.progress-dial .arc {
+  fill: none;
+  stroke: var(--brass);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-dasharray: 56.55;
+  transition: stroke-dashoffset 0.45s ease;
+}
+.progress-dial .body {
+  fill: var(--brass);
+}
+
+/* ============ COVER / END ============ */
+.zmc-cover,
+.zmc-end {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+/* text-exclusion zone: the chart fades to a whisper under the type block so
+   planet dots and degree labels never read as stray punctuation */
+.zmc-cover .zmc-backdrop {
+  -webkit-mask-image: linear-gradient(100deg, rgba(0, 0, 0, 0.08) 42%, #000 64%);
+  mask-image: linear-gradient(100deg, rgba(0, 0, 0, 0.08) 42%, #000 64%);
+}
+.zmc-end .zmc-backdrop {
+  -webkit-mask-image: linear-gradient(-100deg, rgba(0, 0, 0, 0.08) 42%, #000 64%);
+  mask-image: linear-gradient(-100deg, rgba(0, 0, 0, 0.08) 42%, #000 64%);
+}
+.zmc-cover-body {
+  max-width: 60%;
+}
+.zmc-cover h1 {
+  font-size: 2.7rem;
+  letter-spacing: 0.14em;
+  line-height: 1.18;
+  text-transform: uppercase;
+  margin: 1.1rem 0 0;
+}
+.zmc-cover-tagline,
+.zmc-cover h1 + p {
+  font-family: "Marcellus", serif;
+  color: var(--brass);
+  letter-spacing: 0.12em;
+  font-size: 1.15rem;
+  margin-top: 0.9rem;
+}
+.zmc-cover-meta {
+  display: flex;
+  gap: 2rem;
+  font-family: "Spline Sans Mono", monospace;
+  font-weight: 300;
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.zmc-end h1 {
+  font-size: 2.3rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin: 1.1rem 0 0;
+}
+
+/* ============ SECTION ============ */
+.zmc-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.zmc-section-plate {
+  font-family: "Marcellus", serif;
+  font-size: 1rem;
+  letter-spacing: 0.34em;
+  color: var(--brass);
+}
+.zmc-section h1 {
+  font-size: 2.1rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin: 1.2rem 0 0;
+}
+.zmc-section .zmc-rule {
+  margin: 1.7rem auto 0;
+}
+.zmc-section-coord {
+  margin-top: 1.4rem;
+}
+
+/* Short content floats to the vertical center instead of hugging the top
+   and leaving a dead lower third; tall content still fills naturally. */
+.zmc-default,
+.zmc-two-cols,
+.zmc-compare,
+.zmc-code,
+.zmc-terminal {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.zmc-default > .zmc-panel,
+.zmc-two-cols > .zmc-panel {
+  flex: none;
+}
+
+/* ============ TWO-COLS ============ */
+.zmc-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 2.4rem;
+  align-items: start;
+}
+
+/* ============ STATEMENT / QUOTE / FACT ============ */
+.zmc-statement {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.zmc-statement-body {
+  max-width: 80%;
+  font-family: "Marcellus", serif;
+  font-size: 2.1rem;
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+}
+.zmc-statement-body p {
+  margin: 0;
+}
+.zmc-statement-body strong {
+  font-weight: 400;
+  color: var(--brass);
+}
+
+.zmc-quote {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.zmc-quote-body {
+  max-width: 75%;
+  font-family: "Cormorant", serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 2.1rem;
+  line-height: 1.4;
+}
+.zmc-quote-body p {
+  margin: 0;
+}
+.zmc-quote-author {
+  margin-top: 1.8rem;
+}
+
+.zmc-fact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+/* the hero stat reads off the instrument, not the manuscript: mono keeps
+   its zeros honest (Marcellus's 0 is a dead ringer for O) */
+.zmc-fact-body {
+  font-family: "Spline Sans Mono", monospace;
+  font-weight: 300;
+  font-size: 3.9rem;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  color: var(--brass);
+}
+.zmc-fact-body p {
+  margin: 0;
+}
+.zmc-fact-caption {
+  margin-top: 1.1rem;
+  max-width: 60%;
+  color: var(--ink-dim);
+}
+
+/* ============ CODE LAYOUTS ============ */
+.zmc-code .zmc-code-stage pre.slidev-code,
+.zmc-code .zmc-code-stage .shiki-magic-move-container {
+  font-size: 0.92rem;
+}
+/* the pair centers as one block; prose and code stay top-aligned to each
+   other so headings never float alone mid-slide */
+.zmc-code-beside {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.zmc-code-cols {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 0 2.2rem;
+  align-items: start;
+}
+/* long code lines must scroll inside their pane, not bully the fr split —
+   grid items' min-width:auto lets a wide <pre> steal the prose column */
+.zmc-code-cols > * {
+  min-width: 0;
+}
+.zmc-code-cols.code-left {
+  grid-template-columns: 1.15fr 0.85fr;
+}
+.zmc-code-cols .zmc-code-pane pre.slidev-code {
+  margin: 0;
+}
+
+/* compare: two labeled panes */
+.zmc-compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 1.8rem;
+  align-items: start;
+}
+.zmc-compare-label {
+  font-family: "Spline Sans Mono", monospace;
+  font-weight: 300;
+  font-size: 0.62rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--celest);
+  padding-bottom: 0.55rem;
+}
+.zmc-compare-label.brass {
+  color: var(--brass);
+}
+
+/* ============ TERMINAL ============ */
+.zmc-terminal-frame {
+  border: 1px solid var(--glass-hair);
+  border-radius: 10px;
+  background: var(--code-bg);
+  overflow: hidden;
+}
+.zmc-terminal-head {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  height: var(--code-head-h);
+  padding: 0 1.4rem;
+  border-bottom: 1px solid var(--glass-hair);
+  font-family: "Spline Sans Mono", monospace;
+  font-weight: 300;
+  font-size: 0.62rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+.zmc-terminal-head .sun {
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--brass);
+  border-radius: 50%;
+  position: relative;
+  flex: none;
+}
+.zmc-terminal-head .sun::after {
+  content: "";
+  position: absolute;
+  inset: 50%;
+  width: 3px;
+  height: 3px;
+  margin: -1.5px;
+  border-radius: 50%;
+  background: var(--brass);
+}
+/* inner fences shed their own chrome — the frame already provides it */
+.zmc-terminal-body pre.slidev-code {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+.zmc-terminal-body pre.slidev-code[data-lang]::before,
+.zmc-terminal-body pre.slidev-code::before {
+  content: none;
+}
+.zmc-terminal-body pre.slidev-code[data-lang] > code {
+  padding-top: 1.05rem;
+}
+/* logs are evidence — give them back-row type */
+.zmc-terminal-body pre.slidev-code {
+  font-size: 0.9rem;
+}
+
+/* ============ IMAGE LAYOUTS ============ */
+.zmc-image-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 2.4rem;
+  align-items: center;
+  height: 100%;
+}
+.zmc-image-pane {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+.zmc-image-pane img {
+  width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+  border: 1px solid var(--glass-hair);
+  border-radius: 14px;
+}
+.zmc-image-caption {
+  margin-top: 0.7rem;
+  text-align: center;
+}
+
+/* ============ FULL ============ */
+.zmc-full {
+  padding: 2rem 2.2rem;
+}
+/* Full plates sit on their own imagery, not the parchment — in light mode
+   the panel's steel-blue label and dark hairlines clash with the dark plate
+   beneath the frost, so the box keys to the bronze family instead. Body
+   text stays ink; the label takes the print palette's toner-muted brass,
+   dark enough to hold on the photo-backed frost. */
+html:not(.dark) .zmc-full .zmc-panel {
+  border-color: var(--brass-dim);
+}
+html:not(.dark) .zmc-full .zmc-panel .zmc-eyebrow {
+  /* brass darkened a quarter toward black ≈ the print palette's toner-muted
+     #6d5426, derived from the live token instead of hardcoding it */
+  color: color-mix(in srgb, var(--brass) 75%, black);
+  /* 300-weight mono reads a shade lighter than its color; firm it up like
+     the light-mode language chip */
+  font-weight: 400;
+}
+html:not(.dark) .zmc-full .zmc-panel code {
+  border-color: var(--brass-dim);
+}
