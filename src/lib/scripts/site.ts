@@ -179,17 +179,21 @@ let glintTarget: Element | null = null;
 let glintX = 0;
 let glintY = 0;
 
+// Shimmer surfaces: frosted boxes, hoverable rows, and the nav sigil
+// (which clips the glow into its glyphs rather than a border ring).
+const GLINT_SURFACES = ".panel, .glint-row, nav .sigil";
+
 function applyGlint(): void {
   glintPending = false;
   // Shimmer surfaces nest (rows inside panels): feed the cursor position to
   // every enclosing surface so both rings track it.
   let surface: Element | null | undefined =
-    glintTarget?.closest(".panel, .glint-row");
+    glintTarget?.closest(GLINT_SURFACES);
   while (surface instanceof HTMLElement) {
     const r = surface.getBoundingClientRect();
     surface.style.setProperty("--mx", `${glintX - r.left}px`);
     surface.style.setProperty("--my", `${glintY - r.top}px`);
-    surface = surface.parentElement?.closest(".panel, .glint-row");
+    surface = surface.parentElement?.closest(GLINT_SURFACES);
   }
 }
 

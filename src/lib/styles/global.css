@@ -201,21 +201,95 @@ nav {
   left: 0;
   right: 0;
   z-index: 10;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.1rem 2.5rem;
   background: var(--nav-glass);
   -webkit-backdrop-filter: blur(14px) saturate(1.15);
   backdrop-filter: blur(14px) saturate(1.15);
   border-bottom: 1px solid var(--hair);
 }
+/* The bar bleeds full-width; the content shares the footer's bounds. */
+.nav-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.1rem 2.5rem;
+}
 nav .sigil {
   font-family: "Marcellus", serif;
   letter-spacing: 0.34em;
-  font-size: 0.85rem;
+  font-size: 1rem;
   color: var(--brass);
   text-decoration: none;
+  position: relative;
+  /* Breathing room so the bloom can radiate past the glyphs — the box
+     ends flush at the Z otherwise and clips the glow. The negative
+     margin hands the space back to the layout, so the mark keeps the
+     footer's left edge and the bar keeps its height. */
+  padding: 0.9rem 1.1rem;
+  margin: -0.9rem -1.1rem;
+}
+/* sigil shimmer: the panels' cursor glow, but cut into the glyphs
+   themselves via background-clip so the light crosses letter by letter.
+   Both pseudos duplicate the mark (empty alt keeps them out of the
+   accessibility tree) and fade over the resting brass on hover: ::after
+   is the crisp lit pass, ::before the same pass blurred — the bloom that
+   makes the light radiate off the strokes instead of tinting them. */
+nav .sigil::before,
+nav .sigil::after {
+  content: "Z·M·C" / "";
+  position: absolute;
+  inset: 0;
+  padding: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      26px circle at var(--mx, 50%) var(--my, 50%),
+      var(--shimmer-core),
+      transparent 70%
+    ),
+    radial-gradient(
+      80px circle at var(--mx, 50%) var(--my, 50%),
+      var(--shimmer-brass),
+      transparent 72%
+    );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+/* The bloom paints its gradient stack twice: blur spreads each stroke's
+   light thin, so a single pass barely registers over the glass. */
+nav .sigil::before {
+  filter: blur(5px);
+  background:
+    radial-gradient(
+      30px circle at var(--mx, 50%) var(--my, 50%),
+      var(--shimmer-core),
+      transparent 70%
+    ),
+    radial-gradient(
+      30px circle at var(--mx, 50%) var(--my, 50%),
+      var(--shimmer-core),
+      transparent 70%
+    ),
+    radial-gradient(
+      80px circle at var(--mx, 50%) var(--my, 50%),
+      var(--shimmer-brass),
+      transparent 72%
+    ),
+    radial-gradient(
+      80px circle at var(--mx, 50%) var(--my, 50%),
+      var(--shimmer-brass),
+      transparent 72%
+    );
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+nav .sigil:hover::before,
+nav .sigil:hover::after {
+  opacity: 1;
 }
 .nav-right {
   display: flex;
@@ -497,7 +571,7 @@ footer a:hover {
 }
 
 @media (max-width: 860px) {
-  nav {
+  .nav-inner {
     padding: 1rem 1.4rem;
   }
   .nav-right {
@@ -567,7 +641,7 @@ footer a:hover {
 /* Very narrow: tighten the bars so sigil, links, and toggle never collide
    and the footer never pans the page sideways. */
 @media (max-width: 420px) {
-  nav {
+  .nav-inner {
     padding: 0.9rem 1rem;
   }
   .nav-right {
