@@ -269,22 +269,30 @@ document.addEventListener("astro:page-load", () => {
     panel.prepend(frost);
   });
 
-  // Header strip on article code blocks (idempotent per page view): language
-  // hint left, expand/copy buttons right. Each pre gets a .code-frame wrapper
-  // with the header as a sibling, not a child — inside the pre its labels
-  // concatenate into the code's accessible text.
-  document.querySelectorAll<HTMLPreElement>(".post-body pre").forEach((pre) => {
-    if (pre.parentElement?.classList.contains("code-frame")) return;
+  // Header strip on article code blocks and tables (idempotent per page
+  // view): kind hint left, action buttons right. Each block gets a
+  // .code-frame wrapper with the header as a sibling, not a child — inside
+  // the block its labels concatenate into the content's accessible text.
+  // `block` is both the element framed and the horizontal scroll container
+  // the fade/expand affordances watch.
+  const frameBlock = (
+    block: HTMLElement,
+    opts: {
+      label: string;
+      expandLabel: string;
+      modifier?: string;
+      actions?: HTMLElement[];
+    },
+  ) => {
     const frame = document.createElement("div");
-    frame.className = "code-frame";
+    frame.className = opts.modifier
+      ? `code-frame ${opts.modifier}`
+      : "code-frame";
     const head = document.createElement("div");
     head.className = "code-head";
     const lang = document.createElement("span");
     lang.className = "code-lang mono";
-    // Shiki stamps data-language on the pre; "plaintext" is its unlabeled
-    // fallback, not worth announcing.
-    const langId = pre.dataset.language;
-    lang.textContent = langId && langId !== "plaintext" ? langId : "";
+    lang.textContent = opts.label;
     const actions = document.createElement("div");
     actions.className = "code-actions";
     const expand = document.createElement("button");
@@ -292,16 +300,11 @@ document.addEventListener("astro:page-load", () => {
     expand.type = "button";
     expand.textContent = "Expand";
     expand.setAttribute("aria-expanded", "false");
-    expand.setAttribute("aria-label", "Expand code block to the panel width");
-    const copy = document.createElement("button");
-    copy.className = "copy-code mono";
-    copy.type = "button";
-    copy.textContent = "Copy";
-    copy.setAttribute("aria-label", "Copy code to clipboard");
-    actions.append(expand, copy);
+    expand.setAttribute("aria-label", opts.expandLabel);
+    actions.append(expand, ...(opts.actions ?? []));
     head.append(lang, actions);
-    pre.replaceWith(frame);
-    frame.append(head, pre);
+    block.replaceWith(frame);
+    frame.append(head, block);
     // data-clipped drives the right-edge fade: on while content continues
     // past the clip edge, off once scrolled to the end. data-overflowing
     // reveals the expand button: on while the block clips at all, wherever
@@ -311,33 +314,69 @@ document.addEventListener("astro:page-load", () => {
     const updateFrameState = () => {
       frame.toggleAttribute(
         "data-clipped",
-        pre.scrollWidth - pre.clientWidth - pre.scrollLeft > 1,
+        block.scrollWidth - block.clientWidth - block.scrollLeft > 1,
       );
       frame.toggleAttribute(
         "data-overflowing",
-        pre.scrollWidth > pre.clientWidth,
+        block.scrollWidth > block.clientWidth,
       );
-      // One-way: the first time a block overflows, lock the pre's height
-      // at its scrollbar-bearing measurement. Safari never paints an empty
-      // track (overflow-x: scroll or not), so when an expand lets every
-      // line fit, the bar's exit would otherwise shrink the block and
-      // shift the prose below it. The lock holds the box; the glass fills
-      // where the bar sat. Measured, not assumed — scrollbar heights
-      // differ per engine (8px Chrome, 13px Safari).
+      // One-way: the first time a block overflows, lock its height at the
+      // scrollbar-bearing measurement. Safari never paints an empty track
+      // (overflow-x: scroll or not), so when an expand lets every line
+      // fit, the bar's exit would otherwise shrink the block and shift
+      // the prose below it. The lock holds the box; the glass fills where
+      // the bar sat. Measured, not assumed — scrollbar heights differ per
+      // engine (8px Chrome, 13px Safari).
       if (
-        pre.scrollWidth > pre.clientWidth &&
+        block.scrollWidth > block.clientWidth &&
         !frame.hasAttribute("data-expandable")
       ) {
         frame.setAttribute("data-expandable", "");
-        pre.style.minHeight = `${pre.offsetHeight}px`;
+        block.style.minHeight = `${block.offsetHeight}px`;
       }
     };
-    pre.addEventListener("scroll", updateFrameState, { passive: true });
-    new ResizeObserver(updateFrameState).observe(pre);
-    // The observer watches the pre's box, which the mono font swapping in
-    // doesn't resize — line widths change though, so re-measure once loaded.
+    block.addEventListener("scroll", updateFrameState, { passive: true });
+    new ResizeObserver(updateFrameState).observe(block);
+    // The observer watches the block's box, which the mono font swapping
+    // in doesn't resize — line widths change though, so re-measure once
+    // loaded.
     document.fonts.ready.then(updateFrameState);
+  };
+
+  document.querySelectorAll<HTMLPreElement>(".post-body pre").forEach((pre) => {
+    if (pre.parentElement?.classList.contains("code-frame")) return;
+    const copy = document.createElement("button");
+    copy.className = "copy-code mono";
+    copy.type = "button";
+    copy.textContent = "Copy";
+    copy.setAttribute("aria-label", "Copy code to clipboard");
+    // Shiki stamps data-language on the pre; "plaintext" is its unlabeled
+    // fallback, not worth announcing.
+    const langId = pre.dataset.language;
+    frameBlock(pre, {
+      label: langId && langId !== "plaintext" ? langId : "",
+      expandLabel: "Expand code block to the panel width",
+      actions: [copy],
+    });
   });
+
+  // Tables ride the same frame via a .table-scroll wrapper as the scroll
+  // container — a table element can't clip-and-scroll itself without
+  // giving up table layout (and with it, full-width row rules).
+  document
+    .querySelectorAll<HTMLTableElement>(".post-body table")
+    .forEach((table) => {
+      if (table.parentElement?.classList.contains("table-scroll")) return;
+      const scroll = document.createElement("div");
+      scroll.className = "table-scroll";
+      table.replaceWith(scroll);
+      scroll.append(table);
+      frameBlock(scroll, {
+        label: "table",
+        expandLabel: "Expand table to the panel width",
+        modifier: "table-frame",
+      });
+    });
 
   updateScrollState();
 });

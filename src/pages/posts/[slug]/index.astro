@@ -6,9 +6,22 @@ import { toRoman } from "@lib/utils/roman";
 
 export const getStaticPaths = async () => {
   const posts = (await getCollection("blog")).sort(byDateAsc);
+  // prev/next walk the published sequence only, so a draft never leaks
+  // into a live post's footer nav — drafts still build their own page
+  // (with published neighbors), per the schema's contract.
+  const nearestPublished = (from: number, step: number) => {
+    for (let i = from + step; i >= 0 && i < posts.length; i += step) {
+      if (posts[i].data.published) return posts[i];
+    }
+    return undefined;
+  };
   return posts.map((post, i) => ({
     params: { slug: post.id },
-    props: { post, prev: posts[i - 1], next: posts[i + 1] },
+    props: {
+      post,
+      prev: nearestPublished(i, -1),
+      next: nearestPublished(i, 1),
+    },
   }));
 };
 
@@ -210,12 +223,22 @@ const { Content } = await render(post);
     letter-spacing: 0.06em;
     margin: 1.8rem 0 0.7rem;
   }
-  .post-body h5,
-  .post-body h6 {
+  .post-body h5 {
     font-family: "Marcellus", serif;
     font-weight: 400;
     font-size: 0.95rem;
     letter-spacing: 0.05em;
+    margin: 1.5rem 0 0.6rem;
+  }
+  /* the scale terminates in chart furniture rather than an ever-smaller
+     serif — h6 takes the eyebrow voice so it can't be mistaken for h5 */
+  .post-body h6 {
+    font-family: "Spline Sans Mono", monospace;
+    font-weight: 400;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--brass);
     margin: 1.5rem 0 0.6rem;
   }
   /* rehype-autolink-headings wraps heading text in an anchor link;
@@ -236,8 +259,18 @@ const { Content } = await render(post);
   .post-body h6 a.anchor:hover {
     border-bottom: none;
   }
-  .post-body ul {
+  .post-body ul,
+  .post-body ol {
     margin: 0 0 1.5rem 1.2rem;
+  }
+  .post-body ol {
+    margin-left: 1.4rem;
+  }
+  /* a nested list's bottom margin belongs to the list that closes the
+     block, not mid-item — without this, inner lists open phantom gaps */
+  .post-body li > ul,
+  .post-body li > ol {
+    margin-bottom: 0;
   }
   .post-body li {
     margin-bottom: 0.5rem;
@@ -245,12 +278,127 @@ const { Content } = await render(post);
   .post-body li::marker {
     color: var(--brass);
   }
+  /* GFM task lists: the checkbox is the marker — suppress the bullet,
+     keep the text on the list's text edge, and hang the box in the
+     gutter so wrapped lines align under the first */
+  .post-body li.task-list-item {
+    list-style: none;
+    margin-left: -1.2rem;
+    padding-left: 1.55rem;
+  }
+  /* the native control is disabled (GFM emits it so) and browsers dim it
+     past recognition — draw our own: a square chart-frame, filled with a
+     brass body when checked */
+  .post-body li.task-list-item input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 0.85em;
+    height: 0.85em;
+    margin: 0 0.7em 0 -1.55em;
+    border: 1px solid var(--brass-dim);
+    border-radius: 3px;
+    vertical-align: -0.05em;
+  }
+  .post-body li.task-list-item input[type="checkbox"]:checked {
+    background: radial-gradient(
+      circle,
+      var(--brass) 0 38%,
+      transparent 45%
+    );
+  }
   .post-body blockquote {
     margin: 2.2rem 0;
     padding: 0.4rem 0 0.4rem 1.6rem;
     border-left: 1px solid var(--brass);
     font-style: italic;
     color: var(--ink-dim);
+  }
+  /* the quote's own padding closes the block; a trailing paragraph or
+     list must not pad it further */
+  .post-body blockquote > :last-child {
+    margin-bottom: 0;
+  }
+  /* Bare-table rules are the no-JS rendering (kin to the bare-pre rules):
+     block + auto overflow so a wide table scrolls inside the measure
+     instead of wrapping every cell. */
+  .post-body table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    margin: 2rem 0;
+    border-collapse: collapse;
+    scrollbar-width: thin;
+    scrollbar-color: var(--brass-dim) transparent;
+  }
+  .post-body table::-webkit-scrollbar {
+    height: 8px;
+  }
+  .post-body table::-webkit-scrollbar-thumb {
+    background: var(--brass-dim);
+    border-radius: 4px;
+  }
+  /* site.ts wraps each table in a .table-scroll inside a code-frame —
+     header strip, expand affordance, and clip fade shared with code
+     blocks. The scroller paints the frame's lower half the way the
+     framed pre does. */
+  .post-body .table-scroll {
+    overflow-x: auto;
+    padding: 0.4rem 1.6rem 0.9rem;
+    background: var(--code-bg);
+    border: 1px solid var(--glass-hair);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--brass-dim) transparent;
+  }
+  .post-body .table-scroll::-webkit-scrollbar {
+    height: 8px;
+  }
+  .post-body .table-scroll::-webkit-scrollbar-thumb {
+    background: var(--brass-dim);
+    border-radius: 4px;
+  }
+  /* inside the frame the wrapper does the scrolling, so the table is a
+     real table again — layout restored, row rules spanning full width —
+     and never narrower than the frame */
+  .post-body .table-scroll table {
+    display: table;
+    min-width: 100%;
+    max-width: none;
+    overflow: visible;
+    margin: 0;
+  }
+  /* the frame's glass edge closes the composition; a final hairline
+     right above it would read as a double rule */
+  .post-body .table-scroll tr:last-child td {
+    border-bottom: none;
+  }
+  .post-body th {
+    font-family: "Spline Sans Mono", monospace;
+    font-weight: 400;
+    font-size: 0.68rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--brass);
+    border-bottom: 1px solid var(--brass-dim);
+  }
+  .post-body th,
+  .post-body td {
+    padding: 0.55rem 1.4rem 0.55rem 0;
+  }
+  .post-body th:last-child,
+  .post-body td:last-child {
+    padding-right: 0;
+  }
+  .post-body td {
+    border-bottom: 1px solid var(--hair);
+  }
+  /* identifiers in cells stay whole — the table scrolls, so the inline
+     pill's break-anywhere escape hatch would only shatter them */
+  .post-body th code,
+  .post-body td code {
+    overflow-wrap: normal;
+    white-space: nowrap;
   }
   .post-body code {
     font-family: "Spline Sans Mono", monospace;
@@ -448,6 +596,67 @@ const { Content } = await render(post);
   [data-theme="light"] .post-body .astro-code,
   [data-theme="light"] .post-body .astro-code span {
     color: var(--shiki-light);
+  }
+
+  .post-body img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 2rem auto;
+  }
+  /* brass illumination instead of the browser's fluorescent yellow */
+  .post-body mark {
+    background: color-mix(in srgb, var(--brass) 28%, transparent);
+    color: inherit;
+    padding: 0.05em 0.25em;
+    border-radius: 3px;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+  /* keycap: the inline-code pill with a pressed bottom edge */
+  .post-body kbd {
+    font-family: "Spline Sans Mono", monospace;
+    font-size: 0.78em;
+    background: var(--code-bg);
+    border: 1px solid var(--hair);
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    padding: 0.1em 0.45em;
+  }
+  .post-body details {
+    margin: 2rem 0;
+  }
+  .post-body summary {
+    cursor: pointer;
+    color: var(--brass);
+  }
+  .post-body summary::marker {
+    color: var(--brass);
+  }
+  .post-body details[open] > summary {
+    margin-bottom: 0.9rem;
+  }
+  /* opened content indents onto the list rhythm so it reads as belonging
+     to the summary line above it */
+  .post-body details > :not(summary) {
+    margin-left: 1.2rem;
+  }
+  .post-body dl {
+    margin: 0 0 1.5rem;
+  }
+  .post-body dt {
+    font-family: "Marcellus", serif;
+    letter-spacing: 0.06em;
+    margin-top: 0.9rem;
+  }
+  .post-body dd {
+    margin: 0.15rem 0 0 1.4rem;
+    color: var(--ink-dim);
+  }
+  .post-body abbr {
+    text-decoration: underline dotted;
+    text-decoration-color: var(--brass-dim);
+    text-underline-offset: 2px;
   }
 
   .end-mark {

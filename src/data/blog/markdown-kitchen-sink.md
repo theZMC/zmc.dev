@@ -1,0 +1,223 @@
+---
+title: "The Markdown Kitchen Sink: Every Surface, Tested"
+date: "2026-07-12"
+tags: ["meta", "testing", "design"]
+published: false
+description: |
+  A fixture post that exercises the entire markdown surface this site can render — every heading level, both
+  list families, tables, footnotes, task lists, images, and the inline-HTML long tail — so the theme has
+  nowhere to hide.
+---
+
+This opening paragraph exists to receive the drop cap and to hold one of
+everything inline: a [link to another post](/posts/how-to-store-your-dotfiles-on-github),
+an [external link](https://astro.build) that should open in a new tab, some
+**bold text**, some _italic text_, some **_bold italic_**, some
+~~strikethrough~~, and an inline code span like `astro.config.mjs`. It also
+tests "smart quotes," an em dash -- like this one -- and an ellipsis...
+rendered by SmartyPants.
+
+Here is a second paragraph so spacing between plain paragraphs is visible. It
+contains a bare autolink, https://zmc.dev, and a footnote reference[^1] whose
+rendering lands at the very bottom of the page. And here is a very long
+unbroken identifier to stress inline-code wrapping:
+`ThisIsAnAbsurdlyLongGeneratedTypeNameFromSomeCodeGeneratorThatNobodyAskedForButEveryoneHasSeen_v2_final_FINAL`.
+
+## Second-Level Heading with `inline code`
+
+Body copy under an H2. The heading above should carry the brass rule and a
+piece of inline code that sits comfortably in the serif line.
+
+### Third-Level Heading
+
+Body copy under an H3.
+
+#### Fourth-Level Heading
+
+Body copy under an H4.
+
+##### Fifth-Level Heading
+
+Body copy under an H5.
+
+###### Sixth-Level Heading
+
+Body copy under an H6 — if H5 and H6 look identical, that is the current
+theme's actual behavior, not an accident of this document.
+
+## Lists of Every Kind
+
+An unordered list:
+
+- First item with plain text
+- Second item with **bold**, _italic_, and `code`
+- Third item with a [link](https://example.com)
+
+An ordered list — note whether its markers get the brass treatment and whether
+its indentation matches the unordered list:
+
+1. Step one
+2. Step two
+3. Step ten through thirteen exist to test double-digit marker alignment
+4. Step four
+5. Step five
+6. Step six
+7. Step seven
+8. Step eight
+9. Step nine
+10. Step ten
+11. Step eleven
+
+A deeply nested mixed list:
+
+- Outer unordered item
+  - Nested unordered item
+    - Third-level unordered item
+  - Back to second level
+- Outer item containing an ordered list:
+  1. Nested ordered one
+  2. Nested ordered two
+     - Unordered inside ordered
+- An item with a paragraph long enough to wrap onto multiple lines, so the
+  hanging indent of wrapped list text can be judged against the marker
+  position above it.
+
+A GFM task list:
+
+- [x] Style the checked state
+- [ ] Style the unchecked state
+- [ ] Decide whether the default checkbox control is acceptable in this design
+      language
+
+## Tables
+
+A table with all three column alignments:
+
+| Body        |     Kind | Orbital Period | Notes                                   |
+| :---------- | -------: | :------------: | --------------------------------------- |
+| Mercury     |   Planet |    88 days     | Smallest                                |
+| Venus       |   Planet |    225 days    | Retrograde rotation                     |
+| Earth       |   Planet |    365 days    | You are here                            |
+| Halley      |    Comet |    75 years    | Returns 2061                            |
+| Ceres       |    Dwarf |   4.6 years    | Largest object in the asteroid belt     |
+
+A deliberately wide table to test horizontal overflow behavior inside the
+measure:
+
+| Identifier                             | Environment | Region       | Instance Type | Availability Zone | Status  | Uptime  | Last Deploy Commit                         |
+| -------------------------------------- | ----------- | ------------ | ------------- | ----------------- | ------- | ------- | ------------------------------------------ |
+| `prod-api-gateway-primary-useast1-001` | production  | us-east-1    | c6i.4xlarge   | us-east-1a        | healthy | 42 days | `a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0` |
+| `prod-api-gateway-replica-uswest2-002` | production  | us-west-2    | c6i.4xlarge   | us-west-2b        | healthy | 42 days | `a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0` |
+| `stage-worker-batch-euwest1-011`       | staging     | eu-west-1    | m6i.2xlarge   | eu-west-1c        | degraded| 3 days  | `f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0` |
+
+## Blockquotes
+
+A plain quote:
+
+> The heavens themselves, the planets and this centre, observe degree,
+> priority and place.
+
+A multi-paragraph quote with nested elements:
+
+> First paragraph of the quotation, which continues long enough to wrap.
+>
+> Second paragraph, containing `inline code` and **bold text** to check how
+> the italic quote style composes with them.
+>
+> > A nested quotation inside the first, to see whether the second border
+> > rail reads as intentional.
+>
+> - A list inside a blockquote
+> - Because documentation quotes do this constantly
+
+## Code
+
+Inline `code` was covered above. A fenced block with a language:
+
+```typescript
+interface Orbit {
+  radius: number;
+  period: number; // sidereal, in days
+  eccentricity?: number;
+}
+
+export const kepler = (semiMajorAxisAU: number): number =>
+  Math.sqrt(Math.pow(semiMajorAxisAU, 3)) * 365.25;
+```
+
+A block with no language hint at all:
+
+```
+plain preformatted text
+    with meaningful indentation
+and no syntax highlighting whatsoever
+```
+
+A diff:
+
+```diff
+- const period = radius * 365;
++ const period = kepler(semiMajorAxis);
+  return { radius, period };
+```
+
+A block with pathologically long lines, to test the overflow fade and the
+expand affordance:
+
+```bash
+curl -X POST "https://api.example.com/v1/observations?telescope=meridian&catalog=messier&object=M31&exposure=1200&filter=h-alpha&binning=2x2&format=fits" -H "Authorization: Bearer 9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e" -H "Content-Type: application/json"
+```
+
+## Media and Rules
+
+An image with alt text, followed by the em-dash caption convention some posts
+may adopt:
+
+![Concentric orbits with a small epicycle, drawn as a brass line diagram](/kitchen-sink/epicycles.svg)
+
+A thematic break follows this paragraph.
+
+---
+
+And a paragraph after the rule, so its spacing can be judged from both sides.
+
+## The Inline-HTML Long Tail
+
+Markdown permits raw HTML, and technical writing leans on it. Keyboard input:
+press <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> to open the palette.
+Highlighted text uses <mark>the mark element</mark>. Chemistry needs
+subscripts like H<sub>2</sub>O and math needs superscripts like E = mc<sup>2</sup>.
+Abbreviations like <abbr title="Cascading Style Sheets">CSS</abbr> carry
+title-text underlines in most browsers.
+
+A disclosure widget:
+
+<details>
+<summary>Click to expand the collapsed section</summary>
+
+Content inside a `details` element, including a paragraph and a list:
+
+- It should read as part of the document once open
+- The summary marker should not look like a foreign control
+
+</details>
+
+A definition list:
+
+<dl>
+  <dt>Deferent</dt>
+  <dd>The large circle on which an epicycle's center travels.</dd>
+  <dt>Epicycle</dt>
+  <dd>The smaller circle a body actually rides; added whenever a model refuses to match observation.</dd>
+</dl>
+
+## Footnotes
+
+This section exists so the footnotes rendered below it have a heading to sit
+under[^2].
+
+[^1]: The first footnote, referenced from the opening section. It should link
+    back to its reference.
+
+[^2]: A second footnote with `inline code` and a [link](https://example.com),
+    long enough to wrap so its hanging indent is visible.
