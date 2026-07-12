@@ -1,11 +1,28 @@
 // @ts-check
 import { spawn } from "node:child_process";
-import { existsSync, readdirSync, rmSync } from "node:fs";
+import {
+  existsSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const TALKS_BASE = "src/data/talks";
 const DECKS_OUT = "public/talks";
+
+// Decks are same-origin with the site, so the site's theme toggle
+// (localStorage "theme", see src/lib/scripts/theme.ts) can seed Slidev's own
+// scheme store before the SPA boots. With no explicit site preference both
+// sides fall back to the same prefers-color-scheme query, so they agree in
+// every case.
+const THEME_BRIDGE =
+  "<script>" +
+  'try{var t=localStorage.getItem("theme");' +
+  'if(t==="dark"||t==="light")localStorage.setItem("slidev-color-schema",t)}' +
+  "catch(e){}</script>";
 
 /**
  * Slidev decks under src/data/talks/<slug>/slides.md, built into
@@ -93,8 +110,19 @@ function buildDeck(root, decksDir, slug) {
     child.stderr.on("data", (chunk) => (output += chunk));
     child.on("error", reject);
     child.on("close", (code) => {
-      if (code === 0) resolve();
-      else reject(new Error(`slidev build ${slug} exited ${code}:\n${output}`));
+      if (code !== 0) {
+        reject(new Error(`slidev build ${slug} exited ${code}:\n${output}`));
+        return;
+      }
+      const indexHtml = path.join(out, "index.html");
+      writeFileSync(
+        indexHtml,
+        readFileSync(indexHtml, "utf8").replace(
+          "<head>",
+          `<head>${THEME_BRIDGE}`,
+        ),
+      );
+      resolve();
     });
   });
 }
