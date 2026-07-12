@@ -143,6 +143,16 @@ document.addEventListener("click", (e) => {
   const btn = (e.target as Element | null)?.closest("#themeToggle");
   if (btn instanceof HTMLElement) toggleTheme(btn);
 
+  const expand = (e.target as Element | null)?.closest(".expand-code");
+  if (expand instanceof HTMLElement) {
+    const frame = expand.closest(".code-frame");
+    if (frame instanceof HTMLElement) {
+      const expanded = frame.toggleAttribute("data-expanded");
+      expand.textContent = expanded ? "Collapse" : "Expand";
+      expand.setAttribute("aria-expanded", String(expanded));
+    }
+  }
+
   const copy = (e.target as Element | null)?.closest(".copy-code");
   if (copy instanceof HTMLElement) {
     const code = copy.closest(".code-frame")?.querySelector("code");
@@ -242,31 +252,74 @@ document.addEventListener("astro:page-load", () => {
     }
   }
 
-  // Copy buttons on article code blocks (idempotent per page view). Each pre
-  // gets a .code-frame wrapper with the button as a sibling, not a child —
-  // inside the pre its label concatenates into the code's accessible text.
+  // Header strip on article code blocks (idempotent per page view): language
+  // hint left, expand/copy buttons right. Each pre gets a .code-frame wrapper
+  // with the header as a sibling, not a child — inside the pre its labels
+  // concatenate into the code's accessible text.
   document.querySelectorAll<HTMLPreElement>(".post-body pre").forEach((pre) => {
     if (pre.parentElement?.classList.contains("code-frame")) return;
     const frame = document.createElement("div");
     frame.className = "code-frame";
-    const btn = document.createElement("button");
-    btn.className = "copy-code mono";
-    btn.type = "button";
-    btn.textContent = "Copy";
-    btn.setAttribute("aria-label", "Copy code to clipboard");
+    const head = document.createElement("div");
+    head.className = "code-head";
+    const lang = document.createElement("span");
+    lang.className = "code-lang mono";
+    // Shiki stamps data-language on the pre; "plaintext" is its unlabeled
+    // fallback, not worth announcing.
+    const langId = pre.dataset.language;
+    lang.textContent = langId && langId !== "plaintext" ? langId : "";
+    const actions = document.createElement("div");
+    actions.className = "code-actions";
+    const expand = document.createElement("button");
+    expand.className = "expand-code mono";
+    expand.type = "button";
+    expand.textContent = "Expand";
+    expand.setAttribute("aria-expanded", "false");
+    expand.setAttribute("aria-label", "Expand code block to the panel width");
+    const copy = document.createElement("button");
+    copy.className = "copy-code mono";
+    copy.type = "button";
+    copy.textContent = "Copy";
+    copy.setAttribute("aria-label", "Copy code to clipboard");
+    actions.append(expand, copy);
+    head.append(lang, actions);
     pre.replaceWith(frame);
-    frame.append(pre, btn);
+    frame.append(head, pre);
     // data-clipped drives the right-edge fade: on while content continues
-    // past the clip edge, off once scrolled to the end. ResizeObserver fires
-    // on observe, so the initial state needs no separate call.
-    const updateClipped = () => {
+    // past the clip edge, off once scrolled to the end. data-overflowing
+    // reveals the expand button: on while the block clips at all, wherever
+    // it's scrolled. ResizeObserver fires on observe, so the initial state
+    // needs no separate call — and it re-fires on expand/collapse, keeping
+    // the attributes honest at the new width.
+    const updateFrameState = () => {
       frame.toggleAttribute(
         "data-clipped",
         pre.scrollWidth - pre.clientWidth - pre.scrollLeft > 1,
       );
+      frame.toggleAttribute(
+        "data-overflowing",
+        pre.scrollWidth > pre.clientWidth,
+      );
+      // One-way: the first time a block overflows, lock the pre's height
+      // at its scrollbar-bearing measurement. Safari never paints an empty
+      // track (overflow-x: scroll or not), so when an expand lets every
+      // line fit, the bar's exit would otherwise shrink the block and
+      // shift the prose below it. The lock holds the box; the glass fills
+      // where the bar sat. Measured, not assumed — scrollbar heights
+      // differ per engine (8px Chrome, 13px Safari).
+      if (
+        pre.scrollWidth > pre.clientWidth &&
+        !frame.hasAttribute("data-expandable")
+      ) {
+        frame.setAttribute("data-expandable", "");
+        pre.style.minHeight = `${pre.offsetHeight}px`;
+      }
     };
-    pre.addEventListener("scroll", updateClipped, { passive: true });
-    new ResizeObserver(updateClipped).observe(pre);
+    pre.addEventListener("scroll", updateFrameState, { passive: true });
+    new ResizeObserver(updateFrameState).observe(pre);
+    // The observer watches the pre's box, which the mono font swapping in
+    // doesn't resize — line widths change though, so re-measure once loaded.
+    document.fonts.ready.then(updateFrameState);
   });
 
   updateScrollState();

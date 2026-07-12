@@ -258,28 +258,74 @@ const { Content } = await render(post);
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
   }
-  /* site.ts wraps each pre in a .code-frame and appends the copy button as
-     a sibling (a child button pollutes the code's accessible text) */
+  /* site.ts wraps each pre in a .code-frame and prepends a header strip —
+     language hint left, expand/copy buttons right — as a sibling (children
+     of the pre pollute the code's accessible text). The frame is
+     deliberately chrome-free: header and pre each paint their own half of
+     the block (two plain boxes, no clip), because a rounded overflow-clip
+     wrapper inside the backdrop-filtered panel breaks the panel's blur in
+     some compositors. The bare-pre rules below stay intact as the no-JS
+     rendering. Width is explicit so expand/collapse can transition. */
   .post-body .code-frame {
+    --code-head-h: 2.4rem;
     position: relative;
     margin: 2rem 0;
+    width: 100%;
+    transition:
+      width 0.35s ease,
+      margin 0.35s ease;
+  }
+  .post-body .code-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--code-head-h);
+    /* lang sits on the code's left rhythm; buttons keep their edge inset */
+    padding: 0 0.6rem 0 1.6rem;
+    background: var(--code-bg);
+    border: 1px solid var(--glass-hair);
+    border-radius: 10px 10px 0 0;
+  }
+  /* chart-key furniture, kin to the resume legend's KEY tag */
+  .post-body .code-lang {
+    color: var(--brass);
+    font-size: 0.62rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+  }
+  /* Expanded: break out of the prose measure to the panel's inner width
+     (derived from the same tokens the panel uses, since no ancestor exposes
+     it), less a 2rem inset each side. Equal negative margins keep the frame
+     centred on the panel; max() pins it to the measure when the viewport
+     affords nothing extra. */
+  .post-body .code-frame[data-expanded] {
+    --code-expanded: max(100%, min(var(--max), 100vw - 4rem) - 4rem);
+    width: var(--code-expanded);
+    margin-inline: calc((100% - var(--code-expanded)) / 2);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .post-body .code-frame {
+      transition: none;
+    }
   }
   .post-body .code-frame pre {
     margin: 0;
+    border-top: none;
+    border-radius: 0 0 10px 10px;
   }
   /* Right-edge fade while a long line continues past the clip edge
      (site.ts toggles data-clipped as the pre scrolls). Two gradient layers
      because --code-bg is translucent glass — --bg underneath lands the fade
-     on the block's true composite color. Insets and radius tuck it inside
-     the pre's 1px border. */
+     on the block's true composite color. Starts below the header; insets
+     and radius tuck it inside the pre's 1px border. */
   .post-body .code-frame::after {
     content: "";
     position: absolute;
-    top: 1px;
+    top: var(--code-head-h);
     bottom: 1px;
     right: 1px;
     width: 3.25rem;
-    border-radius: 0 9px 9px 0;
+    border-radius: 0 0 9px 0;
     background:
       linear-gradient(to left, var(--code-bg), transparent),
       linear-gradient(to left, var(--bg), transparent);
@@ -291,8 +337,13 @@ const { Content } = await render(post);
     opacity: 1;
   }
   @media print {
-    .post-body .code-frame::after {
+    .post-body .code-frame::after,
+    .post-body .code-actions {
       display: none;
+    }
+    .post-body .code-frame[data-expanded] {
+      width: 100%;
+      margin-inline: 0;
     }
   }
   .post-body pre,
@@ -315,12 +366,12 @@ const { Content } = await render(post);
     background: var(--brass-dim);
     border-radius: 4px;
   }
-  .post-body .copy-code {
-    position: absolute;
-    /* above the code-frame ::after fade, which follows it in paint order */
-    z-index: 1;
-    top: 0.6rem;
-    right: 0.6rem;
+  .post-body .code-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .post-body .copy-code,
+  .post-body .expand-code {
     cursor: pointer;
     background: var(--glass);
     color: var(--ink-dim);
@@ -331,9 +382,27 @@ const { Content } = await render(post);
       color 0.25s ease,
       border-color 0.25s ease;
   }
-  .post-body .copy-code:hover {
+  .post-body .copy-code:hover,
+  .post-body .expand-code:hover {
     color: var(--brass);
     border-color: var(--brass-dim);
+  }
+  /* The expand button earns its place only when there's something to gain:
+     the block has overflowed (data-expandable — one-way, so the button
+     doesn't blink out mid-collapse while the shrinking block still fits)
+     and the viewport affords width beyond the measure. Expanded frames
+     keep it regardless, so a viewport shrink can't strand a block with
+     no way back to the measure. */
+  .post-body .expand-code {
+    display: none;
+  }
+  @media (min-width: 850px) {
+    .post-body .code-frame[data-expandable] .expand-code {
+      display: block;
+    }
+  }
+  .post-body .code-frame[data-expanded] .expand-code {
+    display: block;
   }
   .post-body pre code {
     background: none;
