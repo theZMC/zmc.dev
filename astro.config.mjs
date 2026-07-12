@@ -26,7 +26,12 @@ export default defineConfig({
     defaultStrategy: "viewport",
   },
   build: {
-    assetsPrefix: "https://zmc.dev/",
+    // The absolute prefix keeps asset URLs valid on the deployed 404 page,
+    // which GitHub Pages serves at arbitrary path depths where the
+    // relative links astro-relative-links produces would mis-resolve.
+    // Local builds skip it so `pnpm preview` serves the assets it just
+    // built instead of production's.
+    assetsPrefix: process.env.CI ? "https://zmc.dev/" : undefined,
     inlineStylesheets: "never",
   },
   markdown: {
