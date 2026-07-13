@@ -6,9 +6,15 @@ import { getCollection } from "astro:content";
 const posts = (await getCollection("blog"))
   .filter((post) => post.data.published)
   .sort(byDateDesc);
+
+const metaImage = new URL("/og/posts.png", Astro.site).toString();
 ---
 
-<BaseLayout pageTitle="Transmissions — Zach Callahan">
+<BaseLayout
+  pageTitle="Transmissions — Zach Callahan"
+  metaDescription="Field notes on building platforms: Kubernetes, infrastructure, and the tooling that holds it together."
+  {metaImage}
+>
   <div class="panel-wrap">
     <section id="transmissions" class="panel tx-panel">
       <div class="sec-head">

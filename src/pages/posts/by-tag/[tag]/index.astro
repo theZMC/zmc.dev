@@ -27,9 +27,15 @@ const { tag } = Astro.params;
 const { posts } = Astro.props;
 
 posts.sort(byDateDesc);
+
+const metaImage = new URL(`/og/tags/${tag}.png`, Astro.site).toString();
 ---
 
-<BaseLayout pageTitle={`Transmissions · ${tag} — Zach Callahan`}>
+<BaseLayout
+  pageTitle={`Transmissions · ${tag} — Zach Callahan`}
+  metaDescription={`Transmissions tagged ${tag} — field notes from zmc.dev.`}
+  {metaImage}
+>
   <div class="panel-wrap">
     <section id="transmissions" class="panel tx-panel">
       <a class="crumb mono" href="/posts">← All Transmissions</a>

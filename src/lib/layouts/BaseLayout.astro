@@ -33,7 +33,9 @@ const {
   pageTitle,
   metaDescription,
   tags,
-  metaImage,
+  // Every page ships a card image — the site plate unless the page brings
+  // its own. CI holds the line (scripts/check-social-cards.mjs).
+  metaImage = new URL("/og/site.png", Astro.site).toString(),
   ogType = "website",
   navLinks,
   footerLinks,
@@ -72,18 +74,15 @@ const {
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={metaDescription} />
     <meta name="keywords" content={tags?.join(", ")} />
-    <meta
-      name="twitter:card"
-      content={metaImage ? "summary_large_image" : "summary"}
-    />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@theZMC" />
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={metaDescription} />
-    {metaImage ? <meta name="twitter:image" content={metaImage} /> : null}
+    <meta name="twitter:image" content={metaImage} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:type" content={ogType} />
     <meta property="og:url" content={Astro.request.url} />
-    {metaImage ? <meta property="og:image" content={metaImage} /> : null}
+    <meta property="og:image" content={metaImage} />
     <meta property="og:description" content={metaDescription} />
     <meta property="og:site_name" content="ZMC.DEV" />
     <meta property="og:locale" content="en_US" />

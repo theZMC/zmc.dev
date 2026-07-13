@@ -36,7 +36,7 @@ const longDate = formatPostDate(post.data.date);
 const words = post.body ? post.body.split(/\s+/).filter(Boolean).length : 0;
 const readTime = `${Math.max(1, Math.round(words / 200))} min read`;
 
-const metaImage = new URL(`/og/${post.id}.png`, Astro.site).toString();
+const metaImage = new URL(`/og/posts/${post.id}.png`, Astro.site).toString();
 
 const { Content } = await render(post);
 ---
