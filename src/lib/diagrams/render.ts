@@ -126,7 +126,14 @@ export async function renderDiagrams(
           rankSpacing: 64,
           subGraphTitleMargin: { top: 9, bottom: 0 },
         },
-        sequence: { useMaxWidth: false },
+        sequence: {
+          useMaxWidth: false,
+          // Actor boxes at mermaid's default 65 hold their name too
+          // tight once the label is optically centered (actor-labels.ts
+          // anchors it); 72 gives the name the same unhurried clearance
+          // the flowchart nodes got from padding: 20.
+          height: 72,
+        },
         class: { htmlLabels: false, useMaxWidth: false },
         state: { useMaxWidth: false },
         er: { useMaxWidth: false },

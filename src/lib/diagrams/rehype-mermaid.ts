@@ -1,5 +1,6 @@
 import path from "node:path";
 import { fromHtmlIsomorphic } from "hast-util-from-html-isomorphic";
+import { reanchorActorLabels } from "./actor-labels";
 import { restyleClusterTitles } from "./cluster-titles";
 import { renderDiagrams, type RenderedDiagram } from "./render";
 
@@ -92,6 +93,7 @@ function figurePlate(diagram: RenderedDiagram, ordinal: number): Element {
   const svg = fromHtmlIsomorphic(diagram.svg, { fragment: true })
     .children[0] as Element;
   restyleClusterTitles(svg);
+  reanchorActorLabels(svg);
 
   // Mermaid wires aria-labelledby only when the author wrote accTitle;
   // otherwise let the frontmatter title (or the figure number) name the
