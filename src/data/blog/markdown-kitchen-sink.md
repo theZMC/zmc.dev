@@ -45,6 +45,20 @@ Body copy under an H5.
 Body copy under an H6 — if H5 and H6 look identical, that is the current theme's
 actual behavior, not an accident of this document.
 
+### A Third-Level Heading Long Enough to Wrap Onto a Second Line and Then Keep Going a While
+
+Body copy under a wrapping H3 — the heading above should break cleanly and any
+trailing ornament should land somewhere sensible.
+
+#### A Fourth-Level Heading That Also Runs Long Enough to Wrap and Test the Same Behavior One Level Down
+
+Body copy under a wrapping H4.
+
+##### A Fifth-Level Heading Sized to End Just Shy of the Right Margin So Nothing Fits After It
+
+Body copy under an H5 built to crowd the margin — whatever follows the text has
+to choose between squeezing in and dropping down.
+
 ## Lists of Every Kind
 
 An unordered list:

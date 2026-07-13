@@ -254,6 +254,76 @@ const { Content } = await render(post);
     color: var(--brass);
     margin: 1.5rem 0 0.6rem;
   }
+  /* the smaller headings also take a bronze cast — brass tempered with
+     ink — warming to full brass under the cursor, the way links do */
+  .post-body h3,
+  .post-body h4,
+  .post-body h5 {
+    color: color-mix(in srgb, var(--brass) 60%, var(--ink));
+    transition: color 0.3s;
+  }
+  .post-body h3:hover,
+  .post-body h4:hover,
+  .post-body h5:hover {
+    color: var(--brass);
+  }
+  /* below the h2 rule the hierarchy runs on comets: each smaller heading
+     trails off to the right in a brass star whose right ray stretches
+     into a tail that runs out the rest of the line — the fade arrives
+     sooner as the headings sink. A heading that wraps sends its comet
+     to a full-width row of its own; one whose last line crowds the
+     margin does the same once less than the tail's minimum remains. */
+  .post-body h3,
+  .post-body h4,
+  .post-body h5 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 0.75rem;
+  }
+  .post-body h3::after,
+  .post-body h4::after,
+  .post-body h5::after {
+    content: "";
+    flex: 1;
+    min-width: 4rem;
+    height: 7px;
+    clip-path: polygon(
+      3.5px 0,
+      4.4px 2.6px,
+      100% 3px,
+      100% 4px,
+      4.4px 4.4px,
+      3.5px 7px,
+      2.6px 4.4px,
+      0 3.5px,
+      2.6px 2.6px
+    );
+  }
+  .post-body h3::after {
+    background: linear-gradient(
+      90deg,
+      var(--brass),
+      var(--brass-dim) 14px,
+      transparent
+    );
+  }
+  .post-body h4::after {
+    background: linear-gradient(
+      90deg,
+      var(--brass),
+      var(--brass-dim) 14px,
+      transparent 62%
+    );
+  }
+  .post-body h5::after {
+    background: linear-gradient(
+      90deg,
+      var(--brass),
+      var(--brass-dim) 14px,
+      transparent 35%
+    );
+  }
   /* rehype-autolink-headings wraps heading text in an anchor link;
      keep it visually indistinguishable from plain heading text. */
   .post-body h2 a.anchor,
@@ -741,6 +811,13 @@ const { Content } = await render(post);
     .post-body hr {
       background: none;
       border-top: 1px solid var(--hair);
+    }
+    /* the comet is all background paint — no border can stand in for a
+       star, so print drops the ornament outright */
+    .post-body h3::after,
+    .post-body h4::after,
+    .post-body h5::after {
+      display: none;
     }
     .end-mark {
       background: none;
