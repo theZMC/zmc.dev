@@ -87,9 +87,32 @@ export function toRoman(n: number): string {
   return out;
 }
 
+function uppercaseText(node: Element): void {
+  for (const child of node.children) {
+    if (child.type === "text") child.value = child.value.toUpperCase();
+    else if (child.type === "element") uppercaseText(child);
+  }
+}
+
+// Cluster titles speak in the site's eyebrow voice. Uppercasing happens
+// at build time because CSS text-transform on SVG text is not reliable
+// cross-browser — and it's width-safe: the labels render in the mono
+// face, where upper and lower case share one advance width.
+function uppercaseClusterLabels(node: Element): void {
+  const className = node.properties.className;
+  if (Array.isArray(className) && className.includes("cluster-label")) {
+    uppercaseText(node);
+    return;
+  }
+  for (const child of node.children) {
+    if (child.type === "element") uppercaseClusterLabels(child);
+  }
+}
+
 function figurePlate(diagram: RenderedDiagram, ordinal: number): Element {
   const svg = fromHtmlIsomorphic(diagram.svg, { fragment: true })
     .children[0] as Element;
+  uppercaseClusterLabels(svg);
 
   // Mermaid wires aria-labelledby only when the author wrote accTitle;
   // otherwise let the frontmatter title (or the figure number) name the

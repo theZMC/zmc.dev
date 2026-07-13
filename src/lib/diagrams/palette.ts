@@ -125,7 +125,8 @@ const THEME_VARIABLE_TOKENS: Record<string, TokenName> = {
   nodeTextColor: "ink",
   clusterBkg: "clusterBg",
   clusterBorder: "clusterBorder",
-  titleColor: "ink",
+  // cluster titles are eyebrows — brass, like every other label voice
+  titleColor: "cat4",
   edgeLabelBackground: "labelBg",
   background: "bg",
   // -- notes (sequence + state) --
