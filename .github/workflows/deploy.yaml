@@ -43,6 +43,10 @@ jobs:
       shell: bash
       working-directory: .
       run: pnpm build
+    - name: check social cards
+      shell: bash
+      working-directory: .
+      run: pnpm check:cards
     - name: upload pages artifact
       uses: actions/upload-pages-artifact@v3
       with:
