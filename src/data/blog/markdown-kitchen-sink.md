@@ -261,8 +261,8 @@ graph LR
 
 ### The Rest of the Zoo
 
-A sequence diagram, with an activation, a loop, and a note — the note takes
-the marginalia's brass wash rather than mermaid's post-it yellow:
+A sequence diagram, with an activation, a loop, and a note — the note takes the
+marginalia's brass wash rather than mermaid's post-it yellow:
 
 ```mermaid
 ---
@@ -328,8 +328,8 @@ erDiagram
     EXPOSURE }o--|| PLATE : "stored on"
 ```
 
-A pie chart, slicing through the site's five hues in the alerts'
-escalation order:
+A pie chart, slicing through the site's five hues in the alerts' escalation
+order:
 
 ```mermaid
 ---
@@ -342,8 +342,8 @@ pie
     "Broadband" : 13
 ```
 
-And a gantt chart, where a task's state lives in its border — celest for
-active, cinnabar for critical, a hairline for done:
+And a gantt chart, where a task's state lives in its border — celest for active,
+cinnabar for critical, a hairline for done:
 
 ```mermaid
 ---
