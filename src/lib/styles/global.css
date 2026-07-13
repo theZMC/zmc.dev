@@ -91,6 +91,9 @@
   --diagram-node-border: var(--brass-dim);
   --diagram-cluster-bg: color-mix(in srgb, var(--brass) 5%, transparent);
   --diagram-cluster-border: var(--hair);
+  /* cluster titles — chart furniture kin to the code-frame's language
+     hint (src/lib/diagrams/cluster-titles.ts), not body text */
+  --diagram-cluster-title: var(--brass);
   --diagram-label-bg: var(--bg);
   --diagram-bg: transparent;
   /* notes (sequence/state) — annotations in the margin, brass wash kin

@@ -104,7 +104,21 @@ export async function renderDiagrams(
         // Numeric width/height attributes instead of an injected
         // max-width inline style — the plate CSS owns sizing. The knob
         // is per diagram type; one entry per type the palette covers.
-        flowchart: { htmlLabels: false, useMaxWidth: false },
+        flowchart: {
+          htmlLabels: false,
+          useMaxWidth: false,
+          // Mermaid's default 15 leaves node labels almost touching
+          // their borders — off-rhythm next to the page's spacing.
+          padding: 20,
+          // The band between a cluster's top border and a nested
+          // cluster is hard-wired to rankSpacing / 2 — no margin knob
+          // grows it, and bottom margins only pad cluster bottoms. So
+          // the title's breathing room comes from rank spacing (which
+          // the page's airy rhythm wants anyway), with top centering
+          // the title inside that band.
+          rankSpacing: 64,
+          subGraphTitleMargin: { top: 9, bottom: 0 },
+        },
         sequence: { useMaxWidth: false },
         class: { htmlLabels: false, useMaxWidth: false },
         state: { useMaxWidth: false },
