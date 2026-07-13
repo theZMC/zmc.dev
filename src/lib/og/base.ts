@@ -87,6 +87,20 @@ export const body = (
   return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${size / 2}" fill="${color}"/>`;
 };
 
+// librsvg and satori both rasterize hairlines and glyph edges softly at
+// native resolution (same fix as the apple touch icon): rasterize both SVG
+// layers at 4× via density, composite at full size, then downsample. Two
+// passes — sharp's pipeline resizes before compositing, so the 4× composite
+// must be flattened to a buffer before the resize.
+const SS = 4;
+const DENSITY = 72 * SS;
+
+// Plates ship at 2× the 1200×630 layout: card renderers accept oversized
+// images and cut their own renditions from them, so the extra pixels are
+// what keeps cards crisp on HiDPI screens. The card gate
+// (scripts/check-social-cards.mjs) expects this size.
+export const OUT_SCALE = 2;
+
 // The satori text tree renders on a transparent layer and composites over the
 // chart SVG, so text trees never set a backgroundColor of their own.
 export const compose = async (
@@ -101,9 +115,15 @@ export const compose = async (
     fonts,
   });
 
-  const text = await sharp(Buffer.from(svg)).png().toBuffer();
-  return sharp(Buffer.from(chart))
+  const text = await sharp(Buffer.from(svg), { density: DENSITY })
+    .png()
+    .toBuffer();
+  const supersampled = await sharp(Buffer.from(chart), { density: DENSITY })
     .composite([{ input: text }])
+    .png()
+    .toBuffer();
+  return sharp(supersampled)
+    .resize(WIDTH * OUT_SCALE, HEIGHT * OUT_SCALE)
     .png()
     .toBuffer();
 };

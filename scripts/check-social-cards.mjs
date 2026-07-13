@@ -1,15 +1,15 @@
 // @ts-check
 // Nothing ships imageless: every built HTML page must carry a complete
 // social card — og:title, og:description, og:url, twitter:card, and an
-// og:image that resolves to a real 1200×630 PNG in dist. Runs in CI between
-// build and deploy (.github/workflows/deploy.yaml) and locally via
-// `pnpm check:cards`.
+// og:image that resolves to a real PNG in dist at the plates' 2× master
+// size (OUT_SCALE in src/lib/og/base.ts). Runs in CI between build and
+// deploy (.github/workflows/deploy.yaml) and locally via `pnpm check:cards`.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 const SITE = "https://zmc.dev";
-const OG_WIDTH = 1200;
-const OG_HEIGHT = 630;
+const OG_WIDTH = 2400;
+const OG_HEIGHT = 1260;
 
 const dist = path.join(process.cwd(), "dist");
 
