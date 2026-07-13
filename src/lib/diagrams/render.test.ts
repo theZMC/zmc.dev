@@ -70,3 +70,70 @@ graph TB
     ).rejects.toThrow(/post\.md, diagram 1: mermaid failed/);
   }, 60_000);
 });
+
+// One sample per covered diagram type: each must survive the sentinel
+// swap with no stray colors and no foreignObject. A mermaid upgrade that
+// introduces new literals fails here before it fails a post build.
+describe("palette coverage across diagram types", () => {
+  const COVERED: Record<string, string> = {
+    sequence: `sequenceDiagram
+    participant O as Observer
+    participant T as Telescope
+    O->>T: aim at M31
+    activate T
+    T-->>O: field acquired
+    deactivate T
+    Note over O,T: long exposure begins
+    loop every 30s
+        T->>T: autoguide correction
+    end`,
+    class: `classDiagram
+    class Orbit {
+        +float radius
+        +float period
+        +eccentricity() float
+    }
+    class Body {
+        +string name
+    }
+    Body --|> Orbit : follows`,
+    state: `stateDiagram-v2
+    [*] --> Idle
+    Idle --> Tracking : target acquired
+    Tracking --> Exposing : shutter open
+    Exposing --> Idle : plate stored
+    state Tracking {
+        [*] --> Coarse
+        Coarse --> Fine
+    }`,
+    er: `erDiagram
+    OBSERVER ||--o{ SESSION : logs
+    SESSION ||--|{ EXPOSURE : contains
+    EXPOSURE }o--|| PLATE : "stored on"`,
+    pie: `pie title Plate archive by filter
+    "H-alpha" : 42
+    "OIII" : 28
+    "SII" : 17
+    "Broadband" : 13`,
+    gantt: `gantt
+    title Observation night
+    dateFormat HH:mm
+    axisFormat %H:%M
+    section Setup
+        Collimation :a1, 19:00, 40m
+        Cooling     :after a1, 30m
+    section Imaging
+        M31 run     :crit, 20:10, 3h
+        Flats       :23:10, 30m`,
+  };
+
+  it.each(Object.entries(COVERED))(
+    "%s renders fully themed",
+    async (type, source) => {
+      const [d] = await renderDiagrams([source], `coverage:${type}`);
+      expect(d.svg).toContain("var(--diagram-");
+      expect(d.svg).not.toContain("<foreignObject");
+    },
+    60_000,
+  );
+});

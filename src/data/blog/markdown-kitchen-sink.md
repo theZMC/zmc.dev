@@ -245,6 +245,107 @@ graph LR
     Capture["Capture<br/>raw frames"] --> Calibrate["Calibrate<br/>darks + flats"] --> Register["Register<br/>plate solving"] --> Stack["Stack<br/>sigma clip"] --> Stretch["Stretch<br/>asinh"] --> Annotate["Annotate<br/>catalog overlay"] --> Publish["Publish<br/>archive + RSS"]
 ```
 
+### The Rest of the Zoo
+
+A sequence diagram, with an activation, a loop, and a note — the note takes
+the marginalia's brass wash rather than mermaid's post-it yellow:
+
+```mermaid
+---
+title: A night's negotiation
+---
+sequenceDiagram
+    participant O as Observer
+    participant T as Telescope
+    O->>T: aim at M31
+    activate T
+    T-->>O: field acquired
+    deactivate T
+    Note over O,T: long exposure begins
+    loop every 30s
+        T->>T: autoguide correction
+    end
+```
+
+A state diagram with a composite state:
+
+```mermaid
+---
+title: The mount's evening
+---
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> Tracking : target acquired
+    Tracking --> Exposing : shutter open
+    Exposing --> Idle : plate stored
+    state Tracking {
+        [*] --> Coarse
+        Coarse --> Fine
+    }
+```
+
+A class diagram:
+
+```mermaid
+---
+title: The catalog's spine
+---
+classDiagram
+    class Orbit {
+        +float radius
+        +float period
+        +eccentricity() float
+    }
+    class Body {
+        +string name
+    }
+    Body --|> Orbit : follows
+```
+
+An entity-relationship diagram:
+
+```mermaid
+---
+title: What the archive remembers
+---
+erDiagram
+    OBSERVER ||--o{ SESSION : logs
+    SESSION ||--|{ EXPOSURE : contains
+    EXPOSURE }o--|| PLATE : "stored on"
+```
+
+A pie chart, slicing through the site's five hues in the alerts'
+escalation order:
+
+```mermaid
+---
+title: Plate archive by filter
+---
+pie
+    "H-alpha" : 42
+    "OIII" : 28
+    "SII" : 17
+    "Broadband" : 13
+```
+
+And a gantt chart, where a task's state lives in its border — celest for
+active, cinnabar for critical, a hairline for done:
+
+```mermaid
+---
+title: Observation night
+---
+gantt
+    dateFormat HH:mm
+    axisFormat %H:%M
+    section Setup
+        Collimation :done, a1, 19:00, 40m
+        Cooling     :active, after a1, 30m
+    section Imaging
+        M31 run     :crit, 20:10, 3h
+        Flats       :23:10, 30m
+```
+
 ## Media and Rules
 
 An image with alt text, followed by the em-dash caption convention some posts

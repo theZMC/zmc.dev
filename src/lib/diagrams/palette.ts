@@ -59,6 +59,45 @@ export const TOKENS = {
     sentinel: "#0d1a08",
     fallback: "#ffffff",
   },
+  // Notes (sequence/state) are annotations in the margin — brass wash,
+  // kin to the GFM alert treatment, not mermaid's post-it yellow.
+  noteBg: {
+    cssVar: "--diagram-note-bg",
+    sentinel: "#0d1a09",
+    fallback: "#efe6cf",
+  },
+  noteBorder: {
+    cssVar: "--diagram-note-border",
+    sentinel: "#0d1a0a",
+    fallback: "#c9b183",
+  },
+  // Categorical hues for pie slices and task states — the site's five
+  // chart hues, in the order the alerts escalate them.
+  cat1: {
+    cssVar: "--diagram-cat-1",
+    sentinel: "#0d1a0b",
+    fallback: "#4e6685",
+  },
+  cat2: {
+    cssVar: "--diagram-cat-2",
+    sentinel: "#0d1a0c",
+    fallback: "#40745a",
+  },
+  cat3: {
+    cssVar: "--diagram-cat-3",
+    sentinel: "#0d1a0d",
+    fallback: "#665792",
+  },
+  cat4: {
+    cssVar: "--diagram-cat-4",
+    sentinel: "#0d1a0e",
+    fallback: "#8f6f35",
+  },
+  cat5: {
+    cssVar: "--diagram-cat-5",
+    sentinel: "#0d1a0f",
+    fallback: "#9c4a33",
+  },
 } as const satisfies Record<string, DiagramToken>;
 
 type TokenName = keyof typeof TOKENS;
@@ -67,6 +106,7 @@ type TokenName = keyof typeof TOKENS;
 // would otherwise derive (secondary/tertiary cascades, borders, text
 // inversions) is set explicitly so no khroma-computed color can appear.
 const THEME_VARIABLE_TOKENS: Record<string, TokenName> = {
+  // -- shared roots (flowchart and everything derived from them) --
   primaryColor: "nodeBg",
   primaryTextColor: "ink",
   primaryBorderColor: "nodeBorder",
@@ -88,6 +128,80 @@ const THEME_VARIABLE_TOKENS: Record<string, TokenName> = {
   titleColor: "ink",
   edgeLabelBackground: "labelBg",
   background: "bg",
+  // -- notes (sequence + state) --
+  noteBkgColor: "noteBg",
+  noteBorderColor: "noteBorder",
+  noteTextColor: "ink",
+  // -- sequence --
+  actorBkg: "nodeBg",
+  actorBorder: "nodeBorder",
+  actorTextColor: "ink",
+  actorLineColor: "line",
+  signalColor: "line",
+  signalTextColor: "ink",
+  labelBoxBkgColor: "clusterBg",
+  labelBoxBorderColor: "clusterBorder",
+  labelTextColor: "ink",
+  loopTextColor: "ink",
+  activationBkgColor: "clusterBg",
+  activationBorderColor: "clusterBorder",
+  sequenceNumberColor: "labelBg",
+  // -- class --
+  classText: "ink",
+  // -- state --
+  labelColor: "ink",
+  stateLabelColor: "ink",
+  stateBkg: "nodeBg",
+  labelBackgroundColor: "labelBg",
+  altBackground: "clusterBg",
+  compositeBackground: "clusterBg",
+  compositeTitleBackground: "clusterBg",
+  compositeBorder: "clusterBorder",
+  innerEndBackground: "line",
+  specialStateColor: "line",
+  transitionColor: "line",
+  transitionLabelColor: "ink",
+  // -- pie: the five site hues, cycled to fill mermaid's twelve slots --
+  pie1: "cat1",
+  pie2: "cat2",
+  pie3: "cat3",
+  pie4: "cat4",
+  pie5: "cat5",
+  pie6: "cat1",
+  pie7: "cat2",
+  pie8: "cat3",
+  pie9: "cat4",
+  pie10: "cat5",
+  pie11: "cat1",
+  pie12: "cat2",
+  // slice labels sit on solid hue — the page bg reads in both themes,
+  // where ink would vanish in one of them
+  pieTitleTextColor: "ink",
+  pieSectionTextColor: "labelBg",
+  pieLegendTextColor: "ink",
+  pieStrokeColor: "labelBg",
+  pieOuterStrokeColor: "line",
+  // -- gantt: state lives in the border hue, fills stay instrument-quiet
+  //    (normal brass-dim / active celest / done hairline / crit cinnabar) --
+  sectionBkgColor: "clusterBg",
+  altSectionBkgColor: "bg",
+  sectionBkgColor2: "clusterBg",
+  excludeBkgColor: "clusterBg",
+  gridColor: "clusterBorder",
+  todayLineColor: "cat5",
+  taskBkgColor: "nodeBg",
+  taskBorderColor: "nodeBorder",
+  taskTextColor: "ink",
+  taskTextLightColor: "ink",
+  taskTextDarkColor: "ink",
+  taskTextOutsideColor: "ink",
+  taskTextClickableColor: "cat1",
+  activeTaskBkgColor: "nodeBg",
+  activeTaskBorderColor: "cat1",
+  doneTaskBkgColor: "clusterBg",
+  doneTaskBorderColor: "clusterBorder",
+  critBkgColor: "nodeBg",
+  critBorderColor: "cat5",
 };
 
 // The render browser has the site's mono loaded (fonts.css), so text
@@ -115,10 +229,10 @@ function sentinelChannels(sentinel: string): [number, number, number] {
 }
 
 /**
- * Replace every sentinel with its var(--diagram-*, fallback) form — both
- * the literal hex and the rgba(r, g, b, a) decomposition mermaid emits
- * when it applies its own opacity (e.g. edge label backgrounds), where
- * the alpha is preserved via color-mix.
+ * Replace every sentinel with its var(--diagram-*, fallback) form — the
+ * literal hex plus the rgb(r, g, b) / rgba(r, g, b, a) decompositions
+ * mermaid emits for some elements (pie slices, edge label backgrounds),
+ * with any alpha preserved via color-mix.
  */
 export function swapSentinels(svg: string): string {
   let out = svg;
@@ -129,11 +243,13 @@ export function swapSentinels(svg: string): string {
       .replaceAll(new RegExp(sentinel, "gi"), varRef)
       .replaceAll(
         new RegExp(
-          String.raw`rgba\(\s*${r}\s*,\s*${g}\s*,\s*${b}\s*,\s*([0-9.]+)\s*\)`,
+          String.raw`rgba?\(\s*${r}\s*,\s*${g}\s*,\s*${b}\s*(?:,\s*([0-9.]+)\s*)?\)`,
           "g",
         ),
-        (_, alpha: string) =>
-          `color-mix(in srgb, ${varRef} ${Number(alpha) * 100}%, transparent)`,
+        (_, alpha: string | undefined) =>
+          alpha === undefined
+            ? varRef
+            : `color-mix(in srgb, ${varRef} ${Number(alpha) * 100}%, transparent)`,
       );
   }
   return out;
@@ -150,6 +266,18 @@ const STRAY_ALLOWLIST = new Set<string>([
   // is theme-neutral anyway.
   "rgba(185,185,185,1)",
   "#000000",
+  // sequence-diagram actor drop shadows — theme-neutral like the above
+  "rgba(0,0,0,0.2)",
+  "rgb(0 0 0 / 0.4)",
+  // sequence renderer legacy presentation attributes on actor/note/
+  // activation rects and lifelines — inert: the SVG's own themed CSS
+  // rules (.actor, .actor-line, .note, .activationN) override them
+  "#eaeaea",
+  "#666",
+  "#999",
+  "#edf2ae",
+  // state styles emit an .alt-composit fallback rule no element uses
+  "#e0e0e0",
 ]);
 
 const COLOR_LITERAL = /#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?)\([^)]*\)/gi;

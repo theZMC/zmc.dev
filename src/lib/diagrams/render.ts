@@ -96,12 +96,16 @@ export async function renderDiagrams(
         // only honors the top-level key; the flowchart-scoped one is
         // kept for when that changes.
         htmlLabels: false,
-        flowchart: {
-          htmlLabels: false,
-          // Numeric width/height attributes instead of an injected
-          // max-width inline style — the plate CSS owns sizing.
-          useMaxWidth: false,
-        },
+        // Numeric width/height attributes instead of an injected
+        // max-width inline style — the plate CSS owns sizing. The knob
+        // is per diagram type; one entry per type the palette covers.
+        flowchart: { htmlLabels: false, useMaxWidth: false },
+        sequence: { useMaxWidth: false },
+        class: { htmlLabels: false, useMaxWidth: false },
+        state: { useMaxWidth: false },
+        er: { useMaxWidth: false },
+        pie: { useMaxWidth: false },
+        gantt: { useMaxWidth: false },
       },
     },
   );
