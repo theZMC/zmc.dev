@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  NON_COLOR_THEME_VARIABLES,
   TOKENS,
   assertNoStrayColors,
   swapSentinels,
   themeVariables,
+  washPieSlices,
 } from "./palette";
 
 describe("sentinel table", () => {
@@ -17,7 +19,7 @@ describe("sentinel table", () => {
   it("pins every color-bearing theme variable to a sentinel", () => {
     const vars = themeVariables();
     for (const [name, value] of Object.entries(vars)) {
-      if (name === "fontFamily" || name === "fontSize") continue;
+      if (NON_COLOR_THEME_VARIABLES.has(name)) continue;
       const isSentinel = Object.values(TOKENS).some(
         (t) => t.sentinel === value,
       );
@@ -53,6 +55,33 @@ describe("swapSentinels", () => {
     expect(out).toBe(
       `fill:color-mix(in srgb, var(${TOKENS.labelBg.cssVar}, ${TOKENS.labelBg.fallback}) 50%, transparent);`,
     );
+  });
+});
+
+describe("washPieSlices", () => {
+  const hue = `var(${TOKENS.cat1.cssVar}, ${TOKENS.cat1.fallback})`;
+
+  it("gives slices the alert recipe: hue-wash fill, full-hue edge", () => {
+    const out = washPieSlices(
+      `<path d="M0,0" fill="${hue}" class="pieCircle">`,
+    );
+    expect(out).toBe(
+      `<path d="M0,0" class="pieCircle" style="fill: color-mix(in srgb, ${hue} 12%, transparent); stroke: ${hue};">`,
+    );
+  });
+
+  it("matches legend swatches to their slices", () => {
+    const out = washPieSlices(
+      `<rect width="18" style="fill: ${hue}; stroke: ${hue};"></rect>`,
+    );
+    expect(out).toBe(
+      `<rect width="18" style="fill: color-mix(in srgb, ${hue} 12%, transparent); stroke: ${hue};"></rect>`,
+    );
+  });
+
+  it("leaves non-pie markup alone", () => {
+    const svg = `<rect fill="${hue}" class="node"/>`;
+    expect(washPieSlices(svg)).toBe(svg);
   });
 });
 

@@ -6,7 +6,12 @@ import {
   type RenderResult,
 } from "mermaid-isomorphic";
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
-import { swapSentinels, assertNoStrayColors, themeVariables } from "./palette";
+import {
+  swapSentinels,
+  washPieSlices,
+  assertNoStrayColors,
+  themeVariables,
+} from "./palette";
 
 export interface PreparedDiagram {
   /** Source handed to mermaid, with the frontmatter title removed. */
@@ -120,7 +125,7 @@ export async function renderDiagrams(
       throw new Error(`[diagrams] ${where}: mermaid failed: ${reason}`);
     }
 
-    const swapped = swapSentinels(result.value.svg);
+    const swapped = washPieSlices(swapSentinels(result.value.svg));
     assertNoStrayColors(swapped, where);
 
     return {

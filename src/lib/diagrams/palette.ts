@@ -174,10 +174,10 @@ const THEME_VARIABLE_TOKENS: Record<string, TokenName> = {
   pie10: "cat5",
   pie11: "cat1",
   pie12: "cat2",
-  // slice labels sit on solid hue — the page bg reads in both themes,
-  // where ink would vanish in one of them
+  // slices are washed like the alerts (see washPieSlices), so ink reads
+  // on them in both themes
   pieTitleTextColor: "ink",
-  pieSectionTextColor: "labelBg",
+  pieSectionTextColor: "ink",
   pieLegendTextColor: "ink",
   pieStrokeColor: "labelBg",
   pieOuterStrokeColor: "line",
@@ -209,10 +209,22 @@ const THEME_VARIABLE_TOKENS: Record<string, TokenName> = {
 export const DIAGRAM_FONT_FAMILY =
   '"Spline Sans Mono", ui-monospace, SFMono-Regular, Menlo, monospace';
 
+// themeVariables() entries that are not colors and so carry no sentinel.
+export const NON_COLOR_THEME_VARIABLES = new Set([
+  "fontFamily",
+  "fontSize",
+  "pieOpacity",
+  "pieStrokeWidth",
+]);
+
 export function themeVariables(): Record<string, string> {
   const vars: Record<string, string> = {
     fontFamily: DIAGRAM_FONT_FAMILY,
     fontSize: "15px",
+    // The wash carries the subduedness (washPieSlices); mermaid's default
+    // 0.7 opacity would dim the full-hue edges too.
+    pieOpacity: "1",
+    pieStrokeWidth: "1.5px",
   };
   for (const [themeVar, token] of Object.entries(THEME_VARIABLE_TOKENS)) {
     vars[themeVar] = TOKENS[token].sentinel;
@@ -253,6 +265,35 @@ export function swapSentinels(svg: string): string {
       );
   }
   return out;
+}
+
+// The wash strength for pie slices and legend swatches — a shade heavier
+// than the alerts' 7% so adjacent slices still separate.
+const PIE_WASH = "12%";
+
+/**
+ * Restyle pie slices to the GFM-alert recipe: subdued hue-wash fill with
+ * a full-bodied edge in the slice's own hue. Mermaid has no per-slice
+ * stroke variable — its uniform `.pieCircle` stroke rule is overridden
+ * here with an inline style per slice (inline beats the SVG's own CSS).
+ * Runs after swapSentinels, so fills are already var(--diagram-cat-*)
+ * references. Non-pie SVGs pass through untouched.
+ */
+export function washPieSlices(svg: string): string {
+  return (
+    svg
+      .replaceAll(
+        /fill="(var\(--diagram-cat-[^"]*\))" class="pieCircle"/g,
+        (_, hue: string) =>
+          `class="pieCircle" style="fill: color-mix(in srgb, ${hue} ${PIE_WASH}, transparent); stroke: ${hue};"`,
+      )
+      // legend swatches match their slices
+      .replaceAll(
+        /style="fill:\s*(var\(--diagram-cat-[^;]*\));\s*stroke:\s*var\(--diagram-cat-[^;]*\);"/g,
+        (_, hue: string) =>
+          `style="fill: color-mix(in srgb, ${hue} ${PIE_WASH}, transparent); stroke: ${hue};"`,
+      )
+  );
 }
 
 // Literal colors that may legitimately survive the swap. Populated only
