@@ -14,6 +14,9 @@ const LOOP = `
       alignment-baseline="middle" class="labelText" style="font-size: 15px;">loop</text>
     <text x="301" y="240" text-anchor="middle" class="loopText"
       style="font-size: 15px;"><tspan x="301">[every 30s]</tspan></text>
+    <line x1="176" y1="300" x2="376" y2="300" class="loopLine"></line>
+    <text x="276" y="318" text-anchor="middle" class="sectionTitle"
+      style="font-size: 15px;">[clouded over]</text>
   </g>`;
 
 function svgWith(role: string, body: string): Element {
@@ -65,24 +68,34 @@ describe("restyleLoopLabels", () => {
         Array.isArray(el.properties.className) &&
         el.properties.className.includes("labelText"),
     );
-    // frame left 176 + 12 inset; baseline shared with the condition
+    // frame left 176 + 12 inset; header baseline at frame top 222 + 21
     expect(keyword?.properties.x).toBe(188);
-    expect(keyword?.properties.y).toBe(240);
+    expect(keyword?.properties.y).toBe(243);
     expect(keyword?.properties.textAnchor).toBe("start");
     expect(keyword?.properties.dominantBaseline).toBeUndefined();
     expect(keyword?.properties.alignmentBaseline).toBeUndefined();
     expect(keyword?.properties.style).toBe(CLUSTER_TITLE_STYLE);
     expect(keyword && textContent(keyword)).toBe("LOOP");
 
-    // the condition itself is untouched — its treatment is a separate concern
+    // the condition joins the keyword on the header baseline; its
+    // styling is a separate concern
     const condition = find(
       svg,
       (el) =>
         Array.isArray(el.properties.className) &&
         el.properties.className.includes("loopText"),
     );
-    expect(condition?.properties.y).toBe("240");
+    expect(condition?.properties.y).toBe(243);
     expect(condition && textContent(condition)).toBe("[every 30s]");
+
+    // section conditions shift off their dividers by the same margin
+    const section = find(
+      svg,
+      (el) =>
+        Array.isArray(el.properties.className) &&
+        el.properties.className.includes("sectionTitle"),
+    );
+    expect(section?.properties.y).toBe(321);
   });
 
   it("leaves other diagram types alone", () => {
