@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   NON_COLOR_THEME_VARIABLES,
+  PIE_WASHES,
   TOKENS,
   assertNoStrayColors,
   swapSentinels,
@@ -60,13 +61,14 @@ describe("swapSentinels", () => {
 
 describe("washPieSlices", () => {
   const hue = `var(${TOKENS.cat1.cssVar}, ${TOKENS.cat1.fallback})`;
+  const wash = `var(${PIE_WASHES["1"].cssVar}, ${PIE_WASHES["1"].fallback})`;
 
   it("gives slices the alert recipe: hue-wash fill, full-hue edge", () => {
     const out = washPieSlices(
       `<path d="M0,0" fill="${hue}" class="pieCircle">`,
     );
     expect(out).toBe(
-      `<path d="M0,0" class="pieCircle" style="fill: color-mix(in srgb, ${hue} 12%, transparent); stroke: ${hue};">`,
+      `<path d="M0,0" class="pieCircle" style="fill: ${wash}; stroke: ${hue};">`,
     );
   });
 
@@ -75,8 +77,14 @@ describe("washPieSlices", () => {
       `<rect width="18" style="fill: ${hue}; stroke: ${hue};"></rect>`,
     );
     expect(out).toBe(
-      `<rect width="18" style="fill: color-mix(in srgb, ${hue} 12%, transparent); stroke: ${hue};"></rect>`,
+      `<rect width="18" style="fill: ${wash}; stroke: ${hue};"></rect>`,
     );
+  });
+
+  it("keeps wash fallbacks scrubbed from the stray-color guard", () => {
+    expect(() =>
+      assertNoStrayColors(washPieSlices(`fill="${hue}" class="pieCircle"`), "t"),
+    ).not.toThrow();
   });
 
   it("leaves non-pie markup alone", () => {

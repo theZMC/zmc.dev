@@ -267,9 +267,22 @@ export function swapSentinels(svg: string): string {
   return out;
 }
 
-// The wash strength for pie slices and legend swatches — a shade heavier
-// than the alerts' 7% so adjacent slices still separate.
-const PIE_WASH = "12%";
+// Slice/swatch wash fills. The strength is theme-tuned in global.css
+// (--diagram-wash-mix): dark's 12% whisper converges the blues and
+// purples on a light ground, so light mixes heavier. Fallbacks are the
+// light hues at ~30% over white, for contexts without the site CSS.
+export const PIE_WASHES: Record<string, { cssVar: string; fallback: string }> = {
+  "1": { cssVar: "--diagram-wash-1", fallback: "#cad1da" },
+  "2": { cssVar: "--diagram-wash-2", fallback: "#c6d5ce" },
+  "3": { cssVar: "--diagram-wash-3", fallback: "#d1cdde" },
+  "4": { cssVar: "--diagram-wash-4", fallback: "#ddd4c2" },
+  "5": { cssVar: "--diagram-wash-5", fallback: "#e1c9c2" },
+};
+
+function washRef(catNumber: string): string {
+  const wash = PIE_WASHES[catNumber];
+  return `var(${wash.cssVar}, ${wash.fallback})`;
+}
 
 /**
  * Restyle pie slices to the GFM-alert recipe: subdued hue-wash fill with
@@ -283,15 +296,15 @@ export function washPieSlices(svg: string): string {
   return (
     svg
       .replaceAll(
-        /fill="(var\(--diagram-cat-[^"]*\))" class="pieCircle"/g,
-        (_, hue: string) =>
-          `class="pieCircle" style="fill: color-mix(in srgb, ${hue} ${PIE_WASH}, transparent); stroke: ${hue};"`,
+        /fill="(var\(--diagram-cat-(\d)[^"]*\))" class="pieCircle"/g,
+        (_, hue: string, n: string) =>
+          `class="pieCircle" style="fill: ${washRef(n)}; stroke: ${hue};"`,
       )
       // legend swatches match their slices
       .replaceAll(
-        /style="fill:\s*(var\(--diagram-cat-[^;]*\));\s*stroke:\s*var\(--diagram-cat-[^;]*\);"/g,
-        (_, hue: string) =>
-          `style="fill: color-mix(in srgb, ${hue} ${PIE_WASH}, transparent); stroke: ${hue};"`,
+        /style="fill:\s*(var\(--diagram-cat-(\d)[^;]*\));\s*stroke:\s*var\(--diagram-cat-[^;]*\);"/g,
+        (_, hue: string, n: string) =>
+          `style="fill: ${washRef(n)}; stroke: ${hue};"`,
       )
   );
 }
@@ -333,7 +346,10 @@ export function assertNoStrayColors(svg: string, context: string): void {
   // Our own swapped-in fallbacks are literals too — blank the known
   // var(--diagram-*, …) substrings before scanning.
   let scrubbed = svg;
-  for (const { cssVar, fallback } of Object.values(TOKENS)) {
+  for (const { cssVar, fallback } of [
+    ...Object.values(TOKENS),
+    ...Object.values(PIE_WASHES),
+  ]) {
     scrubbed = scrubbed.replaceAll(`var(${cssVar}, ${fallback})`, "");
   }
 

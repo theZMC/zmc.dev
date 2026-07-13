@@ -104,6 +104,38 @@
   --diagram-cat-3: var(--heliotrope);
   --diagram-cat-4: var(--brass);
   --diagram-cat-5: var(--cinnabar);
+  /* slice/swatch wash fills. The strength is theme-tuned below: 12%
+     sings on the dark ground but converges celest and heliotrope on
+     cream, so light mixes heavier. */
+  --diagram-wash-mix: 12%;
+  --diagram-wash-1: color-mix(
+    in srgb,
+    var(--diagram-cat-1) var(--diagram-wash-mix),
+    transparent
+  );
+  --diagram-wash-2: color-mix(
+    in srgb,
+    var(--diagram-cat-2) var(--diagram-wash-mix),
+    transparent
+  );
+  --diagram-wash-3: color-mix(
+    in srgb,
+    var(--diagram-cat-3) var(--diagram-wash-mix),
+    transparent
+  );
+  --diagram-wash-4: color-mix(
+    in srgb,
+    var(--diagram-cat-4) var(--diagram-wash-mix),
+    transparent
+  );
+  --diagram-wash-5: color-mix(
+    in srgb,
+    var(--diagram-cat-5) var(--diagram-wash-mix),
+    transparent
+  );
+}
+[data-theme="light"] {
+  --diagram-wash-mix: 30%;
 }
 
 /* ============ RESET / BASE ============ */
