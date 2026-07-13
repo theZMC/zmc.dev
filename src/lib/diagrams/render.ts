@@ -131,6 +131,10 @@ export async function renderDiagrams(
           noteMargin: 14,
           diagramMarginX: 8, // default 50
           diagramMarginY: 12,
+          height: 48, // default 65 — one line of 15px mono swam in the box
+          // the loop/alt legend pentagon hugged its word at 50×20
+          labelBoxWidth: 70,
+          labelBoxHeight: 26,
         },
         class: { htmlLabels: false, useMaxWidth: false },
         state: { useMaxWidth: false },

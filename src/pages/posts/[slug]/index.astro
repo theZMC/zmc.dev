@@ -448,6 +448,13 @@ const { Content } = await render(post);
     font-size: 11px;
     letter-spacing: 0.14em;
   }
+  /* The state renderer plants composite titles straddling the top
+     border (baseline lands ~3px inside the rect; flowchart has
+     subGraphTitleMargin to correct this, state has no knob). 14px
+     centres the title in its 21px band between border and body. */
+  .post-body .diagram-plate svg.statediagram .cluster-label {
+    translate: 0 14px;
+  }
   /* A page-bg halo behind floating labels — cluster titles, edge and
      relationship labels, sequence messages and loop annotations — so a
      line passing beneath never cuts through the letters. */
