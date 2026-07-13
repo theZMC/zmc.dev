@@ -2,6 +2,7 @@ import path from "node:path";
 import { fromHtmlIsomorphic } from "hast-util-from-html-isomorphic";
 import { reanchorActorLabels } from "./actor-labels";
 import { restyleClusterTitles } from "./cluster-titles";
+import { restyleLoopLabels } from "./loop-labels";
 import { renderDiagrams, type RenderedDiagram } from "./render";
 
 // hast node types, derived from the parser's signature instead of a root
@@ -94,6 +95,7 @@ function figurePlate(diagram: RenderedDiagram, ordinal: number): Element {
     .children[0] as Element;
   restyleClusterTitles(svg);
   reanchorActorLabels(svg);
+  restyleLoopLabels(svg);
 
   // Mermaid wires aria-labelledby only when the author wrote accTitle;
   // otherwise let the frontmatter title (or the figure number) name the
