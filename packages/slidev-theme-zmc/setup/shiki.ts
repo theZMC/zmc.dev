@@ -1,8 +1,8 @@
 import { defineShikiSetup } from '@slidev/types'
 // The site's Shiki themes are the single source of truth for token colors —
 // the theme package lives in the same workspace precisely so code on slides
-// and code in posts never drift apart.
-// @ts-expect-error untyped .mjs module
+// and code in posts never drift apart. (No ts-expect-error: the root
+// tsconfig's allowJs infers types for the .mjs, so the import checks.)
 import { zmcDark, zmcLight } from '../../../src/lib/shiki/zmc-themes.mjs'
 
 export default defineShikiSetup(() => {
