@@ -387,6 +387,81 @@ const { Content } = await render(post);
      hairline, no clipping wrapper. */
   .post-body .diagram-plate {
     margin: 2.2rem 0;
+    /* the plate joins the code-frame's expand system (site.ts puts the
+       button in the eyebrow): explicit width so expand/collapse can
+       transition; the svg's scale-with-a-floor rule turns the extra
+       width into type size rather than empty margin */
+    position: relative;
+    width: 100%;
+    transition:
+      width 0.35s ease,
+      margin 0.35s ease;
+  }
+  .post-body .diagram-plate[data-expanded] {
+    --code-expanded: max(100%, min(var(--max), 100vw - 4rem) - 4rem);
+    width: var(--code-expanded);
+    margin-inline: calc((100% - var(--code-expanded)) / 2);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .post-body .diagram-plate {
+      transition: none;
+    }
+  }
+  /* Right-edge fade while the diagram continues past the clip edge —
+     the code-frame's affordance, starting below the eyebrow (whose
+     rendered height site.ts measures into --plate-head-h, since a
+     wrapping title makes it unknowable from here). */
+  .post-body .diagram-plate::after {
+    content: "";
+    position: absolute;
+    top: var(--plate-head-h, 2.4rem);
+    bottom: 1px;
+    right: 1px;
+    width: 3.25rem;
+    border-radius: 0 0 9px 0;
+    background:
+      linear-gradient(to left, var(--code-bg), transparent),
+      linear-gradient(to left, var(--bg), transparent);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .post-body .diagram-plate[data-clipped]::after {
+    opacity: 1;
+  }
+  .post-body .diagram-plate::before {
+    content: "";
+    position: absolute;
+    top: var(--plate-head-h, 2.4rem);
+    bottom: 1px;
+    left: 1px;
+    width: 3.25rem;
+    border-radius: 0 0 0 9px;
+    background:
+      linear-gradient(to right, var(--code-bg), transparent),
+      linear-gradient(to right, var(--bg), transparent);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .post-body .diagram-plate[data-clipped-start]::before {
+    opacity: 1;
+  }
+  /* The actions are a figcaption sibling (so button labels never join
+     the caption's text) overlaid on the eyebrow band, centred in its
+     measured height and holding the code-head's edge inset. Qualifying
+     plates reserve eyebrow width so a wrapping title can't run under
+     the pill. */
+  .post-body .diagram-plate > .code-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: var(--plate-head-h, 2.4rem);
+    align-items: center;
+    padding-right: 0.6rem;
+  }
+  .post-body .diagram-plate[data-expandable] .diagram-eyebrow {
+    padding-right: 7rem;
   }
   .post-body .diagram-eyebrow {
     display: flex;
@@ -618,12 +693,35 @@ const { Content } = await render(post);
   .post-body .code-frame[data-clipped]::after {
     opacity: 1;
   }
+  /* mirror fade on the left clip edge once the block is scrolled */
+  .post-body .code-frame::before {
+    content: "";
+    position: absolute;
+    top: var(--code-head-h);
+    bottom: 1px;
+    left: 1px;
+    width: 3.25rem;
+    border-radius: 0 0 0 9px;
+    background:
+      linear-gradient(to right, var(--code-bg), transparent),
+      linear-gradient(to right, var(--bg), transparent);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .post-body .code-frame[data-clipped-start]::before {
+    opacity: 1;
+  }
   @media print {
     .post-body .code-frame::after,
+    .post-body .code-frame::before,
+    .post-body .diagram-plate::after,
+    .post-body .diagram-plate::before,
     .post-body .code-actions {
       display: none;
     }
-    .post-body .code-frame[data-expanded] {
+    .post-body .code-frame[data-expanded],
+    .post-body .diagram-plate[data-expanded] {
       width: 100%;
       margin-inline: 0;
     }
@@ -700,11 +798,13 @@ const { Content } = await render(post);
     display: none;
   }
   @media (min-width: 850px) {
-    .post-body .code-frame[data-expandable] .expand-code {
+    .post-body .code-frame[data-expandable] .expand-code,
+    .post-body .diagram-plate[data-expandable] .expand-code {
       display: block;
     }
   }
-  .post-body .code-frame[data-expanded] .expand-code {
+  .post-body .code-frame[data-expanded] .expand-code,
+  .post-body .diagram-plate[data-expanded] .expand-code {
     display: block;
   }
   .post-body pre code {

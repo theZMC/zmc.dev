@@ -145,7 +145,7 @@ document.addEventListener("click", (e) => {
 
   const expand = (e.target as Element | null)?.closest(".expand-code");
   if (expand instanceof HTMLElement) {
-    const frame = expand.closest(".code-frame");
+    const frame = expand.closest(".code-frame, .diagram-plate");
     if (frame instanceof HTMLElement) {
       const expanded = frame.toggleAttribute("data-expanded");
       expand.textContent = expanded ? "Collapse" : "Expand";
@@ -275,6 +275,16 @@ document.addEventListener("astro:page-load", () => {
   // the block its labels concatenate into the content's accessible text.
   // `block` is both the element framed and the horizontal scroll container
   // the fade/expand affordances watch.
+  const expandButton = (expandLabel: string) => {
+    const expand = document.createElement("button");
+    expand.className = "expand-code mono";
+    expand.type = "button";
+    expand.textContent = "Expand";
+    expand.setAttribute("aria-expanded", "false");
+    expand.setAttribute("aria-label", expandLabel);
+    return expand;
+  };
+
   const frameBlock = (
     block: HTMLElement,
     opts: {
@@ -295,13 +305,7 @@ document.addEventListener("astro:page-load", () => {
     lang.textContent = opts.label;
     const actions = document.createElement("div");
     actions.className = "code-actions";
-    const expand = document.createElement("button");
-    expand.className = "expand-code mono";
-    expand.type = "button";
-    expand.textContent = "Expand";
-    expand.setAttribute("aria-expanded", "false");
-    expand.setAttribute("aria-label", opts.expandLabel);
-    actions.append(expand, ...(opts.actions ?? []));
+    actions.append(expandButton(opts.expandLabel), ...(opts.actions ?? []));
     head.append(lang, actions);
     block.replaceWith(frame);
     frame.append(head, block);
@@ -316,6 +320,8 @@ document.addEventListener("astro:page-load", () => {
         "data-clipped",
         block.scrollWidth - block.clientWidth - block.scrollLeft > 1,
       );
+      // mirror fade: content also continues past the left clip edge
+      frame.toggleAttribute("data-clipped-start", block.scrollLeft > 1);
       frame.toggleAttribute(
         "data-overflowing",
         block.scrollWidth > block.clientWidth,
@@ -376,6 +382,55 @@ document.addEventListener("astro:page-load", () => {
         expandLabel: "Expand table to the panel width",
         modifier: "table-frame",
       });
+    });
+
+  // Diagram plates ship their own header (the eyebrow figcaption) and
+  // scroll container from the build, so they join the expand system
+  // without a second frame: button in the eyebrow, state attributes on
+  // the figure. Unlike code, a plate benefits from expanding before it
+  // overflows — the svg scales down from its intrinsic width (--w)
+  // first and only scrolls at the 75% floor — so below-intrinsic is
+  // the signal that expanding buys type size, not just less scrolling.
+  document
+    .querySelectorAll<HTMLElement>(".post-body .diagram-plate")
+    .forEach((plate) => {
+      if (plate.querySelector(".expand-code")) return;
+      const eyebrow = plate.querySelector<HTMLElement>(".diagram-eyebrow");
+      const scroll = plate.querySelector<HTMLElement>(".diagram-scroll");
+      const svg = scroll?.querySelector("svg");
+      if (!eyebrow || !scroll || !svg) return;
+      // The actions are chrome, not caption: a sibling of the figcaption
+      // (CSS overlays it on the eyebrow band), so the caption's text —
+      // what find-in-page, selection, and extractors read — never
+      // contains a button label. Same reasoning as the code-frame's
+      // header-as-sibling.
+      const actions = document.createElement("div");
+      actions.className = "code-actions";
+      actions.append(expandButton("Expand diagram to the panel width"));
+      eyebrow.after(actions);
+      const intrinsic = parseFloat(plate.style.getPropertyValue("--w"));
+      const updatePlateState = () => {
+        // The clip fade starts below the eyebrow, whose height depends
+        // on how the title wraps — measured, not assumed.
+        plate.style.setProperty("--plate-head-h", `${eyebrow.offsetHeight}px`);
+        plate.toggleAttribute(
+          "data-clipped",
+          scroll.scrollWidth - scroll.clientWidth - scroll.scrollLeft > 1,
+        );
+        plate.toggleAttribute("data-clipped-start", scroll.scrollLeft > 1);
+        if (
+          Number.isFinite(intrinsic) &&
+          svg.getBoundingClientRect().width < intrinsic - 16 &&
+          !plate.hasAttribute("data-expandable")
+        ) {
+          plate.setAttribute("data-expandable", "");
+        }
+      };
+      scroll.addEventListener("scroll", updatePlateState, { passive: true });
+      const observer = new ResizeObserver(updatePlateState);
+      observer.observe(scroll);
+      observer.observe(eyebrow);
+      document.fonts.ready.then(updatePlateState);
     });
 
   updateScrollState();
