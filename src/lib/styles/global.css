@@ -33,6 +33,11 @@
   --core-glow-opacity: 0.55;
   --max: 1120px;
   --measure: 720px;
+  /* glint timing: the shimmer answers the cursor at attack speed and
+     releases on the slower tail. Named apart from the 0.45s theme swap
+     on purpose — the two may diverge. */
+  --glint-attack: 0.2s;
+  --glint-release: 0.45s;
   /* The frosted nav's rendered height — 34px eclipse button + 2 × 1.1rem
      padding + hairline border ≈ 70px (4.375rem). Everything that clears or
      docks against the nav derives from this token; site.ts mirrors it as a
@@ -343,7 +348,7 @@ nav .sigil::after {
   background-clip: text;
   color: transparent;
   opacity: 0;
-  transition: opacity 0.45s ease;
+  transition: opacity var(--glint-release) ease;
 }
 /* The bloom paints its gradient stack twice: blur spreads each stroke's
    light thin, so a single pass barely registers over the glass. */
@@ -373,9 +378,13 @@ nav .sigil::before {
   -webkit-background-clip: text;
   background-clip: text;
 }
+/* asymmetric fade, here and on the panels below: hover swaps in the
+   attack duration; the release keeps the slower resting fade so the
+   glow still dies in its long tail */
 nav .sigil:hover::before,
 nav .sigil:hover::after {
   opacity: 1;
+  transition-duration: var(--glint-attack);
 }
 .nav-right {
   display: flex;
@@ -556,7 +565,7 @@ main {
     linear-gradient(#fff 0 0);
   mask-composite: exclude;
   opacity: 0;
-  transition: opacity 0.45s ease;
+  transition: opacity var(--glint-release) ease;
 }
 /* Outward radiance, kin to the sigil's bloom — but barely there. The
    halo is painted directly into the 16px band outside the border: four
@@ -633,7 +642,7 @@ main {
     transparent 70%
   );
   opacity: 0;
-  transition: opacity 0.45s ease;
+  transition: opacity var(--glint-release) ease;
 }
 /* Rows' ring hugs the row box — the halo band tracks it. */
 .glint-row::after {
@@ -643,6 +652,7 @@ main {
 .panel:hover::after,
 .glint-row:hover::after {
   opacity: 0.1;
+  transition-duration: var(--glint-attack);
 }
 /* Rows lack the panel's resting border, so their ring carries its own
    hairline base layer under the shimmer. The asymmetric inset is load-
@@ -668,6 +678,7 @@ main {
 .panel:hover::before,
 .glint-row:hover::before {
   opacity: 1;
+  transition-duration: var(--glint-attack);
 }
 @supports not (
   (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
