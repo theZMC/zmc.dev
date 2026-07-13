@@ -12,6 +12,8 @@ import talks from "./src/lib/talks/integration.mjs";
 
 import { zmcDark, zmcLight } from "./src/lib/shiki/zmc-themes.mjs";
 
+import rehypeMermaid from "./src/lib/diagrams/rehype-mermaid";
+
 // `astro build` re-runs the Vite dep optimizer in production mode, and with a
 // shared cache dir it overwrites the dev server's pre-bundle in place — any
 // dev server running (or started) after a build then serves production react,
@@ -60,6 +62,12 @@ export default defineConfig({
     inlineStylesheets: "never",
   },
   markdown: {
+    syntaxHighlight: {
+      type: "shiki",
+      // Mermaid fences reach the rehype chain as bare pre/code for the
+      // diagram plugin to render; Shiki would otherwise claim them.
+      excludeLangs: ["mermaid"],
+    },
     shikiConfig: {
       themes: {
         light: zmcLight,
@@ -70,6 +78,8 @@ export default defineConfig({
       defaultColor: false,
     },
     rehypePlugins: [
+      // Build-time mermaid → theme-aware inline SVG figure plates.
+      rehypeMermaid,
       [rehypeGithubAlerts, { build: alertBuild }],
       rehypeHeadingIds,
       [

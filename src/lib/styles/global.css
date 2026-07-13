@@ -80,6 +80,21 @@
   --core-glow-opacity: 0.35;
 }
 
+/* Diagram palette — the vars build-time mermaid SVGs are sentinel-swapped
+   to (src/lib/diagrams/palette.ts). Pure aliases, declared once: each
+   resolves through the theme tokens at the element, so the diagrams ride
+   the data-theme flip (and the print overrides) like everything else. */
+:root {
+  --diagram-ink: var(--ink);
+  --diagram-line: var(--ink-dim);
+  --diagram-node-bg: var(--glass);
+  --diagram-node-border: var(--brass-dim);
+  --diagram-cluster-bg: color-mix(in srgb, var(--brass) 5%, transparent);
+  --diagram-cluster-border: var(--hair);
+  --diagram-label-bg: var(--bg);
+  --diagram-bg: transparent;
+}
+
 /* ============ RESET / BASE ============ */
 * {
   margin: 0;

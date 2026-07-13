@@ -199,6 +199,52 @@ affordance:
 curl -X POST "https://api.example.com/v1/observations?telescope=meridian&catalog=messier&object=M31&exposure=1200&filter=h-alpha&binning=2x2&format=fits" -H "Authorization: Bearer 9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e" -H "Content-Type: application/json"
 ```
 
+## Diagrams
+
+A mermaid fence with a frontmatter title, which should become the plate's
+caption rather than text baked into the drawing:
+
+```mermaid
+---
+title: Signal path through the array
+---
+graph TB
+    Sky([Incoming light])
+
+    subgraph Observatory
+        subgraph Dome["Dome — public"]
+            Scope["Telescope<br/>tracks + collects"]
+        end
+
+        subgraph Vault["Vault — private"]
+            Plate1["Photographic plate<br/>archive copy"]
+            Plate2["Photographic plate<br/>working copy"]
+        end
+    end
+
+    Sky --> Scope
+    Scope --> Plate1
+    Scope --> Plate2
+```
+
+An untitled diagram, which gets a figure number and nothing more:
+
+```mermaid
+graph LR
+    Observe --> Reduce --> Publish
+```
+
+And a deliberately wide one, to prove the plate stops shrinking at the
+legibility floor and scrolls like a wide table instead:
+
+```mermaid
+---
+title: The pipeline, end to end
+---
+graph LR
+    Capture["Capture<br/>raw frames"] --> Calibrate["Calibrate<br/>darks + flats"] --> Register["Register<br/>plate solving"] --> Stack["Stack<br/>sigma clip"] --> Stretch["Stretch<br/>asinh"] --> Annotate["Annotate<br/>catalog overlay"] --> Publish["Publish<br/>archive + RSS"]
+```
+
 ## Media and Rules
 
 An image with alt text, followed by the em-dash caption convention some posts

@@ -1,0 +1,23 @@
+/*
+ * Loaded only inside the headless render browser (mermaid-isomorphic's
+ * `css` option), never shipped to readers: mermaid sizes nodes by
+ * measuring label text, so the measuring context needs the same mono
+ * the page will render the inline SVG with. Relative URLs resolve
+ * against this file's file:// location, so ../../../ lands on the
+ * repo's node_modules.
+ */
+@font-face {
+  font-family: "Spline Sans Mono";
+  font-style: normal;
+  font-weight: 400;
+  src: url("../../../node_modules/@fontsource/spline-sans-mono/files/spline-sans-mono-latin-400-normal.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "Spline Sans Mono";
+  font-style: normal;
+  font-weight: 700;
+  src: url("../../../node_modules/@fontsource/spline-sans-mono/files/spline-sans-mono-latin-700-normal.woff2")
+    format("woff2");
+}

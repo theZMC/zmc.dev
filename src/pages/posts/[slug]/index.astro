@@ -381,6 +381,69 @@ const { Content } = await render(post);
     --alert-hue: var(--cinnabar);
     --alert-glyph: "▲";
   }
+  /* Diagram plates (build-time mermaid, src/lib/diagrams): a figure in
+     the chart voice. Eyebrow strip and scroller paint their own halves
+     the way the code-frame's header and pre do — same glass, same
+     hairline, no clipping wrapper. */
+  .post-body .diagram-plate {
+    margin: 2.2rem 0;
+  }
+  .post-body .diagram-eyebrow {
+    display: flex;
+    align-items: baseline;
+    gap: 0.9em;
+    padding: 0.8rem 1.6rem;
+    background: var(--code-bg);
+    border: 1px solid var(--glass-hair);
+    border-radius: 10px 10px 0 0;
+    font-family: "Spline Sans Mono", monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+  }
+  /* chart-key furniture, kin to the code-frame's language tag; the
+     numeral never breaks across lines — the title does the wrapping */
+  .post-body .diagram-fig-no {
+    color: var(--brass);
+    white-space: nowrap;
+  }
+  .post-body .diagram-fig-title {
+    color: var(--ink-dim);
+  }
+  .post-body .diagram-fig-title::before {
+    content: "— ";
+    content: "— " / "";
+  }
+  .post-body .diagram-scroll {
+    overflow-x: auto;
+    padding: 1.6rem;
+    background: var(--code-bg);
+    border: 1px solid var(--glass-hair);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--brass-dim) transparent;
+  }
+  .post-body .diagram-scroll::-webkit-scrollbar {
+    height: 8px;
+  }
+  .post-body .diagram-scroll::-webkit-scrollbar-thumb {
+    background: var(--brass-dim);
+    border-radius: 4px;
+  }
+  /* Scale-with-a-floor: never above intrinsic size (--w, set by the
+     build), shrink with the column until the type would drop below
+     three-quarters scale — legibility lives in the text, so the floor
+     is a fraction of intrinsic, not an absolute width — then hold and
+     let the plate scroll like a wide table. Centred when it has room
+     to spare; width/height attrs give height:auto its ratio. */
+  .post-body .diagram-plate svg {
+    display: block;
+    width: min(var(--w), 100%);
+    height: auto;
+    min-width: calc(var(--w) * 0.75);
+    margin-inline: auto;
+  }
   /* Bare-table rules are the no-JS rendering (kin to the bare-pre rules):
      block + auto overflow so a wide table scrolls inside the measure
      instead of wrapping every cell. */
