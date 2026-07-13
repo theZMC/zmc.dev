@@ -431,36 +431,6 @@ const { Content } = await render(post);
     background: var(--brass-dim);
     border-radius: 4px;
   }
-  /* Reaching inside the SVG — it's inline, so the page's voice applies.
-     Corners take the site radii (rx is CSS geometry in SVG2, and
-     mermaid's own #id-prefixed rules never set it). */
-  .post-body .diagram-plate .node > rect {
-    rx: 4px;
-  }
-  .post-body .diagram-plate .cluster > rect {
-    rx: 8px;
-  }
-  /* Cluster titles in the eyebrow voice: brass comes from the render
-     (titleColor theme variable — mermaid's #id rules outspecific any
-     selector here), size and tracking from these rules, case from the
-     build-time uppercasing. */
-  .post-body .diagram-plate .cluster-label text {
-    font-size: 11px;
-    letter-spacing: 0.14em;
-  }
-  /* A page-bg halo behind floating labels — cluster titles, edge and
-     relationship labels, sequence messages and loop annotations — so a
-     line passing beneath never cuts through the letters. */
-  .post-body .diagram-plate .cluster-label text,
-  .post-body .diagram-plate .edgeLabel text,
-  .post-body .diagram-plate text.messageText,
-  .post-body .diagram-plate text.loopText,
-  .post-body .diagram-plate text.loopText tspan {
-    paint-order: stroke;
-    stroke: var(--bg);
-    stroke-width: 4px;
-    stroke-linejoin: round;
-  }
   /* Scale-with-a-floor: never above intrinsic size (--w, set by the
      build), shrink with the column until the type would drop below
      three-quarters scale — legibility lives in the text, so the floor
