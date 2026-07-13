@@ -125,7 +125,8 @@ const THEME_VARIABLE_TOKENS: Record<string, TokenName> = {
   nodeTextColor: "ink",
   clusterBkg: "clusterBg",
   clusterBorder: "clusterBorder",
-  titleColor: "ink",
+  // cluster titles are eyebrows — brass, like every other label voice
+  titleColor: "cat4",
   edgeLabelBackground: "labelBg",
   background: "bg",
   // -- notes (sequence + state) --
@@ -143,8 +144,10 @@ const THEME_VARIABLE_TOKENS: Record<string, TokenName> = {
   labelBoxBorderColor: "clusterBorder",
   labelTextColor: "ink",
   loopTextColor: "ink",
-  activationBkgColor: "clusterBg",
-  activationBorderColor: "clusterBorder",
+  // activations mark "this actor is working" — the note wash reads on
+  // both grounds where the faint cluster wash vanished in dark
+  activationBkgColor: "noteBg",
+  activationBorderColor: "noteBorder",
   sequenceNumberColor: "labelBg",
   // -- class --
   classText: "ink",
@@ -215,6 +218,8 @@ export const NON_COLOR_THEME_VARIABLES = new Set([
   "fontSize",
   "pieOpacity",
   "pieStrokeWidth",
+  "pieSectionTextSize",
+  "pieLegendTextSize",
 ]);
 
 export function themeVariables(): Record<string, string> {
@@ -225,6 +230,9 @@ export function themeVariables(): Record<string, string> {
     // 0.7 opacity would dim the full-hue edges too.
     pieOpacity: "1",
     pieStrokeWidth: "1.5px",
+    // mermaid's 17px pie text stood out against the 15px everywhere else
+    pieSectionTextSize: "15px",
+    pieLegendTextSize: "15px",
   };
   for (const [themeVar, token] of Object.entries(THEME_VARIABLE_TOKENS)) {
     vars[themeVar] = TOKENS[token].sentinel;
@@ -309,6 +317,26 @@ export function washPieSlices(svg: string): string {
   );
 }
 
+/**
+ * Ground the hardcoded named colors mermaid paints outside its theme
+ * system. The ER renderer's "zero" cardinality marker is a literal
+ * fill="white" circle — the single brightest thing on a dark page — that
+ * exists to mask the relationship line, so the page background is its
+ * true color. The sequence renderer's cross marker (lost messages) is
+ * stroke="black": it decorates a line, so it takes the line's color.
+ */
+export function groundNamedColors(svg: string): string {
+  return svg
+    .replaceAll(
+      'fill="white"',
+      `fill="var(${TOKENS.labelBg.cssVar}, ${TOKENS.labelBg.fallback})"`,
+    )
+    .replaceAll(
+      'stroke="black"',
+      `stroke="var(${TOKENS.line.cssVar}, ${TOKENS.line.fallback})"`,
+    );
+}
+
 // Literal colors that may legitimately survive the swap. Populated only
 // when a real diagram proves the need — additions should name their source.
 const STRAY_ALLOWLIST = new Set<string>([
@@ -334,7 +362,10 @@ const STRAY_ALLOWLIST = new Set<string>([
   "#e0e0e0",
 ]);
 
-const COLOR_LITERAL = /#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?)\([^)]*\)/gi;
+// Hex and functional colors anywhere, plus named colors in paint
+// attributes — fill="white" taught us those slip through a hex-only net.
+const COLOR_LITERAL =
+  /#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?)\([^)]*\)|(?:fill|stroke|flood-color|stop-color)="(?:white|black)"/gi;
 
 /**
  * After the swap, no literal color should remain: one would mean mermaid

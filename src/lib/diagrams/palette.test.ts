@@ -3,6 +3,7 @@ import {
   NON_COLOR_THEME_VARIABLES,
   PIE_WASHES,
   TOKENS,
+  groundNamedColors,
   assertNoStrayColors,
   swapSentinels,
   themeVariables,
@@ -90,6 +91,24 @@ describe("washPieSlices", () => {
   it("leaves non-pie markup alone", () => {
     const svg = `<rect fill="${hue}" class="node"/>`;
     expect(washPieSlices(svg)).toBe(svg);
+  });
+});
+
+describe("groundNamedColors", () => {
+  it("grounds mermaid's hardcoded marker colors to tokens", () => {
+    const out = groundNamedColors(
+      `<circle fill="white"/><path stroke="black"/>`,
+    );
+    expect(out).toBe(
+      `<circle fill="var(${TOKENS.labelBg.cssVar}, ${TOKENS.labelBg.fallback})"/>` +
+        `<path stroke="var(${TOKENS.line.cssVar}, ${TOKENS.line.fallback})"/>`,
+    );
+  });
+
+  it("named paint attributes count as strays if left unswapped", () => {
+    expect(() =>
+      assertNoStrayColors(`<rect fill="white"/>`, "t"),
+    ).toThrow(/fill="white"/);
   });
 });
 

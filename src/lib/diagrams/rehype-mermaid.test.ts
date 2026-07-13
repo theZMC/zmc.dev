@@ -84,6 +84,23 @@ describe("rehypeMermaid", () => {
     expect(svgs[1].properties.ariaLabel).toBe("Figure II: diagram");
   }, 60_000);
 
+  it("uppercases cluster titles into the eyebrow voice", async () => {
+    const tree: Root = {
+      type: "root",
+      children: [
+        mermaidPre('graph TB\n  subgraph Dome["Dome — public"]\n    A\n  end\n'),
+      ],
+    };
+    await rehypeMermaid()(tree, { cwd: "/repo" });
+    // mermaid splits labels into per-word tspans, so assert per word —
+    // and only against text nodes (the cluster's DOM id keeps its case)
+    const html = JSON.stringify(tree);
+    expect(html).toContain('"value":"DOME"');
+    expect(html).toContain("PUBLIC");
+    expect(html).not.toContain('"value":"Dome"');
+    expect(html).not.toContain("public");
+  }, 60_000);
+
   it("leaves trees without mermaid fences untouched", async () => {
     const tree: Root = {
       type: "root",

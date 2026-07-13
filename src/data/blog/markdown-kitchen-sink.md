@@ -291,15 +291,15 @@ A class diagram:
 title: The catalog's spine
 ---
 classDiagram
-    class Orbit {
-        +float radius
+    class Body {
+        +string name
+        +designation() string
+    }
+    class Planet {
         +float period
         +eccentricity() float
     }
-    class Body {
-        +string name
-    }
-    Body --|> Orbit : follows
+    Planet --|> Body : is a
 ```
 
 An entity-relationship diagram:

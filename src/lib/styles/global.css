@@ -94,8 +94,10 @@
   --diagram-label-bg: var(--bg);
   --diagram-bg: transparent;
   /* notes (sequence/state) — annotations in the margin, brass wash kin
-     to the GFM alerts, not mermaid's post-it yellow */
-  --diagram-note-bg: color-mix(in srgb, var(--brass) 10%, transparent);
+     to the GFM alerts. Mixed over the page bg rather than transparent:
+     a sequence note spans the lifelines, and a see-through wash let
+     them show as strokes across the note's words. */
+  --diagram-note-bg: color-mix(in srgb, var(--brass) 10%, var(--bg));
   --diagram-note-border: var(--brass-dim);
   /* categorical hues (pie slices, gantt task states) — the site's five
      chart hues in the alerts' escalation order */

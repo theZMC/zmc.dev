@@ -378,5 +378,28 @@ document.addEventListener("astro:page-load", () => {
       });
     });
 
+  // Diagram plates are framed at build time — no header machinery to
+  // add — but a wide diagram hard-clips at the plate edge, which reads
+  // as broken rather than scrollable. This only keeps data-clipped
+  // honest so the CSS fade can announce the overflow, kin to the code
+  // frames'. The no-JS rendering still scrolls; it just lacks the fade.
+  document
+    .querySelectorAll<HTMLElement>(".post-body .diagram-body")
+    .forEach((body) => {
+      const scroll = body.querySelector<HTMLElement>(".diagram-scroll");
+      if (!scroll) return;
+      const updateClipState = () => {
+        body.toggleAttribute(
+          "data-clipped",
+          scroll.scrollWidth - scroll.clientWidth - scroll.scrollLeft > 1,
+        );
+        // the same courtesy behind you: once scrolled, content also
+        // clips at the left edge
+        body.toggleAttribute("data-clipped-start", scroll.scrollLeft > 1);
+      };
+      scroll.addEventListener("scroll", updateClipState, { passive: true });
+      new ResizeObserver(updateClipState).observe(scroll);
+    });
+
   updateScrollState();
 });

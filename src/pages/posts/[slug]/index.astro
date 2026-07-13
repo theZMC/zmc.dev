@@ -424,12 +424,112 @@ const { Content } = await render(post);
     scrollbar-width: thin;
     scrollbar-color: var(--brass-dim) transparent;
   }
+  /* Edge fades while a wide diagram continues past either clip edge —
+     the affordance the code frames wear, so a clipped node reads as
+     "scrolls" instead of "broken". site.ts toggles data-clipped (right)
+     and data-clipped-start (left) on the .diagram-body wrapper; two
+     gradient layers because --code-bg is translucent glass (see the
+     code-frame fade). */
+  .post-body .diagram-body {
+    position: relative;
+  }
+  .post-body .diagram-body::before,
+  .post-body .diagram-body::after {
+    content: "";
+    position: absolute;
+    top: 1px;
+    bottom: 1px;
+    width: 3.25rem;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .post-body .diagram-body::after {
+    right: 1px;
+    border-radius: 0 0 9px 0;
+    background:
+      linear-gradient(to left, var(--code-bg), transparent),
+      linear-gradient(to left, var(--bg), transparent);
+  }
+  .post-body .diagram-body::before {
+    left: 1px;
+    border-radius: 0 0 0 9px;
+    background:
+      linear-gradient(to right, var(--code-bg), transparent),
+      linear-gradient(to right, var(--bg), transparent);
+  }
+  .post-body .diagram-body[data-clipped]::after,
+  .post-body .diagram-body[data-clipped-start]::before {
+    opacity: 1;
+  }
+  @media print {
+    .post-body .diagram-body::before,
+    .post-body .diagram-body::after {
+      display: none;
+    }
+  }
   .post-body .diagram-scroll::-webkit-scrollbar {
     height: 8px;
   }
   .post-body .diagram-scroll::-webkit-scrollbar-thumb {
     background: var(--brass-dim);
     border-radius: 4px;
+  }
+  /* Reaching inside the SVG — it's inline, so the page's voice applies.
+     Corners take the site radii (rx is CSS geometry in SVG2, and
+     mermaid's own #id-prefixed rules never set it). */
+  .post-body .diagram-plate .node > rect {
+    rx: 4px;
+  }
+  .post-body .diagram-plate .cluster > rect {
+    rx: 8px;
+  }
+  /* Cluster titles in the eyebrow voice: brass comes from the render
+     (titleColor theme variable — mermaid's #id rules outspecific any
+     selector here), size and tracking from these rules, case from the
+     build-time uppercasing. */
+  .post-body .diagram-plate .cluster-label text {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+  }
+  /* The state renderer plants composite titles straddling the top
+     border (baseline lands ~3px inside the rect; flowchart has
+     subGraphTitleMargin to correct this, state has no knob). 14px
+     centres the title in its 21px band between border and body. */
+  .post-body .diagram-plate svg.statediagram .cluster-label {
+    translate: 0 14px;
+  }
+  /* A page-bg halo behind floating labels — cluster titles, edge and
+     relationship labels, sequence messages and loop annotations — so a
+     line passing beneath never cuts through the letters. 7px because the
+     halo outlines glyphs, not the string: at 4px a line stayed visible
+     in the gaps between words; half of 7px from each flanking glyph
+     closes a mono word-space. */
+  .post-body .diagram-plate .cluster-label text,
+  .post-body .diagram-plate .edgeLabel text,
+  .post-body .diagram-plate text.messageText,
+  .post-body .diagram-plate text.loopText,
+  .post-body .diagram-plate text.loopText tspan {
+    paint-order: stroke;
+    stroke: var(--bg);
+    stroke-width: 7px;
+    stroke-linejoin: round;
+  }
+  /* Mermaid dims edge-label backing rects to 50%, which lets the line
+     ghost through the label in dark mode; its #id-prefixed rule needs
+     the !important. Full opacity + the halo = protected labels. */
+  .post-body .diagram-plate .edgeLabel rect {
+    opacity: 1 !important;
+  }
+  /* The state composite's inner (body) rect shares three edges with the
+     outer rect, doubling the border; its only unique edge was a divider
+     the floating eyebrow no longer needs. */
+  .post-body .diagram-plate svg.statediagram .cluster rect.inner {
+    stroke: transparent !important;
+  }
+  /* mermaid sets pie legend text 4px off its swatch — uncomfortably tight */
+  .post-body .diagram-plate svg[aria-roledescription="pie"] .legend text {
+    translate: 4px 0;
   }
   /* Scale-with-a-floor: never above intrinsic size (--w, set by the
      build), shrink with the column until the type would drop below
