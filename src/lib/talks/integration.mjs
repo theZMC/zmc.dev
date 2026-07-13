@@ -9,6 +9,7 @@ import {
 } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { parse } from "yaml";
 
 const TALKS_BASE = "src/data/talks";
 const DECKS_OUT = "public/talks";
@@ -23,6 +24,55 @@ const THEME_BRIDGE =
   'try{var t=localStorage.getItem("theme");' +
   'if(t==="dark"||t==="light")localStorage.setItem("slidev-color-schema",t)}' +
   "catch(e){}</script>";
+
+/** @param {string} value */
+const escapeAttr = (value) =>
+  value
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+
+/**
+ * The deck's social card, sourced from talk.yaml — the same file that feeds
+ * the home-page listing. Slidev's own og:title carries a " - Slidev" suffix
+ * and its descriptions arrive with the headmatter's quoting intact, so the
+ * stale tags are stripped and replaced wholesale.
+ *
+ * @param {string} root
+ * @param {string} slug
+ * @param {string} site
+ * @returns {string}
+ */
+function socialMeta(root, slug, site) {
+  const yamlPath = path.join(root, TALKS_BASE, slug, "talk.yaml");
+  if (!existsSync(yamlPath)) {
+    throw new Error(
+      `talks: ${slug} has no talk.yaml — the deck's social card and home listing read it`,
+    );
+  }
+  const talk = parse(readFileSync(yamlPath, "utf8"));
+  const title = escapeAttr(`${talk.title} — Zach Callahan`);
+  const description = escapeAttr(String(talk.description ?? "").trim());
+  const image = escapeAttr(new URL(`/og/talks/${slug}.png`, site).toString());
+  const url = escapeAttr(new URL(`/talks/${slug}/`, site).toString());
+  return [
+    `<title>${title}</title>`,
+    `<meta name="description" content="${description}">`,
+    `<meta name="twitter:card" content="summary_large_image">`,
+    `<meta name="twitter:site" content="@theZMC">`,
+    `<meta name="twitter:title" content="${title}">`,
+    `<meta name="twitter:description" content="${description}">`,
+    `<meta name="twitter:image" content="${image}">`,
+    `<meta property="og:title" content="${title}">`,
+    `<meta property="og:type" content="website">`,
+    `<meta property="og:url" content="${url}">`,
+    `<meta property="og:image" content="${image}">`,
+    `<meta property="og:description" content="${description}">`,
+    `<meta property="og:site_name" content="ZMC.DEV">`,
+    `<meta property="og:locale" content="en_US">`,
+  ].join("");
+}
 
 /**
  * Slidev decks under src/data/talks/<slug>/slides.md, built into
@@ -46,12 +96,15 @@ const THEME_BRIDGE =
 export default function talks() {
   /** @type {string} */
   let root;
+  /** @type {string} */
+  let site;
 
   return {
     name: "talks",
     hooks: {
       "astro:config:done": ({ config }) => {
         root = fileURLToPath(config.root);
+        site = config.site ?? "https://zmc.dev";
       },
       "astro:build:start": async ({ logger }) => {
         const talksDir = path.join(root, TALKS_BASE);
@@ -71,7 +124,7 @@ export default function talks() {
 
         for (const slug of slugs) {
           logger.info(`building deck ${slug}`);
-          await buildDeck(root, decksDir, slug);
+          await buildDeck(root, decksDir, slug, site);
           logger.info(`deck ready at /talks/${slug}/`);
         }
       },
@@ -83,11 +136,13 @@ export default function talks() {
  * @param {string} root
  * @param {string} decksDir
  * @param {string} slug
+ * @param {string} site
  * @returns {Promise<void>}
  */
-function buildDeck(root, decksDir, slug) {
+function buildDeck(root, decksDir, slug, site) {
   const entry = path.join(TALKS_BASE, slug, "slides.md");
   const out = path.join(decksDir, slug);
+  const meta = socialMeta(root, slug, site);
 
   return new Promise((resolve, reject) => {
     const child = spawn(
@@ -114,14 +169,23 @@ function buildDeck(root, decksDir, slug) {
         reject(new Error(`slidev build ${slug} exited ${code}:\n${output}`));
         return;
       }
-      const indexHtml = path.join(out, "index.html");
-      writeFileSync(
-        indexHtml,
-        readFileSync(indexHtml, "utf8").replace(
-          "<head>",
-          `<head>${THEME_BRIDGE}`,
-        ),
+      // index.html plus Slidev's SPA-fallback 404.html — every HTML file
+      // the deck ships carries the bridge and the full social card.
+      const htmlFiles = readdirSync(out).filter((name) =>
+        name.endsWith(".html"),
       );
+      for (const name of htmlFiles) {
+        const htmlPath = path.join(out, name);
+        writeFileSync(
+          htmlPath,
+          readFileSync(htmlPath, "utf8")
+            .replace(/<title>[^<]*<\/title>/, "")
+            .replace(/<meta name="description"[^>]*>/, "")
+            .replace(/<meta property="og:title"[^>]*>/, "")
+            .replace(/<meta property="og:description"[^>]*>/, "")
+            .replace("<head>", `<head>${THEME_BRIDGE}${meta}`),
+        );
+      }
       resolve();
     });
   });
