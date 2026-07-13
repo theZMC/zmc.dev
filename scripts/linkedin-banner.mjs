@@ -4,10 +4,11 @@
 //
 //   node scripts/linkedin-banner.mjs [out.png]
 //
-// LinkedIn's avatar circle overlays the banner's bottom-left corner, so the
-// composition keeps that quadrant quiet: faint orbit arcs break off the
-// top-left, the text block starts clear of the avatar, and the full orrery
-// is seated at right.
+// LinkedIn's avatar circle overlays the banner's bottom-left corner and
+// narrow views crop inward, so everything that matters rides high and
+// right: the orrery breaks off the top-left above the avatar, the text
+// block aligns right and concentrates toward the top, and only faint
+// counter-arcs occupy the bottom-right.
 import { writeFileSync, readFileSync } from "node:fs";
 import path from "node:path";
 import satori from "satori";
@@ -51,10 +52,10 @@ const body = (cx, cy, r, thetaDeg, size, color) => {
   return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${size / 2}" fill="${color}"/>`;
 };
 
-// Full orrery at right, sun-star seated at center (site-plate proportions,
-// scaled to the banner's short height).
-const ORR_CX = 1340;
-const ORR_CY = 198;
+// Orrery breaking off the top-left, sun-star seated at center (site-plate
+// proportions, scaled to the banner's short height).
+const ORR_CX = 240;
+const ORR_CY = 80;
 
 const chart = () => `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
   <defs>
@@ -64,9 +65,9 @@ const chart = () => `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" he
     </mask>
   </defs>
   <rect width="${WIDTH}" height="${HEIGHT}" fill="${BG}"/>
-  ${orbit(-60, -80, 220, ORB_INK)}
-  ${orbit(-60, -80, 300, ORB_BRASS)}
-  ${body(-60, -80, 300, 40, 6, ORB_BRASS)}
+  ${orbit(1720, 560, 220, ORB_INK)}
+  ${orbit(1720, 560, 300, ORB_BRASS)}
+  ${body(1720, 560, 300, 220, 6, ORB_BRASS)}
   ${orbit(ORR_CX, ORR_CY, 70, ORB_INK)}
   ${orbit(ORR_CX, ORR_CY, 120, ORB_BRASS)}
   ${orbit(ORR_CX, ORR_CY, 170, ORB_INK)}
@@ -95,9 +96,9 @@ const tree = div(
     height: HEIGHT,
     display: "flex",
     flexDirection: "column",
-    justifyContent: "center",
-    paddingLeft: 460,
-    paddingRight: 80,
+    alignItems: "flex-end",
+    paddingTop: 44,
+    paddingRight: 90,
   },
   [
     div(
@@ -118,7 +119,7 @@ const tree = div(
         fontSize: 52,
         letterSpacing: 3,
         color: INK,
-        marginTop: 30,
+        marginTop: 24,
       },
       "FEET ON THE GROUND.",
     ),
@@ -138,8 +139,8 @@ const tree = div(
       height: 1,
       width: 560,
       backgroundColor: HAIR,
-      marginTop: 30,
-      marginBottom: 24,
+      marginTop: 26,
+      marginBottom: 20,
     }),
     div(
       {
@@ -185,10 +186,34 @@ const svg = await satori(/** @type {any} */ (tree), {
   ],
 });
 
-const text = await sharp(Buffer.from(svg)).png().toBuffer();
-const png = await sharp(Buffer.from(chart()))
+// librsvg and satori both rasterize hairlines and glyph edges softly at
+// native resolution (same fix as the apple touch icon): rasterize both SVG
+// layers at 4× via density, composite at full size, then downsample. Two
+// passes — sharp's pipeline resizes before compositing, so the 4× composite
+// must be flattened to a buffer before the resize.
+//
+// The file ships at 2× the 1584×396 spec: LinkedIn accepts oversized
+// uploads, and HiDPI screens stretch a spec-sized banner across twice the
+// device pixels — the 2× master is what keeps it crisp there. A light
+// unsharp pass after the downsample restores the edge contrast the
+// lanczos averaging eats.
+const SS = 4;
+const DENSITY = 72 * SS;
+const OUT_SCALE = 2;
+
+const text = await sharp(Buffer.from(svg), { density: DENSITY })
+  .png()
+  .toBuffer();
+const supersampled = await sharp(Buffer.from(chart()), { density: DENSITY })
   .composite([{ input: text }])
   .png()
   .toBuffer();
+const png = await sharp(supersampled)
+  .resize(WIDTH * OUT_SCALE, HEIGHT * OUT_SCALE)
+  .sharpen({ sigma: 0.6 })
+  .png()
+  .toBuffer();
 writeFileSync(out, png);
-console.log(`wrote ${out} (${WIDTH}×${HEIGHT}, ${png.length} bytes)`);
+console.log(
+  `wrote ${out} (${WIDTH * OUT_SCALE}×${HEIGHT * OUT_SCALE}, a ${OUT_SCALE}× master of the ${WIDTH}×${HEIGHT} spec, ${png.length} bytes)`,
+);
