@@ -11,6 +11,7 @@ import {
   washPieSlices,
   assertNoStrayColors,
   themeVariables,
+  DIAGRAM_FONT_FAMILY,
 } from "./palette";
 
 export interface PreparedDiagram {
@@ -95,6 +96,12 @@ export async function renderDiagrams(
       mermaidConfig: {
         theme: "base",
         themeVariables: themeVariables(),
+        // The sequence renderer ignores themeVariables.fontFamily and
+        // schema-strips sequence.*FontFamily — these top-level keys are
+        // the only route to its text (arial otherwise). For every other
+        // diagram type they restate what themeVariables already says.
+        fontFamily: DIAGRAM_FONT_FAMILY,
+        fontSize: 15,
         // Pure <text>/<tspan> labels: no <foreignObject> XHTML for
         // Astro's later rehype-raw pass to mangle, and label colors
         // stay in fill attributes the sentinel swap covers. Mermaid 11
