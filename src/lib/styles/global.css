@@ -64,6 +64,13 @@
   --glide-dur: 240ms;
   --glide-ease: cubic-bezier(0, 0, 0.2, 1);
   --sky-range: 35904;
+  /* Return chevrons: every formation change (tight → spread → massed)
+     glides through one curve. --return-range is the opening scroll span
+     (px) that summons the affordance; site.ts mirrors it as a threshold
+     on engines without scroll timelines. */
+  --return-dur: 0.45s;
+  --return-ease: cubic-bezier(0.33, 1, 0.68, 1);
+  --return-range: 320px;
   /* The frosted nav's rendered height — 34px eclipse button + 2 × 1.1rem
      padding + hairline border ≈ 70px (4.375rem). Everything that clears or
      docks against the nav derives from this token; site.ts mirrors it as a
@@ -575,11 +582,24 @@ nav ul a:hover {
   color: var(--brass);
 }
 
-/* reading progress: an orbit that completes */
+/* reading progress: an orbit that completes, doubling as the way back up.
+   Scroll timelines carry the whole instrument where they exist — arc,
+   body, and the chevron summon all ride scroll(root), no JS. The sweep
+   spans the full document rather than #post alone: for a control that
+   returns you to the top, distance-through-the-page is the honest
+   reading. Deliberately not reduced-motion-gated: progress is
+   information, not decoration, and it stays 1:1 with the scroll. */
+.dial-return {
+  --size: 34px;
+  display: block;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%; /* the focus outline traces the ring, not its box */
+}
 .progress-dial {
-  width: 22px;
-  height: 22px;
-  transform: rotate(-90deg);
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .progress-dial .track {
   fill: none;
@@ -591,11 +611,126 @@ nav ul a:hover {
   stroke: var(--brass);
   stroke-width: 1.5;
   stroke-linecap: round;
-  stroke-dasharray: 56.55;
-  stroke-dashoffset: 56.55;
+  /* 2π · r14 — dial.test.ts holds this to the markup geometry */
+  stroke-dasharray: 87.96;
+  stroke-dashoffset: 87.96;
 }
 .progress-dial .body {
   fill: var(--brass);
+}
+.dial-orbit {
+  transform-box: view-box;
+  transform-origin: center;
+}
+/* The chevrons hold formation around the centre: tight at rest, spread
+   on approach, massed at the top of the ring once the return is under
+   way. :focus outlives the click on purpose — the formation points home
+   for the whole glide, and the summon fade retires it at journey's end. */
+.dial-chevrons {
+  --spread: 3.2px;
+  --lift: 0px;
+}
+.dial-chevrons path {
+  fill: none;
+  stroke: var(--brass);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: translate var(--return-dur) var(--return-ease);
+}
+.dial-chevrons path:nth-child(1) {
+  translate: 0 calc(var(--lift) - var(--spread) / 2);
+}
+.dial-chevrons path:nth-child(2) {
+  translate: 0 calc(var(--lift) + var(--spread) / 2);
+}
+.dial-return:hover .dial-chevrons {
+  --spread: 6.5px;
+}
+.dial-return:focus .dial-chevrons {
+  --spread: 0px;
+  --lift: -8.5px;
+}
+@supports (animation-timeline: scroll()) {
+  /* Same idiom as the sky layer: the 1s duration is inert under a scroll
+     timeline; the longhands must follow the shorthand that would
+     otherwise reset them. */
+  .progress-dial .arc {
+    animation: dial-sweep 1s linear both;
+    animation-timeline: scroll(root);
+  }
+  .dial-orbit {
+    animation: dial-ride 1s linear both;
+    animation-timeline: scroll(root);
+  }
+  /* No control where it can't act: at the top there is nowhere to
+     return to, so the chevrons only materialize — and the link only
+     answers — once the opening span is behind you. The ring stays put:
+     information keeps its place while the affordance earns its own. */
+  .dial-chevrons {
+    animation: dial-summon 1s linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 var(--return-range);
+  }
+  .dial-return {
+    animation: dial-arm 1s linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 var(--return-range);
+  }
+}
+@keyframes dial-sweep {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes dial-ride {
+  to {
+    rotate: 1turn;
+  }
+}
+@keyframes dial-summon {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes dial-arm {
+  from {
+    pointer-events: none;
+  }
+  to {
+    pointer-events: auto;
+  }
+}
+/* Engines without scroll timelines (Firefox until ~155): the ring can't
+   move, so it doesn't pretend — the arc rests at full offset and the
+   body bows out rather than sit frozen in a lie. What remains is a plain
+   back-to-top: with JS, site.ts summons it once there is somewhere to
+   return from; without JS it simply stays — its utility mid-article
+   outweighs its uselessness at the top. */
+@supports not (animation-timeline: scroll()) {
+  .progress-dial .body {
+    display: none;
+  }
+  html.js-sky .dial-return {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--return-dur) var(--return-ease);
+  }
+  html.js-sky .dial-return.dial-summoned {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+/* Reduced motion stills the formation curves — states swap instantly.
+   The scroll-driven sweep above stays live: 1:1 information. */
+@media (prefers-reduced-motion: reduce) {
+  .dial-chevrons path,
+  html.js-sky .dial-return {
+    transition: none;
+  }
 }
 
 .eclipse {

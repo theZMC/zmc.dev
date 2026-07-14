@@ -8,7 +8,12 @@ import {
 import { applyStoredTheme, toggleTheme } from "./theme";
 
 const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-const DIAL_CIRC = 2 * Math.PI * 9; // progress dial circumference
+// The reading dial rides CSS scroll timelines where the platform has them;
+// these exist only for the engines that don't (Firefox until ~155), where
+// this script summons the back-to-top instead. The threshold mirrors
+// --return-range in global.css — keep the two in step.
+const dialNeedsJs = !CSS.supports("animation-timeline", "scroll()");
+const DIAL_SUMMON_Y = 320;
 // Docked orrery position for the frame before <nav> exists (never in
 // practice — every page renders one). Keep in sync with --nav-h in global.css.
 const NAV_H_FALLBACK = 70;
@@ -24,9 +29,7 @@ let orreryAnchor: Element | null = null;
 let orreryDock: Element | null = null;
 let orreryDockMargin = 0;
 let cue: HTMLElement | null = null;
-let post: HTMLElement | null = null;
-let progressArc: HTMLElement | null = null;
-let progressBody: HTMLElement | null = null;
+let dialReturn: HTMLElement | null = null;
 
 function cacheScrollRefs(): void {
   nav = document.querySelector("nav");
@@ -39,16 +42,15 @@ function cacheScrollRefs(): void {
     ? parseFloat(getComputedStyle(orreryDock).scrollMarginTop) || 0
     : 0;
   cue = document.querySelector<HTMLElement>(".scroll-cue");
-  post = document.getElementById("post");
-  progressArc = document.getElementById("progressArc");
-  progressBody = document.getElementById("progressBody");
+  dialReturn = document.querySelector<HTMLElement>(".dial-return");
 }
 
 /* Every write in here is a raw target: the wheel-step glide that used to
    run through an eased virtual scroll now lives in the sky transitions in
    global.css, which retarget on each write and keep easing on the
-   compositor. Informational surfaces (cue fade, reading progress) carry no
-   transition and stay 1:1 with the document. */
+   compositor. Informational surfaces (the cue fade) carry no transition
+   and stay 1:1 with the document; the reading dial is CSS
+   scroll-timeline-driven and never passes through here. */
 function updateScrollState(): void {
   const y = window.scrollY;
 
@@ -59,7 +61,6 @@ function updateScrollState(): void {
   const dockRect = orreryDock?.getBoundingClientRect();
   const cueRect = cue ? cue.getBoundingClientRect() : null;
   const viewH = window.innerHeight;
-  const postEnd = post ? post.offsetTop + post.offsetHeight - viewH : 0;
 
   if (orrery) {
     const target = orreryTargetY({
@@ -91,17 +92,11 @@ function updateScrollState(): void {
     updateOrbits(y);
   }
 
-  // reading progress: how far through the article the viewport bottom has
-  // traveled. Stays live under reduced motion — information, not decoration.
-  if (post && progressArc) {
-    const p = Math.min(1, Math.max(0, y / Math.max(1, postEnd)));
-    (progressArc as unknown as SVGCircleElement).style.strokeDashoffset =
-      `${DIAL_CIRC * (1 - p)}`;
-    if (progressBody) {
-      const a = p * 2 * Math.PI - Math.PI / 2; // dial svg is pre-rotated -90°
-      progressBody.setAttribute("cx", `${11 + 9 * Math.cos(a + Math.PI / 2)}`);
-      progressBody.setAttribute("cy", `${11 + 9 * Math.sin(a + Math.PI / 2)}`);
-    }
+  // Back-to-top summon for engines without scroll timelines: their CSS
+  // can't watch the scroll, so this one class toggle stands in for the
+  // dial-arm/dial-summon animations.
+  if (dialNeedsJs && dialReturn) {
+    dialReturn.classList.toggle("dial-summoned", y > DIAL_SUMMON_Y);
   }
 
   ticking = false;

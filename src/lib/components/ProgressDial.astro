@@ -1,5 +1,15 @@
-<svg class="progress-dial" viewBox="0 0 22 22" aria-hidden="true">
-  <circle class="track" cx="11" cy="11" r="9"></circle>
-  <circle class="arc" id="progressArc" cx="11" cy="11" r="9"></circle>
-  <circle class="body" id="progressBody" cx="20" cy="11" r="1.6"></circle>
-</svg>
+<a class="dial-return" href="#top" aria-label="Back to top">
+  <svg class="progress-dial" viewBox="0 0 34 34" aria-hidden="true">
+    <circle class="track" cx="17" cy="17" r="14"></circle>
+    <!-- rotated so the sweep starts at twelve o'clock, where the body waits -->
+    <circle class="arc" cx="17" cy="17" r="14" transform="rotate(-90 17 17)"
+    ></circle>
+    <g class="dial-orbit">
+      <circle class="body" cx="17" cy="3" r="2.4"></circle>
+    </g>
+    <g class="dial-chevrons">
+      <path d="M12.5 19.25 L17 14.75 L21.5 19.25"></path>
+      <path d="M12.5 19.25 L17 14.75 L21.5 19.25"></path>
+    </g>
+  </svg>
+</a>
