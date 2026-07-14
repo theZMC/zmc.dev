@@ -48,6 +48,9 @@ const {
     <script is:inline>
       // Apply the persisted theme before first paint, and re-apply it after
       // Astro's client-side navigation swaps the <html> attributes back.
+      // js-sky rides along: it hands the sky to site.ts (raw writes + CSS
+      // glide) and switches the no-JS scroll-timeline layer off before it
+      // ever paints a frame.
       (function () {
         function applyTheme() {
           var stored = null;
@@ -61,6 +64,7 @@ const {
                 ? "light"
                 : "dark";
           document.documentElement.setAttribute("data-theme", theme);
+          document.documentElement.classList.add("js-sky");
         }
         applyTheme();
         document.addEventListener("astro:after-swap", applyTheme);

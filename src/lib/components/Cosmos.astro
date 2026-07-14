@@ -1,3 +1,12 @@
+---
+import { COMET_STOPS, cometKeyframesCSS } from "@lib/scripts/orrery";
+
+// The no-JS comet keyframes, sampled from the same Kepler table the runtime
+// writer interpolates — build-time CSS and scroll-handler JS share one
+// source of truth for the comet's timing.
+const cometKeyframes = cometKeyframesCSS(COMET_STOPS);
+---
+
 <!-- Fixed cosmos: sun sits just below the nav; orbits turn with scroll -->
 <div class="cosmos" aria-hidden="true">
   <svg class="orrery" viewBox="0 0 1000 1000">
@@ -58,7 +67,7 @@
     <circle cx="500" cy="500" r="2.6" fill="var(--brass)"></circle>
 
     <!-- I -->
-    <g class="orbit-group" data-rate="0.10">
+    <g class="orbit-group" style="--rate: 0.10">
       <path
         class="gap-ring"
         data-label-pad="5"
@@ -73,7 +82,7 @@
     </g>
 
     <!-- II -->
-    <g class="orbit-group" data-rate="-0.078">
+    <g class="orbit-group" style="--rate: -0.078">
       <path
         class="gap-ring"
         data-label-pad="5"
@@ -89,7 +98,7 @@
     </g>
 
     <!-- III: brass planet + retrograde moon -->
-    <g class="orbit-group" data-rate="0.058">
+    <g class="orbit-group" style="--rate: 0.058">
       <path
         class="gap-ring"
         data-label-pad="5"
@@ -105,7 +114,7 @@
         fill="none"
         stroke="var(--orb-brass)"
         stroke-width=".4"></circle>
-      <g class="moon-orbit" data-rate="-0.45" data-cx="652" data-cy="500">
+      <g class="moon-orbit" style="--rate: -0.45; transform-origin: 652px 500px">
         <circle cx="661" cy="500" r="1.1" fill="var(--ink)" opacity=".8"
         ></circle>
       </g>
@@ -117,7 +126,7 @@
     </g>
 
     <!-- IV -->
-    <g class="orbit-group" data-rate="-0.044">
+    <g class="orbit-group" style="--rate: -0.044">
       <path
         class="gap-ring"
         data-label-pad="5"
@@ -132,7 +141,7 @@
     </g>
 
     <!-- V: ringed giant -->
-    <g class="orbit-group" data-rate="0.033">
+    <g class="orbit-group" style="--rate: 0.033">
       <path
         class="gap-ring"
         data-label-pad="5"
@@ -157,7 +166,7 @@
     </g>
 
     <!-- asteroid belt -->
-    <g class="orbit-group" data-rate="-0.020">
+    <g class="orbit-group" style="--rate: -0.020">
       <circle
         cx="500"
         cy="500"
@@ -206,7 +215,7 @@
     </g>
 
     <!-- VI -->
-    <g class="orbit-group" data-rate="0.016">
+    <g class="orbit-group" style="--rate: 0.016">
       <path
         class="gap-ring"
         data-label-pad="5"
@@ -221,7 +230,7 @@
     </g>
 
     <!-- VII: planet + trojans -->
-    <g class="orbit-group" data-rate="-0.011">
+    <g class="orbit-group" style="--rate: -0.011">
       <path
         class="gap-ring"
         data-label-pad="5"
@@ -241,7 +250,10 @@
 
     <!-- comet: track fixed in space, sun at the focus; the body travels the path.
          a=235, b=131.15, c=195 (e≈0.830) → perihelion 40, aphelion 430.
-         The static rotate is the argument of perihelion, not motion. -->
+         The static rotate is the argument of perihelion, not motion.
+         Body and tail sit at the local origin: #comet rides the track via
+         offset-path (global.css), starting at perihelion; the tail is drawn
+         along +x and rotated anti-sunward (180° at perihelion). -->
     <g transform="rotate(25 500 500)">
       <path
         class="gap-ring"
@@ -250,16 +262,11 @@
         fill="none"
         stroke="var(--orb-celest)"
         stroke-width=".55"></path>
-      <circle id="cometBody" cx="460" cy="500" r="1.8" fill="var(--celest)"
-      ></circle>
-      <line
-        id="cometTail"
-        x1="460"
-        y1="500"
-        x2="444"
-        y2="500"
-        stroke="var(--orb-celest)"
-        stroke-width=".8"></line>
+      <g id="comet">
+        <circle r="1.8" fill="var(--celest)"></circle>
+        <line id="cometTail" x2="16" stroke="var(--orb-celest)" stroke-width=".8"
+        ></line>
+      </g>
       <text class="orbit-label"
         ><textPath href="#lpComet" startOffset="12%"
           ><tspan dy="0.93">COMETA · VIA·EXCENTRICA</tspan></textPath
@@ -268,3 +275,8 @@
     </g>
   </svg>
 </div>
+
+<!-- The no-JS comet keyframes (Kepler timing sampled at build time). Inline
+     and unscoped on purpose: global.css references these names when the
+     scroll-timeline layer is active. -->
+<style is:inline set:html={cometKeyframes}></style>

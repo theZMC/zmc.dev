@@ -12,19 +12,8 @@ const DIAL_CIRC = 2 * Math.PI * 9; // progress dial circumference
 // Docked orrery position for the frame before <nav> exists (never in
 // practice — every page renders one). Keep in sync with --nav-h in global.css.
 const NAV_H_FALLBACK = 70;
-// Time constant for the eased virtual scroll: ~95% settled after 3τ (¼s).
-const SMOOTH_TAU = 80;
 
 let ticking = false;
-
-/* Wheel steps land as instant ~100px jumps in scrollY. The scroll-driven
-   decoration (orrery position, orbit counter-rotation) chases scrollY through
-   this exponentially eased virtual value instead of reading it raw, so wheel
-   users get a glide where the document steps. Informational surfaces (cue
-   fade, reading progress) and the reduced-motion path stay on the real
-   scrollY, 1:1 with the document. */
-let smoothY = 0;
-let lastFrameAt = 0;
 
 /* Per-page-view element refs, captured on astro:page-load so the scroll
    handler never re-queries the DOM per frame. Client-side navs swap these
@@ -55,16 +44,13 @@ function cacheScrollRefs(): void {
   progressBody = document.getElementById("progressBody");
 }
 
-function updateScrollState(now?: number): void {
+/* Every write in here is a raw target: the wheel-step glide that used to
+   run through an eased virtual scroll now lives in the sky transitions in
+   global.css, which retarget on each write and keep easing on the
+   compositor. Informational surfaces (cue fade, reading progress) carry no
+   transition and stay 1:1 with the document. */
+function updateScrollState(): void {
   const y = window.scrollY;
-
-  const dt = now && lastFrameAt ? now - lastFrameAt : 17;
-  lastFrameAt = now ?? 0;
-  if (prefersReduced.matches || Math.abs(y - smoothY) < 0.5) {
-    smoothY = y;
-  } else {
-    smoothY += (y - smoothY) * (1 - Math.exp(-dt / SMOOTH_TAU));
-  }
 
   /* All layout reads happen up front, before the first style write, so the
      frame never forces a reflow against its own mutations. */
@@ -80,7 +66,6 @@ function updateScrollState(now?: number): void {
       dock,
       anchorCentre: anchorRect ? anchorRect.top + anchorRect.height / 2 : null,
       y,
-      smoothY,
       dockTop: dockRect ? dockRect.top : null,
       dockMargin: orreryDockMargin,
       reduced: prefersReduced.matches,
@@ -103,7 +88,7 @@ function updateScrollState(now?: number): void {
   }
 
   if (!prefersReduced.matches) {
-    updateOrbits(smoothY);
+    updateOrbits(y);
   }
 
   // reading progress: how far through the article the viewport bottom has
@@ -119,15 +104,7 @@ function updateScrollState(now?: number): void {
     }
   }
 
-  // The glide outlives the scroll events that caused it: keep the frame loop
-  // alive until the virtual scroll converges (it snaps inside 0.5px above).
-  if (smoothY !== y) {
-    ticking = true;
-    window.requestAnimationFrame(updateScrollState);
-  } else {
-    ticking = false;
-    lastFrameAt = 0;
-  }
+  ticking = false;
 }
 
 function onScroll(): void {
@@ -235,9 +212,6 @@ document.addEventListener("astro:page-load", () => {
   applyStoredTheme();
   cacheScrollRefs();
   cacheOrbitRefs();
-  // A fresh page view starts wherever the browser restored the scroll —
-  // snap the virtual scroll there rather than gliding in from the old page.
-  smoothY = window.scrollY;
 
   const svg = orrery;
   if (svg) {

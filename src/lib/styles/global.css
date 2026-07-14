@@ -38,6 +38,15 @@
      on purpose — the two may diverge. */
   --glint-attack: 0.2s;
   --glint-release: 0.45s;
+  /* Scroll-sky motion. The glide is a transition every scroll-driven
+     surface eases through: retargeted on each raw write from site.ts, it
+     behaves as an exponential chase of the scroll position (the old
+     smoothY, moved off the main thread). --sky-range is the fixed scroll
+     span (px, unitless for calc) the no-JS animation layer maps — 12 comet
+     periods; past it the no-JS sky holds still. JS writes are unbounded. */
+  --glide-dur: 240ms;
+  --glide-ease: cubic-bezier(0, 0, 0.2, 1);
+  --sky-range: 35904;
   /* The frosted nav's rendered height — 34px eclipse button + 2 × 1.1rem
      padding + hairline border ≈ 70px (4.375rem). Everything that clears or
      docks against the nav derives from this token; site.ts mirrors it as a
@@ -237,9 +246,11 @@ nav,
   transition: background 0.45s ease;
 }
 /* The sun rides a page's hero anchor when one is present, then docks with
-   its centre on the nav's bottom border. site.ts drives --orrery-y every
-   scroll frame; --nav-h approximates the docked position before it runs.
-   translateY (not top) keeps the per-frame movement off the layout path. */
+   its centre on the nav's bottom border. site.ts writes --orrery-y raw on
+   every scroll frame (the transform transition below supplies the glide);
+   --nav-h approximates the docked position before it runs — and is where
+   the no-JS sun stays put. translateY (not top) keeps the per-frame
+   movement off the layout path. */
 .orrery {
   position: absolute;
   left: 50%;
@@ -251,8 +262,116 @@ nav,
 .orbit-group {
   transform-box: view-box;
   transform-origin: center;
-  will-change: transform;
+  will-change: rotate;
 }
+/* Moons pivot on their planet: origin from the inline style, in view-box
+   units, so the pivot rides wherever the parent group's rotation carries
+   the planet. */
+.moon-orbit {
+  transform-box: view-box;
+  will-change: rotate;
+}
+/* The comet rides its own offset-path: the track ellipse re-anchored to
+   start at perihelion, so offset-distance 0% is the markup position (and
+   the Z-closed loop wraps ever-growing distances modulo the circumference).
+   transform-origin 0 0 in view-box terms pins the group's local origin —
+   where the body and tail are drawn — to the path point; offset-rotate 0
+   keeps the tail's rotation ours, not the tangent's. */
+#comet {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  offset-path: path("M 460 500 A 235 131.15 0 1 1 460.00002 500.05 Z");
+  offset-rotate: 0deg;
+  will-change: offset-distance;
+}
+#cometTail {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  /* anti-sunward at perihelion — the static default both layers override */
+  rotate: 180deg;
+  will-change: rotate;
+}
+/* Engines that can't run offset-path here: pin the comet at perihelion,
+   where the old static markup sat. (Engines that parse it but skip SVG
+   children leave the comet at the track frame's origin — off-canvas,
+   invisible, acceptable for decoration.) */
+@supports not (offset-path: path("M 0 0 H 1")) {
+  #comet {
+    transform: translate(460px, 500px);
+  }
+}
+
+/* ============ SCROLL SKY: GLIDE + NO-JS LAYERS ============ */
+/* JS layer: site.ts writes raw targets once per scroll frame; these
+   transitions retarget on every write — an exponential chase (τ ≈
+   duration) under continuous input, a decelerating glide on a discrete
+   wheel step. The compositor keeps easing even when the main thread
+   stalls. */
+html.js-sky .orbit-group,
+html.js-sky .moon-orbit,
+html.js-sky #cometTail {
+  transition: rotate var(--glide-dur) var(--glide-ease);
+}
+html.js-sky #comet {
+  transition: offset-distance var(--glide-dur) var(--glide-ease);
+}
+html.js-sky .orrery {
+  transition: transform var(--glide-dur) var(--glide-ease);
+}
+/* Reduced motion keeps its 1:1 contract: no chase, no lag. */
+@media (prefers-reduced-motion: reduce) {
+  html.js-sky .orbit-group,
+  html.js-sky .moon-orbit,
+  html.js-sky #comet,
+  html.js-sky #cometTail,
+  html.js-sky .orrery {
+    transition: none;
+  }
+}
+/* No-JS layer: the same properties driven straight from the root scroll.
+   Rates keep the JS layer's per-pixel mapping — rotation ends at
+   --rate × --sky-range degrees over a --sky-range px window, so deg/px is
+   identical however long the page. The comet plays its build-time Kepler
+   keyframes (Cosmos.astro) 12 times across the window: --sky-range is 12
+   comet periods exactly. The 1s duration is inert under a scroll timeline;
+   the longhands must follow the shorthand that would otherwise reset them. */
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    html:not(.js-sky) .orbit-group,
+    html:not(.js-sky) .moon-orbit {
+      animation: orbit-turn 1s linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 calc(var(--sky-range) * 1px);
+    }
+    html:not(.js-sky) #comet {
+      animation: cometa-track 1s linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 calc(var(--sky-range) * 1px);
+      animation-iteration-count: 12;
+    }
+    html:not(.js-sky) #cometTail {
+      animation: cometa-tail 1s linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 calc(var(--sky-range) * 1px);
+      animation-iteration-count: 12;
+    }
+  }
+}
+@keyframes orbit-turn {
+  to {
+    rotate: calc(var(--rate) * var(--sky-range) * 1deg);
+  }
+}
+/* No anchor-positioning dock ride for the no-JS orrery — it was tried and
+   retired (2026-07). The declarative form is one line —
+   top: max(var(--nav-h), anchor(--hero center, var(--nav-h))) — but no
+   shipping engine evaluates it honestly against scroll yet: Safari 26
+   applies its anchor scroll compensation after the style-time max(), so
+   the sun rides straight past the clamp and off the page, then resets at
+   erratic restyle checkpoints; Chromium freezes the resolution per scroll
+   gesture. Until engines re-resolve anchor() per frame as specced, the
+   no-JS sun stays docked (the base rule above) and only the JS layer
+   rides the hero. */
 /* cartographic lettering: micro-engraved, inset into the line */
 .orbit-label {
   font-family: "Cormorant", serif;

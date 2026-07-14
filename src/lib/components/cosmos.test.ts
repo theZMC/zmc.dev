@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { COMET_OFFSET_PATH, cometPosition } from "../scripts/orrery";
 
 /**
  * Invariant tests for the orrery chart (HANDOFF.md §2, §4.5, §5).
@@ -9,6 +10,12 @@ import { describe, expect, it } from "vitest";
  * mathematically on its declared path; a free-floating planet was a real bug.
  */
 const source = readFileSync(new URL("./Cosmos.astro", import.meta.url), "utf8");
+// The comet's motion CSS lives with the rest of the sky in global.css; the
+// invariants tying it to the markup geometry are checked here too.
+const css = readFileSync(
+  new URL("../styles/global.css", import.meta.url),
+  "utf8",
+);
 
 const SUN = { x: 500, y: 500 };
 
@@ -59,8 +66,14 @@ const CIRCULAR_RINGS: Record<number, number> = {
 };
 
 describe("orrery structure", () => {
-  it("has exactly 8 orbit groups with the declared data-rate sequence", () => {
-    const rates = groups.map((g) => attrs(g.match(/<g class="orbit-group"[^>]*>/)![0])["data-rate"]);
+  it("has exactly 8 orbit groups with the declared --rate sequence", () => {
+    // Inline style, not data-*: the same custom property feeds the JS writer
+    // (cacheOrbitRefs) and the no-JS orbit-turn keyframes.
+    const rates = groups.map(
+      (g) =>
+        attrs(g.match(/<g class="orbit-group"[^>]*>/)![0])
+          .style?.match(/--rate:\s*(-?[\d.]+)/)?.[1],
+    );
     expect(rates).toEqual(["0.10", "-0.078", "0.058", "-0.044", "0.033", "-0.020", "0.016", "-0.011"]);
   });
 
@@ -133,8 +146,10 @@ describe("bodies sit on their declared paths", () => {
     const moonOrbitTag = groups[2].match(/<g class="moon-orbit"[^>]*>/)?.[0];
     expect(moonOrbitTag).toBeTruthy();
     const mo = attrs(moonOrbitTag!);
-    expect(mo["data-cx"]).toBe("652");
-    expect(mo["data-cy"]).toBe("500");
+    // The pivot is an inline transform-origin (view-box units) so CSS rotate
+    // — from either animation layer — turns the moon about its planet.
+    expect(mo.style).toContain("--rate: -0.45");
+    expect(mo.style).toContain("transform-origin: 652px 500px");
 
     const moonSeg = groups[2].match(/<g class="moon-orbit"[\s\S]*?<\/g>/)![0];
     const moons = bodies(moonSeg);
@@ -153,11 +168,35 @@ describe("bodies sit on their declared paths", () => {
     }
   });
 
-  it("comet's initial markup sits at perihelion (460,500) with tail x2/y2=(444,500)", () => {
-    const body = attrs(cometSegment.match(/<circle[^>]*id="cometBody"[^>]*>/)![0]);
-    expect([body.cx, body.cy]).toEqual(["460", "500"]);
+  it("comet body and tail sit at the local origin inside #comet", () => {
+    // #comet rides the offset-path, so its geometry is drawn at (0,0): the
+    // circle carries no cx/cy and the tail runs 16 units along +x, rotated
+    // anti-sunward by the animation layers (180° at perihelion).
+    expect(cometSegment).toMatch(/<g id="comet">/);
+    const body = attrs(cometSegment.match(/<g id="comet">\s*<circle[^>]*>/s)![0]);
+    expect(body.cx).toBeUndefined();
+    expect(body.cy).toBeUndefined();
+    expect(body.r).toBe("1.8");
     const tail = attrs(cometSegment.match(/<line[^>]*id="cometTail"[^>]*>/s)![0]);
-    expect([tail.x1, tail.y1]).toEqual(["460", "500"]);
-    expect([tail.x2, tail.y2]).toEqual(["444", "500"]);
+    expect(tail.x1).toBeUndefined();
+    expect(tail.y1).toBeUndefined();
+    expect(tail.y2).toBeUndefined();
+    expect(tail.x2).toBe("16");
+  });
+
+  it("global.css rides #comet on the shared offset path and pins the fallback at perihelion", () => {
+    expect(css).toContain(`offset-path: path("${COMET_OFFSET_PATH}")`);
+    // engines without offset-path get the comet where the old markup sat
+    const peri = cometPosition(0);
+    expect(css).toContain(`translate(${peri.x}px, ${peri.y}px)`);
+    // the tail's static default points anti-sunward at perihelion
+    expect(css).toMatch(/#cometTail\s*{[^}]*rotate:\s*180deg/);
+  });
+
+  it("Cosmos.astro injects the generated comet keyframes the sky layer names", () => {
+    expect(source).toContain("cometKeyframesCSS(COMET_STOPS)");
+    expect(source).toContain("<style is:inline set:html={cometKeyframes}>");
+    expect(css).toContain("animation: cometa-track");
+    expect(css).toContain("animation: cometa-tail");
   });
 });

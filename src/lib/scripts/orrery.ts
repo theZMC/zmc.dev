@@ -9,6 +9,20 @@ export const COMET = {
   tail: 16,
 } as const;
 
+/** Scroll pixels per comet orbit: one full mean-anomaly cycle. */
+export const COMET_PERIOD = (2 * Math.PI) / COMET.mRate;
+
+/**
+ * The comet's offset-path: the same ellipse as the drawn track, but starting
+ * at perihelion (460,500) and running in the travel direction, so
+ * offset-distance 0% is perihelion and grows with scroll. The arc ends a
+ * 0.05-unit hair short of its start (engines reject coincident arc
+ * endpoints); Z closes the sliver, making the path a closed loop so
+ * offset-distance wraps modulo the circumference.
+ */
+export const COMET_OFFSET_PATH =
+  "M 460 500 A 235 131.15 0 1 1 460.00002 500.05 Z";
+
 /**
  * Generates the degree ring (ticks every 5°, taller every 15°, brass majors
  * every 30° with NN° labels at r=481) and the 30° radial graticule rays.
@@ -155,16 +169,115 @@ export function cometPosition(scrollY: number): CometPosition {
   };
 }
 
+export interface CometStop {
+  /** Timeline fraction through one period (equal mean-anomaly steps). */
+  t: number;
+  /** Arc-length fraction from perihelion along the travel direction. */
+  offset: number;
+  /** Anti-sunward tail angle (deg), unwrapped: 180 at perihelion → 540. */
+  angle: number;
+}
+
+/**
+ * Samples one comet period into equal mean-anomaly stops carrying the CSS
+ * values the animation layers need: how far along the track (arc-length
+ * fraction — offset-distance interpolates by arc length, so equal-M stops
+ * reproduce Kepler's speed-up between them) and which way the tail points.
+ * Both the build-time keyframes and the runtime writer read this table, so
+ * the two layers can never drift apart.
+ */
+export function cometTable(samples: number): CometStop[] {
+  // Cumulative arc length over eccentric anomaly on a dense trapezoid grid;
+  // the integrand is smooth, so the error sits far below a viewbox unit.
+  const GRID = 4096;
+  const h = (2 * Math.PI) / GRID;
+  const cum = new Float64Array(GRID + 1);
+  let prevF = Math.hypot(COMET.a * Math.sin(0), COMET.b * Math.cos(0));
+  for (let i = 1; i <= GRID; i++) {
+    const f = Math.hypot(COMET.a * Math.sin(i * h), COMET.b * Math.cos(i * h));
+    cum[i] = cum[i - 1] + ((f + prevF) / 2) * h;
+    prevF = f;
+  }
+  const total = cum[GRID];
+  const arcAt = (E: number): number => {
+    const u = E / h;
+    const i = Math.min(GRID - 1, Math.floor(u));
+    return cum[i] + (cum[i + 1] - cum[i]) * (u - i);
+  };
+
+  const stops: CometStop[] = [];
+  let prevAngle = 180;
+  for (let k = 0; k <= samples; k++) {
+    const M = (2 * Math.PI * k) / samples;
+    let E = M;
+    for (let i = 0; i < 6; i++) {
+      E -= (E - COMET.e * Math.sin(E) - M) / (1 - COMET.e * Math.cos(E));
+    }
+    // page-coordinate vector from the sun (500,500) to the comet
+    const sx = COMET.e * COMET.a - COMET.a * Math.cos(E);
+    const sy = -COMET.b * Math.sin(E);
+    let angle = (Math.atan2(sy, sx) * 180) / Math.PI;
+    // In page coords the position angle rises monotonically (one revolution
+    // per period); atan2 drops 360 crossing the −x axis — unwrap it back up.
+    // (Also lifts the −0-tainted atan2 at perihelion onto +180.)
+    while (angle < prevAngle - 1e-9) angle += 360;
+    prevAngle = angle;
+    stops.push({ t: k / samples, offset: arcAt(E) / total, angle });
+  }
+  return stops;
+}
+
+/** The shared 48-stop table both animation layers read. */
+export const COMET_STOPS = cometTable(48);
+
+/**
+ * Emits the no-JS comet keyframes: one block moving #comet along its
+ * offset-path, one rotating #cometTail anti-sunward. Stops sit at equal
+ * mean anomaly, so scroll progress plays the Kepler timing. Injected at
+ * build time by Cosmos.astro.
+ */
+export function cometKeyframesCSS(stops: CometStop[]): string {
+  const pct = (v: number) => `${(v * 100).toFixed(4)}%`;
+  const track = stops
+    .map((s) => `${pct(s.t)}{offset-distance:${pct(s.offset)}}`)
+    .join("");
+  const tail = stops
+    .map((s) => `${pct(s.t)}{rotate:${s.angle.toFixed(3)}deg}`)
+    .join("");
+  return `@keyframes cometa-track{${track}}@keyframes cometa-tail{${tail}}`;
+}
+
+/**
+ * The comet's CSS values for a scroll position. offset-distance grows
+ * without wrapping (the closed offset-path wraps modulo its length, and a
+ * wrapped write would transition backwards through the seam); the tail
+ * angle stays continuous across periods for the same reason.
+ */
+export function cometScrollValues(scrollY: number): {
+  offset: number;
+  angle: number;
+} {
+  const periods = Math.floor(scrollY / COMET_PERIOD);
+  const frac = scrollY / COMET_PERIOD - periods;
+  const u = frac * (COMET_STOPS.length - 1);
+  const i = Math.min(COMET_STOPS.length - 2, Math.floor(u));
+  const w = u - i;
+  const s0 = COMET_STOPS[i];
+  const s1 = COMET_STOPS[i + 1];
+  return {
+    offset: (periods + s0.offset + (s1.offset - s0.offset) * w) * 100,
+    angle: s0.angle + (s1.angle - s0.angle) * w + periods * 360,
+  };
+}
+
 /** One scroll frame's geometry, as measured by the site scroll handler. */
 export interface OrreryFrame {
   /** Nav bottom border (viewport px) — the docked/final position. */
   dock: number;
   /** Hero anchor centre (viewport px), or null when the page has none. */
   anchorCentre: number | null;
-  /** Real scrollY. */
+  /** Real scrollY — lifts viewport rects into document coords. */
   y: number;
-  /** Eased virtual scroll chasing y. */
-  smoothY: number;
   /** [data-orrery-dock] section top (viewport px), or null when absent. */
   dockTop: number | null;
   /** That section's scroll-margin-top. */
@@ -175,78 +288,72 @@ export interface OrreryFrame {
 
 /**
  * The orrery's centre (viewport px) for a scroll frame. It starts on the
- * page's hero anchor (when one exists) and eases up to dock on the nav's
+ * page's hero anchor (when one exists) and climbs to dock on the nav's
  * bottom border. With a dock section present, it parallaxes: docking
  * completes exactly as that section reaches its scroll-margin anchor point,
  * so the orrery climbs slower than the hero. Parallax is added motion, so
  * reduced motion falls back to riding the anchor 1:1 — that mirrors
- * ordinary document scrolling.
+ * ordinary document scrolling. The wheel-step glide is no longer computed
+ * here: raw targets ease through the transform transition in global.css.
  */
 export function orreryTargetY(f: OrreryFrame): number {
   if (f.anchorCentre === null) return f.dock;
-  if (f.reduced) return Math.max(f.dock, f.anchorCentre);
-  /* Rects are viewport-relative and move with the real scroll, so lift the
-     geometry into document coords (scroll-invariant) before evaluating it
-     at the eased position. */
-  const anchorDoc = f.anchorCentre + f.y;
   const dockScroll = f.dockTop !== null ? f.dockTop + f.y - f.dockMargin : 0;
-  if (dockScroll > 0) {
-    const p = Math.min(1, Math.max(0, f.smoothY / dockScroll));
-    return Math.max(f.dock, anchorDoc + p * (f.dock - anchorDoc));
-  }
-  return Math.max(f.dock, anchorDoc - f.smoothY);
+  if (f.reduced || dockScroll <= 0) return Math.max(f.dock, f.anchorCentre);
+  /* Rects are viewport-relative and move with the real scroll, so lift the
+     geometry into document coords (scroll-invariant) before interpolating. */
+  const anchorDoc = f.anchorCentre + f.y;
+  const p = Math.min(1, Math.max(0, f.y / dockScroll));
+  return Math.max(f.dock, anchorDoc + p * (f.dock - anchorDoc));
 }
 
-/* Orbit refs and their data-* rates, captured once per page view —
+/* Orbit refs and their inline --rate values, captured once per page view —
    updateOrbits runs every scroll frame and must not re-query or re-parse.
    Module-scope lets, DOM touched only inside functions (node-import safe). */
 let orbitGroups: { el: SVGGElement; rate: number }[] = [];
-let moonOrbits: { el: SVGGElement; rate: number; cx: string; cy: string }[] =
-  [];
-let cometBody: HTMLElement | null = null;
-let cometTail: HTMLElement | null = null;
+let moonOrbits: { el: SVGGElement; rate: number }[] = [];
+let comet: SVGGElement | null = null;
+let cometTail: SVGLineElement | null = null;
 
 /**
- * Captures the orbit elements and their scroll-invariant data-* values.
+ * Captures the orbit elements and their scroll-invariant inline --rate
+ * values (the same custom property the no-JS animation layer reads).
  * Runs on every astro:page-load: client-side navs swap the svg wholesale,
  * so the previous page's refs would otherwise animate detached nodes.
  */
 export function cacheOrbitRefs(): void {
-  orbitGroups = [...document.querySelectorAll<SVGGElement>(".orbit-group")].map(
-    (el) => ({ el, rate: parseFloat(el.dataset.rate || "0") }),
-  );
+  const rated = (el: SVGGElement) => ({
+    el,
+    rate: parseFloat(el.style.getPropertyValue("--rate")) || 0,
+  });
+  orbitGroups = [
+    ...document.querySelectorAll<SVGGElement>(".orbit-group"),
+  ].map(rated);
   moonOrbits = [...document.querySelectorAll<SVGGElement>(".moon-orbit")].map(
-    (el) => ({
-      el,
-      rate: parseFloat(el.dataset.rate || "0"),
-      cx: el.dataset.cx ?? "",
-      cy: el.dataset.cy ?? "",
-    }),
+    rated,
   );
-  cometBody = document.getElementById("cometBody");
-  cometTail = document.getElementById("cometTail");
+  comet = document.querySelector<SVGGElement>("#comet");
+  cometTail = document.querySelector<SVGLineElement>("#cometTail");
 }
 
 /**
- * Applies scroll-driven motion: CSS rotations on the orbit groups, attribute
- * transforms on the moon orbits (they pivot on an arbitrary point in the
- * parent's local frame), and the comet's Kepler position + anti-sunward tail.
- * Pure writes against the refs captured by cacheOrbitRefs.
+ * Applies scroll-driven motion by writing raw CSS targets: individual
+ * rotate on the orbit and moon groups (moons pivot on their inline
+ * transform-origin), the comet's path offset, and its tail angle. The glide
+ * lives in CSS — the per-property transitions in global.css retarget on
+ * every write, which under a stream of writes behaves as an exponential
+ * chase. Pure writes against the refs captured by cacheOrbitRefs.
  */
 export function updateOrbits(scrollY: number): void {
   for (const { el, rate } of orbitGroups) {
-    el.style.transform = `rotate(${scrollY * rate}deg)`;
+    el.style.rotate = `${scrollY * rate}deg`;
   }
-  for (const { el, rate, cx, cy } of moonOrbits) {
-    el.setAttribute("transform", `rotate(${scrollY * rate} ${cx} ${cy})`);
+  for (const { el, rate } of moonOrbits) {
+    el.style.rotate = `${scrollY * rate}deg`;
   }
 
-  if (!cometBody || !cometTail) return;
-  const { x, y, tailX, tailY } = cometPosition(scrollY);
-  cometBody.setAttribute("cx", `${x}`);
-  cometBody.setAttribute("cy", `${y}`);
-  cometTail.setAttribute("x1", `${x}`);
-  cometTail.setAttribute("y1", `${y}`);
-  cometTail.setAttribute("x2", `${tailX}`);
-  cometTail.setAttribute("y2", `${tailY}`);
+  if (!comet || !cometTail) return;
+  const { offset, angle } = cometScrollValues(scrollY);
+  comet.style.setProperty("offset-distance", `${offset}%`);
+  cometTail.style.rotate = `${angle}deg`;
 }
