@@ -14,18 +14,18 @@ description: |
   human to make is one a network engineer can actually review.
 ---
 
-## The problem
-
-Subnetting is a pain. Developers don't want to do it because they're afraid
-they'll make a mistake. Network engineers don't want developers to do it either,
-for the same reason.
-
 Say you have a VPC with a 21-bit mask. That gives you about 2000 IP addresses to
 split up however you see fit. How do you decide where they go? Usually the
 answer is a meeting, a spreadsheet, and a bunch of hand-typed string literals in
 a `.tfvars` file. Sooner or later somebody mistypes an octet, two subnets end up
 overlapping, and everyone remembers why they didn't like doing this in the first
 place.
+
+## The problem
+
+Subnetting is a pain. Developers don't want to do it because they're afraid
+they'll make a mistake. Network engineers don't want developers to do it either,
+for the same reason.
 
 There's a second problem too. Developers who aren't comfortable with subnetting
 tend not to ask for what they actually need. Instead, they ask for more than
