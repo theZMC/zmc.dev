@@ -900,6 +900,14 @@ const { Content } = await render(post);
   [data-theme="light"] .post-body .astro-code span {
     color: var(--shiki-light);
   }
+  /* auto twin: --shiki-* are paired custom props, not colors light-dark()
+     could pick between, so the media query stands in for the attribute */
+  @media (prefers-color-scheme: light) {
+    html:not([data-theme]) .post-body .astro-code,
+    html:not([data-theme]) .post-body .astro-code span {
+      color: var(--shiki-light);
+    }
+  }
 
   .post-body img {
     display: block;

@@ -158,6 +158,19 @@ document.addEventListener("click", (e) => {
   }
 });
 
+/* Cross-tab theme sync: a toggle in another tab lands here as a storage
+   event. Quiet swap only — the eclipse answers a click at a point, and
+   this tab has none; the --swap-dur surface transitions carry it. A
+   cleared key (clear-on-match) returns this tab to auto too. */
+window.addEventListener("storage", (e) => {
+  if (e.key !== "theme") return;
+  if (e.newValue === "dark" || e.newValue === "light") {
+    document.documentElement.setAttribute("data-theme", e.newValue);
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+  }
+});
+
 /* Shimmer tracking coalesced to one write per frame: high-rate mice fire
    pointermove up to 1000Hz, so stash the latest pointer state and let a
    single rAF apply it. */

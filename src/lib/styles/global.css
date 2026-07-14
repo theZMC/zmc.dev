@@ -1,6 +1,22 @@
-/* ============ THEMES ============ */
-:root,
+/* ============ THEMES ============
+   data-theme records an explicit visitor choice; without it the page is
+   in auto and color-scheme lets the OS drive every light-dark() pair —
+   live, with or without JS. The plain :root chart below doubles as the
+   legacy fallback: light-dark() can't fall back by declaration order
+   (inside a custom property it parses everywhere and only fails at var()
+   substitution, unsetting the property), so the @supports gate is
+   load-bearing. Pre-light-dark engines stay on this dark chart and lose
+   the toggle (hidden under the same query, beside .eclipse). */
+:root {
+  color-scheme: light dark;
+}
 [data-theme="dark"] {
+  color-scheme: dark;
+}
+[data-theme="light"] {
+  color-scheme: light;
+}
+:root {
   --bg: #0b0e14;
   --bg-core: #131a2a;
   --ink: #e8e4d8;
@@ -30,14 +46,15 @@
   --grat: rgba(232, 228, 216, 0.055);
   --label: rgba(232, 228, 216, 0.4);
   --label-brass: rgba(200, 169, 106, 0.55);
-  --core-glow-opacity: 0.55;
   --max: 1120px;
   --measure: 720px;
   /* glint timing: the shimmer answers the cursor at attack speed and
-     releases on the slower tail. Named apart from the 0.45s theme swap
-     on purpose — the two may diverge. */
+     releases on the slower tail. Named apart from the theme swap
+     (--swap-dur) on purpose — the two may diverge. */
   --glint-attack: 0.2s;
   --glint-release: 0.45s;
+  /* theme swap: every themed surface cross-fades at this tempo */
+  --swap-dur: 0.45s;
   /* Scroll-sky motion. The glide is a transition every scroll-driven
      surface eases through: retargeted on each raw write from site.ts, it
      behaves as an exponential chase of the scroll position (the old
@@ -64,34 +81,57 @@
     transparent
   );
 }
-[data-theme="light"] {
-  --bg: #e9e3d3;
-  --bg-core: #f2eddf;
-  --ink: #1a1e29;
-  --ink-dim: #5b5f68;
-  --brass: #8f6f35;
-  --brass-dim: rgba(143, 111, 53, 0.42);
-  --celest: #4e6685;
-  --verdigris: #40745a;
-  --heliotrope: #665792;
-  --cinnabar: #9c4a33;
-  --hair: rgba(26, 30, 41, 0.14);
-  --glass: rgba(242, 237, 223, 0.55);
-  --glass-solid: rgba(242, 237, 223, 0.95);
-  --glass-hair: rgba(26, 30, 41, 0.16);
-  --nav-glass: rgba(233, 227, 211, 0.6);
-  --shimmer-brass: rgba(143, 111, 53, 0.8);
-  --shimmer-core: rgba(255, 255, 255, 0.95);
-  --code-bg: rgba(255, 252, 244, 0.5);
-  --orb-brass: rgba(143, 111, 53, 0.42);
-  --orb-ink: rgba(26, 30, 41, 0.22);
-  --orb-celest: rgba(78, 102, 133, 0.3);
-  --orb-outer: rgba(26, 30, 41, 0.16);
-  --tick: rgba(143, 111, 53, 0.5);
-  --grat: rgba(26, 30, 41, 0.075);
-  --label: rgba(26, 30, 41, 0.48);
-  --label-brass: rgba(143, 111, 53, 0.7);
-  --core-glow-opacity: 0.35;
+/* The single source of truth: one line per token, both inks side by side.
+   color-scheme above decides which side paints — the OS in auto, the
+   visitor's pin otherwise. Dark arguments mirror the fallback chart
+   exactly (a test holds the two in lockstep). */
+@supports (color: light-dark(red, tan)) {
+  :root {
+    --bg: light-dark(#e9e3d3, #0b0e14);
+    --bg-core: light-dark(#f2eddf, #131a2a);
+    --ink: light-dark(#1a1e29, #e8e4d8);
+    --ink-dim: light-dark(#5b5f68, #9ba0a8);
+    --brass: light-dark(#8f6f35, #c8a96a);
+    --brass-dim: light-dark(
+      rgba(143, 111, 53, 0.42),
+      rgba(200, 169, 106, 0.34)
+    );
+    --celest: light-dark(#4e6685, #7a93b8);
+    --verdigris: light-dark(#40745a, #7cab8c);
+    --heliotrope: light-dark(#665792, #9d8dc2);
+    --cinnabar: light-dark(#9c4a33, #c4735d);
+    --hair: light-dark(rgba(26, 30, 41, 0.14), rgba(232, 228, 216, 0.1));
+    --glass: light-dark(rgba(242, 237, 223, 0.55), rgba(15, 19, 29, 0.55));
+    --glass-solid: light-dark(
+      rgba(242, 237, 223, 0.95),
+      rgba(15, 19, 29, 0.94)
+    );
+    --glass-hair: light-dark(rgba(26, 30, 41, 0.16), rgba(232, 228, 216, 0.13));
+    --nav-glass: light-dark(rgba(233, 227, 211, 0.6), rgba(11, 14, 20, 0.6));
+    --shimmer-brass: light-dark(
+      rgba(143, 111, 53, 0.8),
+      rgba(200, 169, 106, 0.75)
+    );
+    --shimmer-core: light-dark(
+      rgba(255, 255, 255, 0.95),
+      rgba(240, 235, 220, 0.95)
+    );
+    --code-bg: light-dark(rgba(255, 252, 244, 0.5), rgba(8, 10, 16, 0.6));
+    --orb-brass: light-dark(rgba(143, 111, 53, 0.42), rgba(200, 169, 106, 0.3));
+    --orb-ink: light-dark(rgba(26, 30, 41, 0.22), rgba(232, 228, 216, 0.12));
+    --orb-celest: light-dark(
+      rgba(78, 102, 133, 0.3),
+      rgba(122, 147, 184, 0.18)
+    );
+    --orb-outer: light-dark(rgba(26, 30, 41, 0.16), rgba(232, 228, 216, 0.09));
+    --tick: light-dark(rgba(143, 111, 53, 0.5), rgba(200, 169, 106, 0.35));
+    --grat: light-dark(rgba(26, 30, 41, 0.075), rgba(232, 228, 216, 0.055));
+    --label: light-dark(rgba(26, 30, 41, 0.48), rgba(232, 228, 216, 0.4));
+    --label-brass: light-dark(
+      rgba(143, 111, 53, 0.7),
+      rgba(200, 169, 106, 0.55)
+    );
+  }
 }
 
 /* Diagram palette — the vars build-time mermaid SVGs are sentinel-swapped
@@ -151,8 +191,15 @@
     transparent
   );
 }
+/* light-dark() only speaks color, so the percentage rides the attribute
+   with a media twin for auto — the pattern for every non-color theme rule. */
 [data-theme="light"] {
   --diagram-wash-mix: 30%;
+}
+@media (prefers-color-scheme: light) {
+  html:not([data-theme]) {
+    --diagram-wash-mix: 30%;
+  }
 }
 
 /* ============ RESET / BASE ============ */
@@ -208,9 +255,9 @@ nav,
 .cta,
 .svc-row {
   transition:
-    background-color 0.45s ease,
-    color 0.45s ease,
-    border-color 0.45s ease;
+    background-color var(--swap-dur) ease,
+    color var(--swap-dur) ease,
+    border-color var(--swap-dur) ease;
 }
 
 /* ============ VIEW TRANSITION (eclipse reveal) ============ */
@@ -243,7 +290,7 @@ nav,
   pointer-events: none;
   overflow: hidden;
   background: var(--bg);
-  transition: background 0.45s ease;
+  transition: background var(--swap-dur) ease;
 }
 /* The sun rides a page's hero anchor when one is present, then docks with
    its centre on the nav's bottom border. site.ts writes --orrery-y raw on
@@ -584,10 +631,27 @@ nav ul a:hover {
   transform: translate(11px, -11px);
   transition:
     transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-    background-color 0.45s ease;
+    background-color var(--swap-dur) ease;
 }
 [data-theme="light"] .eclipse .moon {
   transform: translate(4px, -4px);
+}
+@media (prefers-color-scheme: light) {
+  html:not([data-theme]) .eclipse .moon {
+    transform: translate(4px, -4px);
+  }
+}
+/* No toggle where it can't act: without JS nothing listens for the click,
+   and on pre-light-dark engines the chart can't change underneath it —
+   both get the honest nav, and the page follows (or stays) the scheme
+   color-scheme resolves. */
+html:not(.js-sky) .eclipse {
+  display: none;
+}
+@supports not (color: light-dark(red, tan)) {
+  .eclipse {
+    display: none;
+  }
 }
 
 /* ============ CONTENT LAYER ============ */
@@ -926,6 +990,10 @@ footer a:hover {
    resume's — tie and win by source order. */
 @media print {
   :root {
+    /* paper is light: every light-dark() token not re-inked below resolves
+       to its light value, whatever the screen was showing. !important
+       beats the [data-theme="dark"] pin. */
+    color-scheme: light !important;
     --bg: #fff;
     --bg-core: #fff;
     --ink: #111;

@@ -43,27 +43,26 @@ const {
 } = Astro.props;
 ---
 
-<html lang="en" data-theme="dark">
+<html lang="en">
   <head>
     <script is:inline>
-      // Apply the persisted theme before first paint, and re-apply it after
+      // Pin the persisted theme before first paint, and re-pin it after
       // Astro's client-side navigation swaps the <html> attributes back.
-      // js-sky rides along: it hands the sky to site.ts (raw writes + CSS
-      // glide) and switches the no-JS scroll-timeline layer off before it
-      // ever paints a frame.
+      // No stored choice means no attribute: the page stays in auto and
+      // color-scheme follows the OS in CSS. js-sky rides along: it hands
+      // the sky to site.ts (raw writes + CSS glide) and switches the no-JS
+      // scroll-timeline layer off before it ever paints a frame.
       (function () {
         function applyTheme() {
           var stored = null;
           try {
             stored = localStorage.getItem("theme");
           } catch (e) {}
-          var theme =
-            stored === "dark" || stored === "light"
-              ? stored
-              : window.matchMedia("(prefers-color-scheme: light)").matches
-                ? "light"
-                : "dark";
-          document.documentElement.setAttribute("data-theme", theme);
+          if (stored === "dark" || stored === "light") {
+            document.documentElement.setAttribute("data-theme", stored);
+          } else {
+            document.documentElement.removeAttribute("data-theme");
+          }
           document.documentElement.classList.add("js-sky");
         }
         applyTheme();

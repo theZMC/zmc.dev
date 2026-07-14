@@ -2,26 +2,58 @@ export type Theme = "dark" | "light";
 
 const STORAGE_KEY = "theme";
 
-export function storedTheme(): Theme {
+/** The visitor's explicit choice, or null when they're following the OS. */
+export function storedPreference(): Theme | null {
   let stored: string | null = null;
   try {
     stored = localStorage.getItem(STORAGE_KEY);
   } catch {
-    // localStorage unavailable; fall through to the media query
+    // localStorage unavailable; the visitor is effectively in auto
   }
-  if (stored === "dark" || stored === "light") return stored;
+  return stored === "dark" || stored === "light" ? stored : null;
+}
+
+function systemTheme(): Theme {
   return window.matchMedia("(prefers-color-scheme: light)").matches
     ? "light"
     : "dark";
 }
 
-/** Applies the persisted (or preferred) theme. */
-export function applyStoredTheme(): void {
-  document.documentElement.setAttribute("data-theme", storedTheme());
+/** What the page is showing: the pinned choice, else the OS preference. */
+export function effectiveTheme(): Theme {
+  const pinned = document.documentElement.getAttribute("data-theme");
+  if (pinned === "dark" || pinned === "light") return pinned;
+  return systemTheme();
 }
 
+/**
+ * Pins the persisted choice, or clears the attribute so color-scheme
+ * follows the OS. Mirrors the pre-paint inline script in BaseLayout.
+ */
+export function applyStoredTheme(): void {
+  const stored = storedPreference();
+  if (stored) {
+    document.documentElement.setAttribute("data-theme", stored);
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+  }
+}
+
+/* Clear-on-match: choosing the theme the OS already prefers is
+   re-convergence, not a pin — hand control back to auto so the page
+   follows the next OS flip. Only a choice against the OS persists. */
 function setTheme(next: Theme): void {
-  document.documentElement.setAttribute("data-theme", next);
+  const root = document.documentElement;
+  if (next === systemTheme()) {
+    root.removeAttribute("data-theme");
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // persistence is best-effort
+    }
+    return;
+  }
+  root.setAttribute("data-theme", next);
   try {
     localStorage.setItem(STORAGE_KEY, next);
   } catch {
@@ -37,7 +69,7 @@ function setTheme(next: Theme): void {
 export function toggleTheme(btn: HTMLElement): void {
   const root = document.documentElement;
   const toggle = (): void =>
-    setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark");
+    setTheme(effectiveTheme() === "dark" ? "light" : "dark");
   const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   if (!document.startViewTransition || prefersReduced.matches) {
