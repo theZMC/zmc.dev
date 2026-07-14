@@ -20,6 +20,17 @@ export function formatPostDate(date: string): string {
   });
 }
 
+/**
+ * A YYYY-MM-DD content date as the ISO 8601 instant article:published_time
+ * wants. Anchored at noon UTC rather than parsePostDate's local noon: this is
+ * a fixed point in time, so it must not shift with the timezone of whatever
+ * machine ran the build. Noon carries parsePostDate's reasoning — it reads as
+ * the authored calendar date either side of UTC.
+ */
+export function toIsoTimestamp(date: string): string {
+  return `${date}T12:00:00Z`;
+}
+
 /** Sorts date-stamped entries newest first (listings, feeds). */
 export function byDateDesc(a: Dated, b: Dated): number {
   return new Date(b.data.date).getTime() - new Date(a.data.date).getTime();

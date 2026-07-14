@@ -1,7 +1,12 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
 import { getCollection, render } from "astro:content";
-import { byDateAsc, formatPostDate, parsePostDate } from "@lib/utils/dates";
+import {
+  byDateAsc,
+  formatPostDate,
+  parsePostDate,
+  toIsoTimestamp,
+} from "@lib/utils/dates";
 import { toRoman } from "@lib/utils/roman";
 
 export const getStaticPaths = async () => {
@@ -47,6 +52,7 @@ const { Content } = await render(post);
   tags={post.data.tags}
   {metaImage}
   ogType="article"
+  publishedTime={toIsoTimestamp(post.data.date)}
   showProgress
 >
   <div class="panel-wrap">

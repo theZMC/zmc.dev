@@ -24,10 +24,18 @@ interface Props {
   tags?: string[];
   metaImage?: string;
   ogType?: "website" | "article";
+  /** ISO 8601 instant — see toIsoTimestamp. Articles only. */
+  publishedTime?: string;
   navLinks?: Link[];
   footerLinks?: Link[];
   showProgress?: boolean;
 }
+
+// Everything here is Zach's, so the byline is the site's, not a page's.
+// LinkedIn resolves article:author as a profile URL and ignores a bare name;
+// the human-readable name rides on <meta name="author"> instead.
+const AUTHOR_NAME = "Zach Callahan";
+const AUTHOR_PROFILE = "https://www.linkedin.com/in/thezmc/";
 
 const {
   pageTitle,
@@ -37,6 +45,7 @@ const {
   // its own. CI holds the line (scripts/check-social-cards.mjs).
   metaImage = new URL("/og/site.png", Astro.site).toString(),
   ogType = "website",
+  publishedTime,
   navLinks,
   footerLinks,
   showProgress,
@@ -77,6 +86,7 @@ const {
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={metaDescription} />
     <meta name="keywords" content={tags?.join(", ")} />
+    <meta name="author" content={AUTHOR_NAME} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@theZMC" />
     <meta name="twitter:title" content={pageTitle} />
@@ -89,6 +99,16 @@ const {
     <meta property="og:description" content={metaDescription} />
     <meta property="og:site_name" content="ZMC.DEV" />
     <meta property="og:locale" content="en_US" />
+    {
+      ogType === "article" && (
+        <>
+          <meta property="article:author" content={AUTHOR_PROFILE} />
+          {publishedTime && (
+            <meta property="article:published_time" content={publishedTime} />
+          )}
+        </>
+      )
+    }
     <link
       rel="alternate"
       type="application/rss+xml"
