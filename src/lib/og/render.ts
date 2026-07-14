@@ -139,8 +139,12 @@ export const renderPostImage = ({
   compose(
     standardChart(),
     frame([
+      // The eyebrow stays pinned as a masthead while the title floats centered
+      // in the field beneath it, so short titles sit level with the compass
+      // rather than stranding the whole card's slack below them.
       eyebrow("TRANSMISSION · ZMC.DEV"),
-      title(postTitle),
+      spacer(),
+      title(postTitle, { marginTop: 0 }),
       spacer(),
       rule(),
       metaRow([
@@ -288,8 +292,10 @@ export const renderTalkImage = ({
   compose(
     standardChart(),
     frame([
+      // Same masthead-and-floating-title balance as the post plate.
       eyebrow("SYMPOSIUM · ZMC.DEV"),
-      title(talkTitle),
+      spacer(),
+      title(talkTitle, { marginTop: 0 }),
       spacer(),
       rule(),
       metaRow([
