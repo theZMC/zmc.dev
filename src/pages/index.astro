@@ -8,7 +8,7 @@ import { getCollection } from "astro:content";
 
 const pageTitle = "Zach Callahan — zmc.dev";
 const metaDescription =
-  "Full-stack developer, Kubernetes evangelist, and open-source enthusiast. I build the platforms other engineers stand on — and the tooling that makes tomorrow's work easier than today's.";
+  "Full-stack engineer, Kubernetes evangelist, and open-source enthusiast. I build platforms my fellow engineers can depend on — and the tooling that makes tomorrow's work easier than today's.";
 
 const epoch = toRoman(new Date().getFullYear());
 
@@ -37,9 +37,7 @@ const talks = (await getCollection("talks"))
       <h1 data-orrery-anchor>ZACH CALLAHAN</h1>
       <p class="tagline">Feet on the ground. Head in the cloud.</p>
       <p class="role">
-        Full-stack engineer, Kubernetes evangelist, and open-source enthusiast.
-        I build platforms my fellow engineers can depend on — and the tooling
-        that makes tomorrow's work easier than today's.
+        {metaDescription}
       </p>
       <div class="hero-rule"></div>
     </div>
