@@ -37,9 +37,9 @@ const talks = (await getCollection("talks"))
       <h1 data-orrery-anchor>ZACH CALLAHAN</h1>
       <p class="tagline">Feet on the ground. Head in the cloud.</p>
       <p class="role">
-        Full-stack developer, Kubernetes evangelist, and open-source enthusiast.
-        I build the platforms other engineers stand on — and the tooling that
-        makes tomorrow's work easier than today's.
+        Full-stack engineer, Kubernetes evangelist, and open-source enthusiast.
+        I build platforms my fellow engineers can depend on — and the tooling
+        that makes tomorrow's work easier than today's.
       </p>
       <div class="hero-rule"></div>
     </div>
@@ -54,33 +54,29 @@ const talks = (await getCollection("talks"))
           class="mono coord"
           href="https://github.com/theZMC"
           target="_blank"
-          rel="noopener noreferrer">Open Source · github.com/theZMC</a
-        >
+          rel="noopener noreferrer"
+        >Open Source · github.com/theZMC</a>
       </div>
 
-      {
-        projects.map((project) => (
-          <a
-            class="work-row glint-row"
-            href={project.data.url}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span class="mono kind">{project.data.kind}</span>
-            <div>
-              <h3>
-                {project.data.name} <span class="arrow">↗</span>
-              </h3>
-              <p>{project.body?.trim()}</p>
-            </div>
-            <div class="tags">
-              {project.data.tags.map((tag) => (
-                <span class="tag">{tag}</span>
-              ))}
-            </div>
-          </a>
-        ))
-      }
+      {projects.map((project) => (
+        <a
+          class="work-row glint-row"
+          href={project.data.url}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span class="mono kind">{project.data.kind}</span>
+          <div>
+            <h3>
+              {project.data.name} <span class="arrow">↗</span>
+            </h3>
+            <p>{project.body?.trim()}</p>
+          </div>
+          <div class="tags">
+            {project.data.tags.map((tag) => <span class="tag">{tag}</span>)}
+          </div>
+        </a>
+      ))}
     </section>
 
     <section id="record" class="panel">
@@ -89,18 +85,16 @@ const talks = (await getCollection("talks"))
         <span class="mono coord">Chronology · Newest First</span>
       </div>
 
-      {
-        jobs.map((job) => (
-          <div class="svc-row">
-            <span class="span">{romanSpan(job.tenure)}</span>
-            <div>
-              <h3>{job.company}</h3>
-              <span class="mono post">{job.title}</span>
-              <p>{job.summary}</p>
-            </div>
+      {jobs.map((job) => (
+        <div class="svc-row">
+          <span class="span">{romanSpan(job.tenure)}</span>
+          <div>
+            <h3>{job.company}</h3>
+            <span class="mono post">{job.title}</span>
+            <p>{job.summary}</p>
           </div>
-        ))
-      }
+        </div>
+      ))}
 
       <div class="svc-row">
         <span class="span">MMVIII — MMXXI</span>
@@ -109,8 +103,8 @@ const talks = (await getCollection("talks"))
           <span class="mono post">Retail Leadership · Combat Medic</span>
           <p>
             Nine years in retail management — General Manager of a 24-hour
-            Love's Travel Stop, Assistant Manager at Walmart — running teams of
-            dozens. Six years in the Arkansas Army National Guard as a 68W
+            Love's Travel Stop, Assistant Manager at Walmart — running teams
+            of dozens. Six years in the Arkansas Army National Guard as a 68W
             Combat Medic, honorably discharged 2017. Where the leadership
             instincts come from.
           </p>
@@ -124,71 +118,67 @@ const talks = (await getCollection("talks"))
         <span class="mono coord">Field Notes · Plaintext</span>
       </div>
 
-      {
-        posts.map((post) => (
-          <a class="tx-row glint-row" href={`/posts/${post.id}`}>
-            <h3>{post.data.title}</h3>
-            <span class="arrow">→</span>
-          </a>
-        ))
-      }
+      {posts.map((post) => (
+        <a class="tx-row glint-row" href={`/posts/${post.id}`}>
+          <h3>{post.data.title}</h3>
+          <span class="arrow">→</span>
+        </a>
+      ))}
     </section>
 
-    {
-      talks.length > 0 && (
-        <section id="talks" class="panel">
-          <div class="sec-head">
-            <h2>
-              <a href="#talks">Symposia</a>
-            </h2>
-            <span class="mono coord">Spoken Word · Slides</span>
-          </div>
+    {talks.length > 0 && (
+      <section id="talks" class="panel">
+        <div class="sec-head">
+          <h2>
+            <a href="#talks">Symposia</a>
+          </h2>
+          <span class="mono coord">Spoken Word · Slides</span>
+        </div>
 
-          {talks.map((talk) => (
-            <div class="talk-row glint-row">
-              <span class="venue">
-                {talk.data.event.url ? (
-                  <a
-                    href={talk.data.event.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {talk.data.event.name}
-                  </a>
-                ) : (
-                  talk.data.event.name
-                )}
-              </span>
-              <div>
-                <h3>
-                  <a
-                    href={`/talks/${talk.id}/`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {talk.data.title} <span class="arrow">↗</span>
-                  </a>
-                </h3>
-                <time class="mono when" datetime={talk.data.date}>
-                  {formatPostDate(talk.data.date)}
-                </time>
-                <p>{talk.data.description}</p>
-                {talk.data.recording && (
-                  <a
-                    class="mono rec"
-                    href={talk.data.recording}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Recording ↗
-                  </a>
-                )}
-              </div>
+        {talks.map((talk) => (
+          <div class="talk-row glint-row">
+            <span class="venue">
+              {talk.data.event.url ? (
+                <a
+                  href={talk.data.event.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {talk.data.event.name}
+                </a>
+              ) : (
+                talk.data.event.name
+              )}
+            </span>
+            <div>
+              <h3>
+                <a
+                  href={`/talks/${talk.id}/`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {talk.data.title} <span class="arrow">↗</span>
+                </a>
+              </h3>
+              <time class="mono when" datetime={talk.data.date}>
+                {formatPostDate(talk.data.date)}
+              </time>
+              <p>{talk.data.description}</p>
+              {talk.data.recording && (
+                <a
+                  class="mono rec"
+                  href={talk.data.recording}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Recording ↗
+                </a>
+              )}
             </div>
-          ))}
-        </section>
-      )
-    }
+          </div>
+        ))}
+      </section>
+    )}
 
     <section id="about" class="panel">
       <div class="sec-head">
@@ -197,32 +187,32 @@ const talks = (await getCollection("talks"))
       </div>
       <div class="about-grid">
         <p class="lede">
-          Sysadmin turned software engineer. Mostly self-taught, daily Linux
-          user since 2006, and a believer that <em
-            >the best solutions are built by communities.</em
-          > My goal is simple: make my team's job easier today than it was yesterday.
+          Retailer turned platform engineer. Mostly self-taught, daily Linux
+          user since 2006, and a believer that <em>the best solutions are built
+            by communities.</em> My goal is simple: make my team's job easier
+          today than it was yesterday.
         </p>
         <div class="body-col">
           <p>
-            Automation and tooling are the through-line — from keeping ecommerce
-            runtimes alive at 3 a.m. to hardening DoD platform infrastructure.
-            Bash and Go are the daily drivers, but the toolbox is always open.
+            Automation and tooling are my closest friends — from keeping
+            ecommerce runtimes alive at 3 a.m. to hardening DoD platform
+            infrastructure. Bash and Go are my daily drivers, but the toolbox is
+            always open.
           </p>
           <p>
             Before tech: nine years of retail management and six as a combat
             medic taught me more about working with people than any framework
-            ever will. These days I also teach frontend fundamentals at the
-            Arkansas Coding Academy.
+            ever will.
           </p>
           <p>
-            Off the clock: tinkering with computers and electronics, and
-            spending time with my girlfriend and our three dogs.
+            Off the clock: tinkering with computers and electronics, reading
+            Sci-Fi and spending time with my girlfriend and our three dogs.
           </p>
           <dl class="instruments">
             <dt class="mono">Instruments</dt>
             <dd>
-              Go · Bash · Kubernetes · AWS · Terraform · TypeScript · Svelte ·
-              Pulumi · OpenTelemetry
+              Go · Bash · Kubernetes · AWS · Terraform · TypeScript ·
+              Svelte · Pulumi · OpenTelemetry
             </dd>
           </dl>
         </div>
@@ -617,10 +607,7 @@ const talks = (await getCollection("talks"))
     border: 1px solid var(--brass-dim);
     padding: 1rem 2.6rem;
     border-radius: 999px;
-    transition:
-      background 0.3s,
-      color 0.3s,
-      border-color 0.3s;
+    transition: background 0.3s, color 0.3s, border-color 0.3s;
   }
   .cta:hover {
     background: var(--brass);

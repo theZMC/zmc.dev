@@ -70,7 +70,7 @@ const footerLinks = [
     <section id="profile" class="panel">
       <div class="sec-head">
         <h2><a href="#profile">Profile</a></h2>
-        <span class="mono coord">Section I</span>
+        <span class="mono coord">Brief</span>
       </div>
       <div class="profile-grid">
         <p class="lede" set:html={resume.profile.lede} />
@@ -83,7 +83,7 @@ const footerLinks = [
     <section id="calibration" class="panel">
       <div class="sec-head">
         <h2><a href="#calibration">Instrument Calibration</a></h2>
-        <span class="mono coord">Section II</span>
+        <span class="mono coord">Loadout</span>
       </div>
       <div class="cal-legend mono">
         <span class="key">Key</span>
@@ -91,65 +91,57 @@ const footerLinks = [
         <span><i class="dot advanced"></i> Advanced</span>
       </div>
       <div class="skills">
-        {
-          resume.skills.map((skill) => (
-            <span class="skill">
-              <i class={`dot ${skill.level}`} /> {skill.name}
-            </span>
-          ))
-        }
+        {resume.skills.map((skill) => (
+          <span class="skill">
+            <i class={`dot ${skill.level}`} /> {skill.name}
+          </span>
+        ))}
       </div>
     </section>
 
     <section id="record" class="panel">
       <div class="sec-head">
         <h2><a href="#record">Service Record</a></h2>
-        <span class="mono coord">Section III · Complete</span>
+        <span class="mono coord">Jacket</span>
       </div>
 
-      {
-        jobs.map((job) => (
-          <div class="svc-row">
-            <div class="svc-when">
-              <span class="span">{job.span}</span>
-              <span class="mono precise">{job.precise}</span>
-            </div>
-            <div>
-              <h3>{job.company}</h3>
-              <span class="mono post">{job.title}</span>
-              <p>{job.body}</p>
-              <div class="tags">
-                {job.skills.map((skill) => (
-                  <span class="tag">{skill}</span>
-                ))}
-              </div>
+      {jobs.map((job) => (
+        <div class="svc-row">
+          <div class="svc-when">
+            <span class="span">{job.span}</span>
+            <span class="mono precise">{job.precise}</span>
+          </div>
+          <div>
+            <h3>{job.company}</h3>
+            <span class="mono post">{job.title}</span>
+            <p>{job.body}</p>
+            <div class="tags">
+              {job.skills.map((skill) => <span class="tag">{skill}</span>)}
             </div>
           </div>
-        ))
-      }
+        </div>
+      ))}
     </section>
 
     <section id="credentials" class="panel">
       <div class="sec-head">
         <h2><a href="#credentials">Credentials</a></h2>
-        <span class="mono coord">Section IV</span>
+        <span class="mono coord">Endorsements</span>
       </div>
-      {
-        resume.certifications.map((cert) => (
-          <div class="cred-row">
-            <div class="cred-when">
-              <span class="mono">{cert.short}</span>
-            </div>
-            <div>
-              <h3>{cert.name}</h3>
-              <span class="mono cred-meta">
-                {cert.issuer}
-                {cert.year ? ` · ${cert.year}` : ""}
-              </span>
-            </div>
+      {resume.certifications.map((cert) => (
+        <div class="cred-row">
+          <div class="cred-when">
+            <span class="mono">{cert.short}</span>
           </div>
-        ))
-      }
+          <div>
+            <h3>{cert.name}</h3>
+            <span class="mono cred-meta">
+              {cert.issuer}
+              {cert.year ? ` · ${cert.year}` : ""}
+            </span>
+          </div>
+        </div>
+      ))}
     </section>
   </div>
 
@@ -192,8 +184,8 @@ const footerLinks = [
     label.textContent = on
       ? "Preparing…"
       : failed
-        ? "Failed — try again"
-        : btn.dataset.idleLabel;
+      ? "Failed — try again"
+      : btn.dataset.idleLabel;
   }
 
   downloadBtn?.addEventListener("click", async () => {
@@ -299,10 +291,7 @@ const footerLinks = [
     border: 1px solid var(--hair);
     border-radius: 8px;
     padding: 0.75rem 1.1rem;
-    transition:
-      border-color 0.3s,
-      color 0.3s,
-      background 0.3s;
+    transition: border-color 0.3s, color 0.3s, background 0.3s;
   }
   .action:hover {
     border-color: var(--brass);
