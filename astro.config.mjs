@@ -13,6 +13,7 @@ import talks from "./src/lib/talks/integration.mjs";
 import { zmcDark, zmcLight } from "./src/lib/shiki/zmc-themes.mjs";
 
 import rehypeMermaid from "./src/lib/diagrams/rehype-mermaid";
+import rehypeFrames from "./src/lib/frames/rehype-frames";
 
 // `astro build` re-runs the Vite dep optimizer in production mode, and with a
 // shared cache dir it overwrites the dev server's pre-bundle in place — any
@@ -80,6 +81,9 @@ export default defineConfig({
     rehypePlugins: [
       // Build-time mermaid → theme-aware inline SVG figure plates.
       rehypeMermaid,
+      // Frame code blocks/tables, arm diagram plates — after mermaid so
+      // its fences are already plates and every remaining pre is code.
+      rehypeFrames,
       [rehypeGithubAlerts, { build: alertBuild }],
       rehypeHeadingIds,
       [

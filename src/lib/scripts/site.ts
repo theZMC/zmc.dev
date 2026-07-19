@@ -115,16 +115,6 @@ document.addEventListener("click", (e) => {
   const btn = (e.target as Element | null)?.closest("#themeToggle");
   if (btn instanceof HTMLElement) toggleTheme(btn);
 
-  const expand = (e.target as Element | null)?.closest(".expand-code");
-  if (expand instanceof HTMLElement) {
-    const frame = expand.closest(".code-frame, .diagram-plate");
-    if (frame instanceof HTMLElement) {
-      const expanded = frame.toggleAttribute("data-expanded");
-      expand.textContent = expanded ? "Collapse" : "Expand";
-      expand.setAttribute("aria-expanded", String(expanded));
-    }
-  }
-
   const copy = (e.target as Element | null)?.closest(".copy-code");
   if (copy instanceof HTMLElement) {
     const code = copy.closest(".code-frame")?.querySelector("code");
@@ -149,6 +139,31 @@ document.addEventListener("click", (e) => {
       } else {
         fallback();
       }
+    }
+  }
+});
+
+/* Expand/collapse is the checkbox in the frame header — :checked + :has()
+   run the whole interaction in CSS, no JS required. This listener is
+   polish only: before the first expand, lock the scroller's height at
+   the scrollbar-bearing measurement. Safari never paints an empty track
+   (overflow-x: scroll or not), so when an expand lets every line fit,
+   the bar's exit would otherwise shrink the block and shift the prose
+   below it. The lock holds the box; the glass fills where the bar sat.
+   Measured, not assumed — scrollbar heights differ per engine (8px
+   Chrome, 13px Safari). It reads offsetHeight before the width
+   transition moves, so the measurement is the resting one. Plates skip
+   it: their svg keeps its aspect ratio, so the box resizes anyway.
+   Without JS the lock is absent and an expand may shift the prose by a
+   scrollbar height — degradation, not breakage. */
+document.addEventListener("change", (e) => {
+  const toggle = (e.target as Element | null)?.closest(".expand-toggle");
+  if (toggle instanceof HTMLInputElement && toggle.checked) {
+    const scroller = toggle
+      .closest(".code-frame")
+      ?.querySelector<HTMLElement>(":scope > pre, :scope > .table-scroll");
+    if (scroller && !scroller.style.minHeight) {
+      scroller.style.minHeight = `${scroller.offsetHeight}px`;
     }
   }
 });
@@ -250,170 +265,6 @@ document.addEventListener("astro:page-load", () => {
     frost.append(document.createElement("div"));
     panel.prepend(frost);
   });
-
-  // Header strip on article code blocks and tables (idempotent per page
-  // view): kind hint left, action buttons right. Each block gets a
-  // .code-frame wrapper with the header as a sibling, not a child — inside
-  // the block its labels concatenate into the content's accessible text.
-  // `block` is both the element framed and the horizontal scroll container
-  // the fade/expand affordances watch.
-  const expandButton = (expandLabel: string) => {
-    const expand = document.createElement("button");
-    expand.className = "expand-code mono";
-    expand.type = "button";
-    expand.textContent = "Expand";
-    expand.setAttribute("aria-expanded", "false");
-    expand.setAttribute("aria-label", expandLabel);
-    return expand;
-  };
-
-  const frameBlock = (
-    block: HTMLElement,
-    opts: {
-      label: string;
-      expandLabel: string;
-      modifier?: string;
-      actions?: HTMLElement[];
-    },
-  ) => {
-    const frame = document.createElement("div");
-    frame.className = opts.modifier
-      ? `code-frame ${opts.modifier}`
-      : "code-frame";
-    const head = document.createElement("div");
-    head.className = "code-head";
-    const lang = document.createElement("span");
-    lang.className = "code-lang mono";
-    lang.textContent = opts.label;
-    const actions = document.createElement("div");
-    actions.className = "code-actions";
-    actions.append(expandButton(opts.expandLabel), ...(opts.actions ?? []));
-    head.append(lang, actions);
-    block.replaceWith(frame);
-    frame.append(head, block);
-    // data-clipped drives the right-edge fade: on while content continues
-    // past the clip edge, off once scrolled to the end. data-overflowing
-    // reveals the expand button: on while the block clips at all, wherever
-    // it's scrolled. ResizeObserver fires on observe, so the initial state
-    // needs no separate call — and it re-fires on expand/collapse, keeping
-    // the attributes honest at the new width.
-    const updateFrameState = () => {
-      frame.toggleAttribute(
-        "data-clipped",
-        block.scrollWidth - block.clientWidth - block.scrollLeft > 1,
-      );
-      // mirror fade: content also continues past the left clip edge
-      frame.toggleAttribute("data-clipped-start", block.scrollLeft > 1);
-      frame.toggleAttribute(
-        "data-overflowing",
-        block.scrollWidth > block.clientWidth,
-      );
-      // One-way: the first time a block overflows, lock its height at the
-      // scrollbar-bearing measurement. Safari never paints an empty track
-      // (overflow-x: scroll or not), so when an expand lets every line
-      // fit, the bar's exit would otherwise shrink the block and shift
-      // the prose below it. The lock holds the box; the glass fills where
-      // the bar sat. Measured, not assumed — scrollbar heights differ per
-      // engine (8px Chrome, 13px Safari).
-      if (
-        block.scrollWidth > block.clientWidth &&
-        !frame.hasAttribute("data-expandable")
-      ) {
-        frame.setAttribute("data-expandable", "");
-        block.style.minHeight = `${block.offsetHeight}px`;
-      }
-    };
-    block.addEventListener("scroll", updateFrameState, { passive: true });
-    new ResizeObserver(updateFrameState).observe(block);
-    // The observer watches the block's box, which the mono font swapping
-    // in doesn't resize — line widths change though, so re-measure once
-    // loaded.
-    document.fonts.ready.then(updateFrameState);
-  };
-
-  document.querySelectorAll<HTMLPreElement>(".post-body pre").forEach((pre) => {
-    if (pre.parentElement?.classList.contains("code-frame")) return;
-    const copy = document.createElement("button");
-    copy.className = "copy-code mono";
-    copy.type = "button";
-    copy.textContent = "Copy";
-    copy.setAttribute("aria-label", "Copy code to clipboard");
-    // Shiki stamps data-language on the pre; "plaintext" is its unlabeled
-    // fallback, not worth announcing.
-    const langId = pre.dataset.language;
-    frameBlock(pre, {
-      label: langId && langId !== "plaintext" ? langId : "",
-      expandLabel: "Expand code block to the panel width",
-      actions: [copy],
-    });
-  });
-
-  // Tables ride the same frame via a .table-scroll wrapper as the scroll
-  // container — a table element can't clip-and-scroll itself without
-  // giving up table layout (and with it, full-width row rules).
-  document
-    .querySelectorAll<HTMLTableElement>(".post-body table")
-    .forEach((table) => {
-      if (table.parentElement?.classList.contains("table-scroll")) return;
-      const scroll = document.createElement("div");
-      scroll.className = "table-scroll";
-      table.replaceWith(scroll);
-      scroll.append(table);
-      frameBlock(scroll, {
-        label: "table",
-        expandLabel: "Expand table to the panel width",
-        modifier: "table-frame",
-      });
-    });
-
-  // Diagram plates ship their own header (the eyebrow figcaption) and
-  // scroll container from the build, so they join the expand system
-  // without a second frame: button in the eyebrow, state attributes on
-  // the figure. Unlike code, a plate benefits from expanding before it
-  // overflows — the svg scales down from its intrinsic width (--w)
-  // first and only scrolls at the 75% floor — so below-intrinsic is
-  // the signal that expanding buys type size, not just less scrolling.
-  document
-    .querySelectorAll<HTMLElement>(".post-body .diagram-plate")
-    .forEach((plate) => {
-      if (plate.querySelector(".expand-code")) return;
-      const eyebrow = plate.querySelector<HTMLElement>(".diagram-eyebrow");
-      const scroll = plate.querySelector<HTMLElement>(".diagram-scroll");
-      const svg = scroll?.querySelector("svg");
-      if (!eyebrow || !scroll || !svg) return;
-      // The actions are chrome, not caption: a sibling of the figcaption
-      // (CSS overlays it on the eyebrow band), so the caption's text —
-      // what find-in-page, selection, and extractors read — never
-      // contains a button label. Same reasoning as the code-frame's
-      // header-as-sibling.
-      const actions = document.createElement("div");
-      actions.className = "code-actions";
-      actions.append(expandButton("Expand diagram to the panel width"));
-      eyebrow.after(actions);
-      const intrinsic = parseFloat(plate.style.getPropertyValue("--w"));
-      const updatePlateState = () => {
-        // The clip fade starts below the eyebrow, whose height depends
-        // on how the title wraps — measured, not assumed.
-        plate.style.setProperty("--plate-head-h", `${eyebrow.offsetHeight}px`);
-        plate.toggleAttribute(
-          "data-clipped",
-          scroll.scrollWidth - scroll.clientWidth - scroll.scrollLeft > 1,
-        );
-        plate.toggleAttribute("data-clipped-start", scroll.scrollLeft > 1);
-        if (
-          Number.isFinite(intrinsic) &&
-          svg.getBoundingClientRect().width < intrinsic - 16 &&
-          !plate.hasAttribute("data-expandable")
-        ) {
-          plate.setAttribute("data-expandable", "");
-        }
-      };
-      scroll.addEventListener("scroll", updatePlateState, { passive: true });
-      const observer = new ResizeObserver(updatePlateState);
-      observer.observe(scroll);
-      observer.observe(eyebrow);
-      document.fonts.ready.then(updatePlateState);
-    });
 
   updateScrollState();
 });

@@ -463,17 +463,29 @@ const { Content } = await render(post);
      hairline, no clipping wrapper. */
   .post-body .diagram-plate {
     margin: 2.2rem 0;
-    /* the plate joins the code-frame's expand system (site.ts puts the
-       button in the eyebrow): explicit width so expand/collapse can
-       transition; the svg's scale-with-a-floor rule turns the extra
-       width into type size rather than empty margin */
-    position: relative;
+    /* One column, two rows — eyebrow band over scroller. The grid lets
+       the edge fades and the action pill ride the rows' rendered
+       heights, so a wrapping title needs no measuring. The plate joins
+       the code-frame's expand system (rehype-frames puts the button in
+       the eyebrow): explicit width so expand/collapse can transition;
+       the svg's scale-with-a-floor rule turns the extra width into type
+       size rather than empty margin. */
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
     width: 100%;
     transition:
       width 0.35s ease,
       margin 0.35s ease;
   }
-  .post-body .diagram-plate[data-expanded] {
+  /* explicit rows — pseudo grid items would otherwise auto-place */
+  .post-body .diagram-plate > .diagram-eyebrow {
+    grid-area: 1 / 1;
+  }
+  .post-body .diagram-plate > .diagram-scroll {
+    grid-area: 2 / 1;
+    min-width: 0;
+  }
+  .post-body .diagram-plate:has(.expand-toggle:checked) {
     --code-expanded: max(100%, min(var(--max), 100vw - 4rem) - 4rem);
     width: var(--code-expanded);
     margin-inline: calc((100% - var(--code-expanded)) / 2);
@@ -483,61 +495,17 @@ const { Content } = await render(post);
       transition: none;
     }
   }
-  /* Right-edge fade while the diagram continues past the clip edge —
-     the code-frame's affordance, starting below the eyebrow (whose
-     rendered height site.ts measures into --plate-head-h, since a
-     wrapping title makes it unknowable from here). */
-  .post-body .diagram-plate::after {
-    content: "";
-    position: absolute;
-    top: var(--plate-head-h, 2.4rem);
-    bottom: 1px;
-    right: 1px;
-    width: 3.25rem;
-    border-radius: 0 0 9px 0;
-    background:
-      linear-gradient(to left, var(--code-bg), transparent),
-      linear-gradient(to left, var(--bg), transparent);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  .post-body .diagram-plate[data-clipped]::after {
-    opacity: 1;
-  }
-  .post-body .diagram-plate::before {
-    content: "";
-    position: absolute;
-    top: var(--plate-head-h, 2.4rem);
-    bottom: 1px;
-    left: 1px;
-    width: 3.25rem;
-    border-radius: 0 0 0 9px;
-    background:
-      linear-gradient(to right, var(--code-bg), transparent),
-      linear-gradient(to right, var(--bg), transparent);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  .post-body .diagram-plate[data-clipped-start]::before {
-    opacity: 1;
-  }
   /* The actions are a figcaption sibling (so button labels never join
-     the caption's text) overlaid on the eyebrow band, centred in its
-     measured height and holding the code-head's edge inset. Qualifying
-     plates reserve eyebrow width so a wrapping title can't run under
-     the pill. */
+     the caption's text) overlaid on the eyebrow band — same grid cell,
+     centred in whatever height the wrapping title renders, holding the
+     code-head's edge inset. The edge fades live with the code-frame's,
+     below. */
   .post-body .diagram-plate > .code-actions {
-    position: absolute;
-    top: 0;
-    right: 0;
-    height: var(--plate-head-h, 2.4rem);
-    align-items: center;
+    grid-area: 1 / 1;
+    justify-self: end;
+    align-self: center;
     padding-right: 0.6rem;
-  }
-  .post-body .diagram-plate[data-expandable] .diagram-eyebrow {
-    padding-right: 7rem;
+    z-index: 1;
   }
   .post-body .diagram-eyebrow {
     display: flex;
@@ -595,29 +563,18 @@ const { Content } = await render(post);
     min-width: calc(var(--w) * 0.75);
     margin-inline: auto;
   }
-  /* Bare-table rules are the no-JS rendering (kin to the bare-pre rules):
-     block + auto overflow so a wide table scrolls inside the measure
-     instead of wrapping every cell. */
+  /* Every table ships framed (rehype-frames): the .table-scroll wrapper
+     does the scrolling, so the table stays a real table — layout intact,
+     row rules spanning full width — and never narrower than the frame. */
   .post-body table {
-    display: block;
-    max-width: 100%;
-    overflow-x: auto;
-    margin: 2rem 0;
     border-collapse: collapse;
-    scrollbar-width: thin;
-    scrollbar-color: var(--brass-dim) transparent;
+    min-width: 100%;
+    margin: 0;
   }
-  .post-body table::-webkit-scrollbar {
-    height: 8px;
-  }
-  .post-body table::-webkit-scrollbar-thumb {
-    background: var(--brass-dim);
-    border-radius: 4px;
-  }
-  /* site.ts wraps each table in a .table-scroll inside a code-frame —
-     header strip, expand affordance, and clip fade shared with code
-     blocks. The scroller paints the frame's lower half the way the
-     framed pre does. */
+  /* rehype-frames wraps each table in a .table-scroll inside a
+     code-frame — header strip, expand affordance, and clip fade shared
+     with code blocks. The scroller paints the frame's lower half the
+     way the framed pre does. */
   .post-body .table-scroll {
     overflow-x: auto;
     padding: 0.4rem 1.6rem 0.9rem;
@@ -634,16 +591,6 @@ const { Content } = await render(post);
   .post-body .table-scroll::-webkit-scrollbar-thumb {
     background: var(--brass-dim);
     border-radius: 4px;
-  }
-  /* inside the frame the wrapper does the scrolling, so the table is a
-     real table again — layout restored, row rules spanning full width —
-     and never narrower than the frame */
-  .post-body .table-scroll table {
-    display: table;
-    min-width: 100%;
-    max-width: none;
-    overflow: visible;
-    margin: 0;
   }
   /* the frame's glass edge closes the composition; a final hairline
      right above it would read as a double rule */
@@ -691,22 +638,33 @@ const { Content } = await render(post);
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
   }
-  /* site.ts wraps each pre in a .code-frame and prepends a header strip —
+  /* rehype-frames wraps each pre in a .code-frame with a header strip —
      language hint left, expand/copy buttons right — as a sibling (children
-     of the pre pollute the code's accessible text). The frame is
+     of the pre pollute the code's accessible text), so the frame is the
+     no-JS rendering too; only the buttons wait for JS. The frame is
      deliberately chrome-free: header and pre each paint their own half of
      the block (two plain boxes, no clip), because a rounded overflow-clip
      wrapper inside the backdrop-filtered panel breaks the panel's blur in
-     some compositors. The bare-pre rules below stay intact as the no-JS
-     rendering. Width is explicit so expand/collapse can transition. */
+     some compositors. Same grid as the diagram plate, so the edge fades
+     ride the scroller row. Width is explicit so expand/collapse can
+     transition. */
   .post-body .code-frame {
     --code-head-h: 2.4rem;
-    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
     margin: 2rem 0;
     width: 100%;
     transition:
       width 0.35s ease,
       margin 0.35s ease;
+  }
+  .post-body .code-frame > .code-head {
+    grid-area: 1 / 1;
+  }
+  .post-body .code-frame > pre,
+  .post-body .code-frame > .table-scroll {
+    grid-area: 2 / 1;
+    min-width: 0;
   }
   .post-body .code-head {
     display: flex;
@@ -731,7 +689,7 @@ const { Content } = await render(post);
      it), less a 2rem inset each side. Equal negative margins keep the frame
      centred on the panel; max() pins it to the measure when the viewport
      affords nothing extra. */
-  .post-body .code-frame[data-expanded] {
+  .post-body .code-frame:has(.expand-toggle:checked) {
     --code-expanded: max(100%, min(var(--max), 100vw - 4rem) - 4rem);
     width: var(--code-expanded);
     margin-inline: calc((100% - var(--code-expanded)) / 2);
@@ -746,47 +704,86 @@ const { Content } = await render(post);
     border-top: none;
     border-radius: 0 0 10px 10px;
   }
-  /* Right-edge fade while a long line continues past the clip edge
-     (site.ts toggles data-clipped as the pre scrolls). Two gradient layers
-     because --code-bg is translucent glass — --bg underneath lands the fade
-     on the block's true composite color. Starts below the header; insets
-     and radius tuck it inside the pre's 1px border. */
-  .post-body .code-frame::after {
+  /* Edge fades while content continues past a clip edge, driven by the
+     scroller's own scroll timeline — no listeners. Underlying opacity is
+     0 and the fill-both animations only apply while the timeline is
+     active (the scroller genuinely overflows), so a fitting block shows
+     nothing, and engines without timelines never see a stuck gradient.
+     Two gradient layers because --code-bg is translucent glass — --bg
+     underneath lands the fade on the block's true composite color. Grid
+     items pinned to the scroller row; the 1px margin tucks them inside
+     the glass border. */
+  .post-body .code-frame::before,
+  .post-body .code-frame::after,
+  .post-body .diagram-plate::before,
+  .post-body .diagram-plate::after {
     content: "";
-    position: absolute;
-    top: var(--code-head-h);
-    bottom: 1px;
-    right: 1px;
+    grid-area: 2 / 1;
     width: 3.25rem;
-    border-radius: 0 0 9px 0;
-    background:
-      linear-gradient(to left, var(--code-bg), transparent),
-      linear-gradient(to left, var(--bg), transparent);
+    margin: 1px;
+    z-index: 1;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.3s ease;
   }
-  .post-body .code-frame[data-clipped]::after {
-    opacity: 1;
-  }
-  /* mirror fade on the left clip edge once the block is scrolled */
-  .post-body .code-frame::before {
-    content: "";
-    position: absolute;
-    top: var(--code-head-h);
-    bottom: 1px;
-    left: 1px;
-    width: 3.25rem;
+  .post-body .code-frame::before,
+  .post-body .diagram-plate::before {
+    justify-self: start;
     border-radius: 0 0 0 9px;
     background:
       linear-gradient(to right, var(--code-bg), transparent),
       linear-gradient(to right, var(--bg), transparent);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
   }
-  .post-body .code-frame[data-clipped-start]::before {
-    opacity: 1;
+  .post-body .code-frame::after,
+  .post-body .diagram-plate::after {
+    justify-self: end;
+    border-radius: 0 0 9px 0;
+    background:
+      linear-gradient(to left, var(--code-bg), transparent),
+      linear-gradient(to left, var(--bg), transparent);
+  }
+  /* Fades stay live under reduced motion — they report scroll position,
+     information rather than decoration, kin to the dial's arc. */
+  @supports (animation-timeline: scroll()) {
+    /* each frame scopes one private timeline; its scroller defines it */
+    .post-body .code-frame,
+    .post-body .diagram-plate {
+      timeline-scope: --frame-scroll;
+    }
+    .post-body .code-frame > pre,
+    .post-body .code-frame > .table-scroll,
+    .post-body .diagram-plate > .diagram-scroll {
+      scroll-timeline: --frame-scroll inline;
+    }
+    /* left fade: absent at the start edge, full after 3rem of travel */
+    .post-body .code-frame::before,
+    .post-body .diagram-plate::before {
+      animation: frame-fade-in 1s linear both;
+      animation-timeline: --frame-scroll;
+      animation-range: 0 3rem;
+    }
+    /* right fade: full until the last 3rem, gone at the end edge */
+    .post-body .code-frame::after,
+    .post-body .diagram-plate::after {
+      animation: frame-fade-out 1s linear both;
+      animation-timeline: --frame-scroll;
+      animation-range: calc(100% - 3rem) 100%;
+    }
+  }
+  @keyframes frame-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes frame-fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
   }
   @media print {
     .post-body .code-frame::after,
@@ -796,8 +793,8 @@ const { Content } = await render(post);
     .post-body .code-actions {
       display: none;
     }
-    .post-body .code-frame[data-expanded],
-    .post-body .diagram-plate[data-expanded] {
+    .post-body .code-frame:has(.expand-toggle:checked),
+    .post-body .diagram-plate:has(.expand-toggle:checked) {
       width: 100%;
       margin-inline: 0;
     }
@@ -871,24 +868,84 @@ const { Content } = await render(post);
     color: var(--brass);
     border-color: var(--brass-dim);
   }
-  /* The expand button earns its place only when there's something to gain:
-     the block has overflowed (data-expandable — one-way, so the button
-     doesn't blink out mid-collapse while the shrinking block still fits)
-     and the viewport affords width beyond the measure. Expanded frames
-     keep it regardless, so a viewport shrink can't strand a block with
-     no way back to the measure. */
+  /* Copy is behavior — it can't work without JS, so only html.js-sky
+     reveals it. Expand is NOT js-gated: it's a checkbox, and :checked +
+     :has() run the whole interaction in CSS. */
+  .post-body .copy-code,
   .post-body .expand-code {
     display: none;
   }
-  @media (min-width: 850px) {
-    .post-body .code-frame[data-expandable] .expand-code,
-    .post-body .diagram-plate[data-expandable] .expand-code {
-      display: block;
+  html.js-sky .post-body .copy-code {
+    display: block;
+  }
+  /* The expand pill is a label over a checkbox. The input stretches
+     invisibly across the pill (kept focusable — display:none would drop
+     it from the tab order); its aria-label names the control, so the
+     visible word is CSS content with empty alt, flipping with the state
+     it reports. CSS content also never joins find-in-page or selection. */
+  .post-body .expand-code {
+    position: relative;
+  }
+  .post-body .expand-code::after {
+    content: "Expand" / "";
+  }
+  .post-body :is(.code-frame, .diagram-plate):has(.expand-toggle:checked)
+    .expand-code::after {
+    content: "Collapse" / "";
+  }
+  .post-body .expand-toggle {
+    appearance: none;
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  /* the input is invisible, so its focus ring surfaces on the pill */
+  .post-body .expand-code:has(.expand-toggle:focus-visible) {
+    outline: 2px solid var(--brass);
+    outline-offset: 2px;
+  }
+  /* The expand control earns its place only when there's something to
+     gain: its frame's scroll timeline is active (the block genuinely
+     clips — a plate too, once it's pinned at the 75% scale floor) and
+     the viewport affords width beyond the measure. The arming animation
+     spans the whole range with both endpoints visible, so any active
+     timeline shows the control; an inactive one reveals the hidden
+     underlying value — visibility rather than opacity, so a hidden
+     control also stays out of the tab order. */
+  @supports (animation-timeline: scroll()) {
+    @media (min-width: 850px) {
+      .post-body :is(.code-frame, .diagram-plate) .expand-code {
+        display: block;
+        visibility: hidden;
+        animation: frame-arm 1s linear both;
+        animation-timeline: --frame-scroll;
+      }
+      /* qualifying plates reserve eyebrow width so a wrapping title
+         can't run under the pill */
+      .post-body .diagram-eyebrow {
+        padding-right: 7rem;
+      }
     }
   }
-  .post-body .code-frame[data-expanded] .expand-code,
-  .post-body .diagram-plate[data-expanded] .expand-code {
+  @keyframes frame-arm {
+    from,
+    to {
+      visibility: visible;
+    }
+  }
+  /* Expanded frames keep the control regardless: the widened block may
+     no longer overflow (an inactive timeline would hide its only way
+     back), and a viewport shrink can't strand a block with no way back
+     to the measure. :has(:checked) carries the specificity that beats
+     the armed rule. */
+  .post-body
+    :is(.code-frame, .diagram-plate):has(.expand-toggle:checked)
+    .expand-code {
     display: block;
+    animation: none;
+    visibility: visible;
   }
   .post-body pre code {
     background: none;
