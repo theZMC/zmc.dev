@@ -79,6 +79,12 @@ const {
       })();
     </script>
     <meta charset="utf-8" />
+    <!-- The site speaks both schemes natively (light-dark() chart in
+         global.css), dark first — the chart's home key. The meta twin of
+         the :root color-scheme is what dark-mode extensions (Noir et al.)
+         and the UA read pre-CSS — without it they can't tell, and Noir
+         re-darkens the glass. -->
+    <meta name="color-scheme" content="dark light" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

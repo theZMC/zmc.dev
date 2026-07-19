@@ -19,7 +19,12 @@ const DECKS_OUT = "public/talks";
 // scheme store before the SPA boots. With no explicit site preference both
 // sides fall back to the same prefers-color-scheme query, so they agree in
 // every case.
+// The meta twin of the theme tokens' scheme support (light on :root, dark
+// on html.dark), dark first — the chart's home key: what dark-mode
+// extensions (Noir et al.) and the UA read pre-CSS. Without it Noir
+// assumes light-only and re-darkens the deck.
 const THEME_BRIDGE =
+  '<meta name="color-scheme" content="dark light">' +
   "<script>" +
   'try{var t=localStorage.getItem("theme");' +
   'if(t==="dark"||t==="light")localStorage.setItem("slidev-color-schema",t)}' +

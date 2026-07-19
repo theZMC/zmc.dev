@@ -31,6 +31,16 @@
   --core-glow-opacity: 0.35;
   --code-head-h: 2.2rem;
 }
+/* Slidev keys the dark chart off html.dark, which stylesheet scanners
+   can't read as dark support. This restatement — auto (Slidev's default
+   schema follows the OS) on a dark OS is dark — is for them: Noir
+   (Safari dark-mode extension) only stands down when it finds a
+   non-empty prefers-color-scheme: dark media block. Behavior-neutral. */
+@media (prefers-color-scheme: dark) {
+  html.dark {
+    color-scheme: dark;
+  }
+}
 html.dark {
   --bg: #0b0e14;
   --bg-core: #131a2a;

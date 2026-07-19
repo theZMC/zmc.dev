@@ -16,6 +16,17 @@
 [data-theme="light"] {
   color-scheme: light;
 }
+/* Restates what color-scheme above already resolves — auto on a dark OS
+   is dark — purely so the dark support is legible to tools that scan
+   stylesheets for a prefers-color-scheme: dark rule. Noir (Safari
+   dark-mode extension) is one: it predates light-dark(), never reads
+   the color-scheme meta/property, and re-darkens the glass unless it
+   finds a non-empty dark media block. Behavior-neutral; keep one. */
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    color-scheme: dark;
+  }
+}
 :root {
   --bg: #0b0e14;
   --bg-core: #131a2a;
