@@ -8,6 +8,8 @@ interface FooterLink {
 
 interface Props {
   links?: FooterLink[];
+  /** the current page's QR-page href; null suppresses the link */
+  qrHref?: string | null;
 }
 
 const {
@@ -18,7 +20,11 @@ const {
     { label: "Resume", href: "/resume" },
     { label: "RSS", href: "/rss.xml" },
   ],
+  qrHref,
 } = Astro.props;
+
+// the QR beacon trails every list — a page-scoped link after the site-wide ones
+const allLinks = qrHref ? [...links, { label: "QR", href: qrHref }] : links;
 
 const year = toRoman(new Date().getFullYear());
 ---
@@ -28,7 +34,7 @@ const year = toRoman(new Date().getFullYear());
     <span class="mono">© {year} Zach Callahan · zmc.dev</span>
     <div class="links mono">
       {
-        links.map((link) => (
+        allLinks.map((link) => (
           <a
             href={link.href}
             {...(/^https?:\/\//.test(link.href)

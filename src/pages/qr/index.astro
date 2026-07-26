@@ -1,0 +1,22 @@
+---
+import QrPlate from "@components/QrPlate.astro";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { canonicalUrlFor } from "@lib/qr/paths";
+
+const url = canonicalUrlFor("/");
+---
+
+<BaseLayout
+  pageTitle="Beacon · zmc.dev — Zach Callahan"
+  metaDescription="Scannable beacon for zmc.dev — hold it up, point a camera at it."
+  qrHref={null}
+>
+  <QrPlate
+    {url}
+    svgHref="/qr.svg"
+    backHref="/"
+    backLabel="Home"
+    eyebrow="Beacon · Index"
+    title="zmc.dev"
+  />
+</BaseLayout>

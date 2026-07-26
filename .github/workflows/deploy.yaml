@@ -47,6 +47,10 @@ jobs:
       shell: bash
       working-directory: .
       run: pnpm check:cards
+    - name: check qr codes
+      shell: bash
+      working-directory: .
+      run: pnpm check:qr
     - name: upload pages artifact
       uses: actions/upload-pages-artifact@v3
       with:

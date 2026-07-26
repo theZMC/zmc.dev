@@ -1,0 +1,174 @@
+---
+import { qrMatrix } from "@lib/qr/matrix";
+import { QR_VARS, qrSvg } from "@lib/qr/render";
+
+interface Props {
+  /** the canonical URL the code encodes */
+  url: string;
+  /** the standalone SVG download, a sibling of the QR page */
+  svgHref: string;
+  backHref: string;
+  backLabel: string;
+  eyebrow: string;
+  title: string;
+}
+
+const { url, svgHref, backHref, backLabel, eyebrow, title } = Astro.props;
+
+const svg = qrSvg(qrMatrix(url), QR_VARS, { label: url });
+---
+
+<div class="panel-wrap">
+  <section class="panel qr-panel" id="beacon">
+    <a class="crumb mono" href={backHref}>← {backLabel}</a>
+
+    <div class="qr-head">
+      <span class="mono eyebrow">{eyebrow}</span>
+      <h1>{title}</h1>
+    </div>
+
+    <div class="qr-plate">
+      <!-- The flip is a checkbox: :checked ~ swaps the figure's two custom
+           properties, so the whole interaction runs in CSS. Dark mode shows
+           the code inverted (stars in ink on the dark page — some scanners
+           refuse inverted codes); the flip turns it into a parchment card. -->
+      <input
+        type="checkbox"
+        id="qr-invert"
+        class="qr-invert-toggle"
+        aria-label="Invert QR colors for scanning"
+      />
+      <figure class="qr-figure" set:html={svg} />
+      <p class="qr-url mono">{url}</p>
+      <div class="qr-actions mono">
+        <label for="qr-invert" class="qr-invert-pill">Invert</label>
+        <a class="qr-download" href={svgHref} download>Download SVG</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<style is:global>
+  main {
+    padding-top: calc(var(--nav-h) + 4.125rem); /* = 8.5rem */
+  }
+
+  .qr-panel {
+    padding: 2.2rem 3rem 2.6rem;
+  }
+
+  .qr-panel .crumb {
+    display: inline-block;
+    text-decoration: none;
+    margin-bottom: 2rem;
+    transition: color 0.3s;
+  }
+  .qr-panel .crumb:hover {
+    color: var(--brass);
+  }
+
+  .qr-head {
+    text-align: center;
+  }
+  .qr-head .eyebrow {
+    color: var(--brass);
+    letter-spacing: 0.3em;
+    display: block;
+    margin-bottom: 1.1rem;
+  }
+  .qr-head h1 {
+    font-family: "Marcellus", serif;
+    font-weight: 400;
+    font-size: clamp(1.5rem, 3.4vw, 2.2rem);
+    letter-spacing: 0.06em;
+    line-height: 1.22;
+  }
+
+  .qr-plate {
+    text-align: center;
+  }
+  /* the input is focusable but invisible; its state drives the figure and
+     its focus ring surfaces on the pill */
+  .qr-invert-toggle {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+  }
+  .qr-figure {
+    width: min(420px, 100%);
+    margin: 2.2rem auto 1.6rem;
+  }
+  .qr-figure svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+  }
+  .qr-invert-toggle:checked ~ .qr-figure {
+    --qr-star: var(--bg);
+    --qr-field: var(--ink);
+  }
+
+  .qr-url {
+    color: var(--ink-dim);
+    overflow-wrap: anywhere;
+  }
+
+  .qr-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.7rem;
+    margin-top: 1.4rem;
+  }
+  /* the code-frame pill recipe: glass body, hairline edge, brass answer */
+  .qr-invert-pill,
+  .qr-download {
+    cursor: pointer;
+    background: var(--glass);
+    color: var(--ink-dim);
+    border: 1px solid var(--hair);
+    border-radius: 6px;
+    padding: 0.25rem 0.6rem;
+    text-decoration: none;
+    transition:
+      color 0.25s ease,
+      border-color 0.25s ease;
+  }
+  .qr-invert-pill:hover,
+  .qr-download:hover {
+    color: var(--brass);
+    border-color: var(--brass-dim);
+  }
+  .qr-invert-toggle:checked ~ .qr-actions .qr-invert-pill {
+    color: var(--brass);
+    border-color: var(--brass-dim);
+  }
+  .qr-invert-toggle:focus-visible ~ .qr-actions .qr-invert-pill {
+    outline: 2px solid var(--brass);
+    outline-offset: 2px;
+  }
+
+  @media print {
+    /* paper always gets the scannable form: the print :root re-inks
+       --ink/--bg light, and this same-specificity later rule defeats a
+       checked flip */
+    .qr-invert-toggle:checked ~ .qr-figure {
+      --qr-star: var(--ink);
+      --qr-field: var(--bg);
+    }
+    .qr-actions {
+      display: none;
+    }
+  }
+
+  @media (max-width: 860px) {
+    main {
+      padding-top: calc(var(--nav-h) + 2.125rem); /* = 6.5rem */
+    }
+    .qr-panel {
+      padding: 1.4rem 1.4rem 2rem;
+    }
+  }
+</style>

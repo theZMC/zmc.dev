@@ -31,7 +31,29 @@ export const starPath = (cx: number, cy: number, R: number): string =>
     return `${i === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`;
   }).join(" ") + " Z";
 
-export const faviconSvg = (size?: number): string => `<svg xmlns="http://www.w3.org/2000/svg"${size ? ` width="${size}" height="${size}"` : ""} viewBox="0 0 128 128">
+// The compass star's four-point sibling (the QR beacons' module glyph):
+// eight vertices stepping 45° from 12 o'clock, cardinals R, waists R·w.
+// At R = half a module the cardinal points land on the module-edge
+// midpoints, so adjacent dark modules chain point-to-point. The default
+// waist is the comet proportion — the subheading trail star's 0.9px
+// waist on a 3.5px ray — still fat next to the compass star's R/4,
+// because a scanner's center sample must always land on ink.
+export const star4Path = (
+  cx: number,
+  cy: number,
+  R: number,
+  w = 0.36,
+): string =>
+  Array.from({ length: 8 }, (_, i) => {
+    const r = i % 2 === 0 ? R : R * w;
+    const t = (i * 45 * Math.PI) / 180;
+    const [x, y] = [cx + r * Math.sin(t), cy - r * Math.cos(t)];
+    return `${i === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`;
+  }).join(" ") + " Z";
+
+export const faviconSvg = (
+  size?: number,
+): string => `<svg xmlns="http://www.w3.org/2000/svg"${size ? ` width="${size}" height="${size}"` : ""} viewBox="0 0 128 128">
   <defs>
     <mask id="sol">
       <rect width="128" height="128" fill="#fff"/>
@@ -49,7 +71,9 @@ export const faviconSvg = (size?: number): string => `<svg xmlns="http://www.w3.
 `;
 
 export const renderFaviconPng = async (size = 512): Promise<Buffer> =>
-  sharp(Buffer.from(faviconSvg(size))).png().toBuffer();
+  sharp(Buffer.from(faviconSvg(size)))
+    .png()
+    .toBuffer();
 
 // ---- apple touch icon: a deeper cut of the orrery under the nav sigil ----
 
@@ -71,7 +95,12 @@ const at = (r: number, thetaDeg: number): { x: number; y: number } => {
   return { x: CX + r * Math.cos(t), y: CY + r * Math.sin(t) };
 };
 
-const body = (r: number, thetaDeg: number, size: number, color: string): string => {
+const body = (
+  r: number,
+  thetaDeg: number,
+  size: number,
+  color: string,
+): string => {
   const { x, y } = at(r, thetaDeg);
   return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${size}" fill="${color}"/>`;
 };
@@ -162,7 +191,9 @@ const sigilOverlay = async (): Promise<Buffer> => {
     {
       width: SIZE * SS,
       height: SIZE * SS,
-      fonts: [{ name: "Marcellus", data: marcellus, weight: 400, style: "normal" }],
+      fonts: [
+        { name: "Marcellus", data: marcellus, weight: 400, style: "normal" },
+      ],
     },
   );
   return sharp(Buffer.from(svg)).png().toBuffer();

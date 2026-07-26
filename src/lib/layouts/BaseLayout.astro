@@ -11,6 +11,7 @@ import "@fontsource/spline-sans-mono/400.css";
 import Cosmos from "@components/Cosmos.astro";
 import Footer from "@components/Footer.astro";
 import Nav from "@components/Nav.astro";
+import { qrHrefFor } from "@lib/qr/paths";
 import { ClientRouter } from "astro:transitions";
 
 interface Link {
@@ -28,6 +29,9 @@ interface Props {
   publishedTime?: string;
   navLinks?: Link[];
   footerLinks?: Link[];
+  /** the footer's QR-beacon link — computed from the path unless a page
+   *  overrides it (QR pages pass null; no /qr/qr/ chains) */
+  qrHref?: string | null;
   showProgress?: boolean;
 }
 
@@ -48,6 +52,7 @@ const {
   publishedTime,
   navLinks,
   footerLinks,
+  qrHref = qrHrefFor(Astro.url.pathname),
   showProgress,
 } = Astro.props;
 ---
@@ -131,7 +136,7 @@ const {
     <main id="content">
       <slot />
     </main>
-    <Footer links={footerLinks} />
+    <Footer links={footerLinks} {qrHref} />
     <script>
       import "@lib/scripts/site";
     </script>

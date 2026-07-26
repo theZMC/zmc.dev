@@ -1,0 +1,24 @@
+---
+import QrPlate from "@components/QrPlate.astro";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { canonicalUrlFor } from "@lib/qr/paths";
+
+const url = canonicalUrlFor("/resume/");
+const metaImage = new URL("/og/resume.png", Astro.site).toString();
+---
+
+<BaseLayout
+  pageTitle="Beacon · Resume — Zach Callahan"
+  metaDescription="Scannable beacon for Zach Callahan's resume at zmc.dev."
+  {metaImage}
+  qrHref={null}
+>
+  <QrPlate
+    {url}
+    svgHref="/resume/qr.svg"
+    backHref="/resume"
+    backLabel="Resume"
+    eyebrow="Beacon · Resume"
+    title="Resume"
+  />
+</BaseLayout>

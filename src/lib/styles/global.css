@@ -209,6 +209,15 @@
     transparent
   );
 }
+/* QR beacons (src/lib/qr): the star-field plates' fills are these vars,
+   so the code rides the theme like the diagrams do — and rides the print
+   re-inking below into its dark-on-white form. The QR page's flip toggle
+   swaps the pair at the figure, scoped there (QrPlate.astro). */
+:root {
+  --qr-star: var(--ink);
+  --qr-field: var(--bg);
+}
+
 /* light-dark() only speaks color, so the percentage rides the attribute
    with a media twin for auto — the pattern for every non-color theme rule. */
 [data-theme="light"] {

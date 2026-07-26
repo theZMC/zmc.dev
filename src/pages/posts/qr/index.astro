@@ -1,0 +1,32 @@
+---
+import QrPlate from "@components/QrPlate.astro";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { assertNoQrSlug, canonicalUrlFor } from "@lib/qr/paths";
+import { getCollection } from "astro:content";
+
+// A post slugged "qr" would silently lose its page to this static route
+// (static beats dynamic) — fail the build loudly instead.
+assertNoQrSlug(
+  (await getCollection("blog")).map((post) => post.id),
+  "blog",
+);
+
+const url = canonicalUrlFor("/posts/");
+const metaImage = new URL("/og/posts.png", Astro.site).toString();
+---
+
+<BaseLayout
+  pageTitle="Beacon · Transmissions — Zach Callahan"
+  metaDescription="Scannable beacon for the transmissions index at zmc.dev."
+  {metaImage}
+  qrHref={null}
+>
+  <QrPlate
+    {url}
+    svgHref="/posts/qr.svg"
+    backHref="/posts"
+    backLabel="All Transmissions"
+    eyebrow="Beacon · Transmissions"
+    title="Transmissions"
+  />
+</BaseLayout>

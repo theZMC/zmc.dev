@@ -1,0 +1,33 @@
+---
+import QrPlate from "@components/QrPlate.astro";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { canonicalUrlFor } from "@lib/qr/paths";
+import { postsByTag } from "@lib/utils/tags";
+
+export async function getStaticPaths() {
+  return [...(await postsByTag()).keys()].map((tag) => ({
+    params: { tag },
+  }));
+}
+
+const { tag } = Astro.params;
+
+const url = canonicalUrlFor(`/posts/by-tag/${tag}/`);
+const metaImage = new URL(`/og/tags/${tag}.png`, Astro.site).toString();
+---
+
+<BaseLayout
+  pageTitle={`Beacon · Transmissions · ${tag} — Zach Callahan`}
+  metaDescription={`Scannable beacon for transmissions tagged ${tag} at zmc.dev.`}
+  {metaImage}
+  qrHref={null}
+>
+  <QrPlate
+    {url}
+    svgHref={`/posts/by-tag/${tag}/qr.svg`}
+    backHref={`/posts/by-tag/${tag}`}
+    backLabel={`Tagged · ${tag}`}
+    eyebrow="Beacon · Tag"
+    title={`Transmissions · ${tag}`}
+  />
+</BaseLayout>
