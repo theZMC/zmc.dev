@@ -59,4 +59,15 @@ describe("qrSvg", () => {
     expect(results).toHaveLength(1);
     expect(results[0].text).toBe(URL);
   });
+
+  it("the dark-mode form — brass stars on the dark field — decodes", async () => {
+    const m = qrMatrix(URL);
+    // the dark halves of --brass and --bg, what dark-mode screens show
+    const svg = qrSvg(m, { star: "#c8a96a", field: "#0b0e14" });
+    for (const size of [1024, (m.size + 8) * 7]) {
+      const results = await decode(svg, size);
+      expect(results).toHaveLength(1);
+      expect(results[0].text).toBe(URL);
+    }
+  });
 });

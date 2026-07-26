@@ -15,6 +15,9 @@ const SITE = "https://zmc.dev";
 // the light-scheme literals the inline var() fallbacks carry (QR_LIGHT)
 const STAR = "#1a1e29";
 const FIELD = "#e9e3d3";
+// what dark-mode screens actually show: --brass stars on the --bg field
+const DARK_STAR = "#c8a96a";
+const DARK_FIELD = "#0b0e14";
 // The small-render check scales with density: the comet-slim stars
 // (src/lib/qr/render.ts) erode below ~6px per module, so the floor is
 // per-module, not a fixed pixel size — a v3 and a v7 code get the same
@@ -93,6 +96,9 @@ async function qrPageProblems(file) {
   const flipped = match[0]
     .replace(/var\(--qr-star[^)]*\)/g, FIELD)
     .replace(/var\(--qr-field[^)]*\)/g, STAR);
+  const dark = match[0]
+    .replace(/var\(--qr-star[^)]*\)/g, DARK_STAR)
+    .replace(/var\(--qr-field[^)]*\)/g, DARK_FIELD);
 
   const svgPath = path.join(path.dirname(path.dirname(file)), "qr.svg");
   const checks = [
@@ -103,6 +109,12 @@ async function qrPageProblems(file) {
       `inline @${small} (${SMALL_PX_PER_MODULE}px/module)`,
     ),
     decodeProblem(sized(flipped, 1024), expected, "flipped @1024"),
+    decodeProblem(sized(dark, 1024), expected, "dark brass @1024"),
+    decodeProblem(
+      sized(dark, small),
+      expected,
+      `dark brass @${small} (${SMALL_PX_PER_MODULE}px/module)`,
+    ),
     existsSync(svgPath)
       ? decodeProblem(readFileSync(svgPath, "utf8"), expected, "qr.svg")
       : Promise.resolve(`no standalone qr.svg beside ${rel}`),

@@ -151,9 +151,11 @@ const svg = qrSvg(qrMatrix(url), QR_VARS, { label: url });
   }
 
   @media print {
-    /* paper always gets the scannable form: the print :root re-inks
-       --ink/--bg light, and this same-specificity later rule defeats a
-       checked flip */
+    /* Paper always gets the scannable ink-on-white form: the print :root
+       re-inks --ink/--bg light, this rule points the stars back at ink
+       (the screen's dark-mode brass would print brown), and carrying the
+       checked selector at the same specificity defeats a flipped toggle. */
+    .qr-figure,
     .qr-invert-toggle:checked ~ .qr-figure {
       --qr-star: var(--ink);
       --qr-field: var(--bg);

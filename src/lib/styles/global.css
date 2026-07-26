@@ -211,21 +211,30 @@
 }
 /* QR beacons (src/lib/qr): the star-field plates' fills are these vars,
    so the code rides the theme like the diagrams do — and rides the print
-   re-inking below into its dark-on-white form. The QR page's flip toggle
-   swaps the pair at the figure, scoped there (QrPlate.astro). */
+   re-inking below into its dark-on-white form. Dark mode sets the stars
+   in brass — the orrery's metal — where the parchment ink read merely
+   pale; light mode keeps ink stars (light brass gives up scan contrast
+   for nothing). Different tokens per scheme, so the alias rides the
+   attribute with a media twin rather than light-dark(). The QR page's
+   flip toggle swaps the pair at the figure, scoped there
+   (QrPlate.astro). */
 :root {
-  --qr-star: var(--ink);
+  --qr-star: var(--brass);
   --qr-field: var(--bg);
 }
 
-/* light-dark() only speaks color, so the percentage rides the attribute
-   with a media twin for auto — the pattern for every non-color theme rule. */
+/* light-dark() only speaks color, so these ride the attribute with a
+   media twin for auto — the pattern for every rule light-dark() can't
+   express: the wash percentage, and the QR star swapping which token it
+   aliases (brass by default, ink in light). */
 [data-theme="light"] {
   --diagram-wash-mix: 30%;
+  --qr-star: var(--ink);
 }
 @media (prefers-color-scheme: light) {
   html:not([data-theme]) {
     --diagram-wash-mix: 30%;
+    --qr-star: var(--ink);
   }
 }
 
