@@ -123,6 +123,54 @@ async function qrPageProblems(file) {
 }
 
 /**
+ * A talk deck's standalone beacon: dist/talks/<slug>/qr.svg, written by
+ * the talks integration after the Slidev build. The deck's inline form
+ * lives inside a hashed JS bundle where it can't be extracted reliably,
+ * so the standalone artifact carries the deck's polarity coverage: its
+ * baked QR_LIGHT literals are substituted to the dark-brass and flipped
+ * pairs — the same geometry the slide shows through var().
+ *
+ * @param {string} slug
+ * @returns {Promise<string[]>}
+ */
+async function talkQrProblems(slug) {
+  const expected = `${SITE}/talks/${slug}/`;
+  const svgPath = path.join(dist, "talks", slug, "qr.svg");
+  if (!existsSync(svgPath)) return ["no qr.svg in the deck output"];
+  const svg = readFileSync(svgPath, "utf8");
+
+  const viewBox = svg.match(/viewBox="0 0 (\d+) \d+"/);
+  if (!viewBox) return ["qr.svg has no viewBox"];
+  const small = Number(viewBox[1]) * SMALL_PX_PER_MODULE;
+  // the standalone bakes its own 1024 box — resize it, don't double up
+  const resize = (/** @type {string} */ s, /** @type {number} */ px) =>
+    s.replace('width="1024" height="1024"', `width="${px}" height="${px}"`);
+
+  const dark = svg.replaceAll(STAR, DARK_STAR).replaceAll(FIELD, DARK_FIELD);
+  const flipped = svg
+    .replaceAll(STAR, "#swap#")
+    .replaceAll(FIELD, STAR)
+    .replaceAll("#swap#", FIELD);
+
+  const checks = [
+    decodeProblem(svg, expected, "qr.svg @1024"),
+    decodeProblem(
+      resize(svg, small),
+      expected,
+      `qr.svg @${small} (${SMALL_PX_PER_MODULE}px/module)`,
+    ),
+    decodeProblem(flipped, expected, "flipped @1024"),
+    decodeProblem(dark, expected, "dark brass @1024"),
+    decodeProblem(
+      resize(dark, small),
+      expected,
+      `dark brass @${small} (${SMALL_PX_PER_MODULE}px/module)`,
+    ),
+  ];
+  return (await Promise.all(checks)).filter((p) => p !== null);
+}
+
+/**
  * Every footer page outside the Slidev-built decks must carry the QR link
  * and both artifacts — coverage can't silently shrink.
  *
@@ -131,6 +179,8 @@ async function qrPageProblems(file) {
  */
 function coverageProblems(file) {
   const rel = path.relative(dist, file);
+  // decks carry no footer; their beacon rides the final slide, and the
+  // standalone artifact is gated per-slug below (talkQrProblems)
   if (rel === "404.html" || rel.startsWith("talks/")) return [];
   if (rel === "qr/index.html" || rel.endsWith("/qr/index.html")) return [];
   const html = readFileSync(file, "utf8");
@@ -162,6 +212,19 @@ if (qrPages.length === 0) {
   process.exit(1);
 }
 
+// talks enumerate from source, not dist — a deck whose artifact never got
+// written must fail, not vanish from coverage
+const talksSrc = path.join(process.cwd(), "src", "data", "talks");
+const talkSlugs = existsSync(talksSrc)
+  ? readdirSync(talksSrc, { withFileTypes: true })
+      .filter(
+        (entry) =>
+          entry.isDirectory() &&
+          existsSync(path.join(talksSrc, entry.name, "slides.md")),
+      )
+      .map((entry) => entry.name)
+  : [];
+
 let failed = false;
 
 /**
@@ -177,6 +240,10 @@ function report(file, problems) {
 
 for (const file of pages) report(file, coverageProblems(file));
 for (const file of qrPages) report(file, await qrPageProblems(file));
+for (const slug of talkSlugs)
+  report(path.join(dist, "talks", slug, "qr.svg"), await talkQrProblems(slug));
 
 if (failed) process.exit(1);
-console.log(`✓ ${qrPages.length} QR beacons decode to their pages`);
+console.log(
+  `✓ ${qrPages.length} QR beacons and ${talkSlugs.length} deck beacons decode to their pages`,
+);

@@ -30,6 +30,10 @@
   --label-brass: rgba(143, 111, 53, 0.7);
   --core-glow-opacity: 0.35;
   --code-head-h: 2.2rem;
+  /* the QR beacon's skin — light shows the baked-literal pair the
+     standalone download uses, dark the brass pair the scan gate decodes */
+  --qr-star: var(--ink);
+  --qr-field: var(--bg);
 }
 /* Slidev keys the dark chart off html.dark, which stylesheet scanners
    can't read as dark support. This restatement — auto (Slidev's default
@@ -66,6 +70,8 @@ html.dark {
   --label: rgba(232, 228, 216, 0.4);
   --label-brass: rgba(200, 169, 106, 0.55);
   --core-glow-opacity: 0.55;
+  --qr-star: var(--brass);
+  --qr-field: var(--bg);
 }
 
 /* ============ CANVAS ============ */
@@ -291,11 +297,33 @@ div.z-modal.bg-main {
   .zmc-backdrop[data-variant="faint"] {
     display: none;
   }
+  /* paper always gets the scannable ink-on-white beacon: the print :root
+     re-inks --ink/--bg, this points the stars back at ink (dark mode's
+     brass would print brown), and carrying the checked selector at the
+     same specificity defeats a flipped toggle */
+  .zmc-qr-figure,
+  .zmc-qr-toggle:checked ~ .zmc-qr-figure {
+    --qr-star: var(--ink);
+    --qr-field: var(--bg);
+  }
+  .zmc-qr-pill {
+    display: none;
+  }
 }
 /* slidev export renders in screen media with a `print` class instead of
    @media print — PDF rasterization turns the low-alpha graticule into hard
    black strokes through text, so content slides shed it there too */
 .print .zmc-backdrop[data-variant="faint"],
 html.print .zmc-backdrop[data-variant="faint"] {
+  display: none;
+}
+/* the export twin of the paper beacon rule: max contrast in whatever
+   scheme the export ran, flipped toggle normalized, pill shed */
+.print .zmc-qr-figure,
+.print .zmc-qr-toggle:checked ~ .zmc-qr-figure {
+  --qr-star: var(--ink);
+  --qr-field: var(--bg);
+}
+.print .zmc-qr-pill {
   display: none;
 }

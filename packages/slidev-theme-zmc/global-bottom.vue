@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /**
  * The coordinate strip: deck title, current section, and the slide count as
- * a completing orbit. Divider plates (cover/section/end) and the bare `full`
- * canvas stay clean.
+ * a completing orbit. Divider plates (cover/section/end/qr) and the bare
+ * `full` canvas stay clean.
  */
 import { computed } from 'vue'
 import { useNav, configs } from '@slidev/client'
@@ -14,7 +14,7 @@ const layout = computed(() => {
   const fm = (currentSlideRoute.value as any)?.meta?.slide?.frontmatter
   return fm?.layout ?? (currentSlideNo.value === 1 ? 'cover' : 'default')
 })
-const bare = computed(() => ['cover', 'section', 'end', 'full'].includes(layout.value))
+const bare = computed(() => ['cover', 'section', 'end', 'full', 'qr'].includes(layout.value))
 
 const section = computed(() => {
   let name = ''

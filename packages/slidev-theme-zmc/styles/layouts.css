@@ -225,6 +225,103 @@ html:not(.dark) .zmc-foot-count {
   margin: 1.1rem 0 0;
 }
 
+/* ============ QR BEACON ============
+   The star-QR block the end and qr layouts plant. Interaction is the
+   site's QrPlate checkbox: :checked ~ swaps the figure's two custom
+   properties, so the flip runs entirely in CSS. Dark mode shows the code
+   in brass on the dark field (some scanners refuse inverted codes); the
+   flip turns it into a parchment card. */
+.zmc-qr-toggle {
+  /* focusable but invisible; its state drives the figure and its focus
+     ring surfaces on the pill */
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+}
+.zmc-qr-figure {
+  margin: 0;
+}
+.zmc-qr-figure svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+.zmc-qr-toggle:checked ~ .zmc-qr-figure {
+  --qr-star: var(--bg);
+  --qr-field: var(--ink);
+}
+.slidev-layout .zmc-qr-url {
+  margin: 0.55rem 0 0;
+  font-family: "Spline Sans Mono", monospace;
+  font-weight: 300;
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-dim);
+  overflow-wrap: anywhere;
+}
+/* the code-frame pill recipe, but berthed until the presenter reaches for
+   it: hidden through the talk, surfaced by mouse presence or keyboard
+   focus so projection stays clean */
+.zmc-qr-pill {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-family: "Spline Sans Mono", monospace;
+  font-weight: 300;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  background: var(--glass);
+  color: var(--ink-dim);
+  border: 1px solid var(--hair);
+  border-radius: 6px;
+  padding: 0.22rem 0.6rem;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
+}
+.slidev-layout:hover .zmc-qr-pill,
+.zmc-qr-toggle:focus-visible ~ .zmc-qr-pill {
+  opacity: 1;
+  pointer-events: auto;
+}
+.zmc-qr-pill:hover,
+.zmc-qr-toggle:checked ~ .zmc-qr-pill {
+  color: var(--brass);
+  border-color: var(--brass-dim);
+}
+.zmc-qr-toggle:focus-visible ~ .zmc-qr-pill {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
+}
+/* the beacon berths in the end plate's open lower-left quarter, where the
+   body text is right-aligned away and the chart masked to a whisper */
+.zmc-end .zmc-end-qr {
+  position: absolute;
+  left: 3.25rem;
+  bottom: 3.2rem;
+  width: clamp(180px, 24%, 230px);
+  text-align: left;
+}
+
+/* the standalone qr layout: slot copy above a hero-sized beacon */
+.zmc-qr-slide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.zmc-qr-slide .zmc-qr {
+  width: min(320px, 44%);
+}
+
 /* ============ SECTION ============ */
 .zmc-section {
   display: flex;

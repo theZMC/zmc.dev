@@ -1,15 +1,24 @@
 <script setup lang="ts">
 import OrreryBackdrop from '../components/OrreryBackdrop.vue'
+import QrBeacon from '../components/QrBeacon.vue'
 
-defineProps<{
-  author?: string
-  coord?: string
-}>()
+// withDefaults, not `qr !== false`: Vue casts an absent boolean prop to
+// false, so without the default every slide would read as opted out
+withDefaults(
+  defineProps<{
+    author?: string
+    coord?: string
+    /** the talk's QR beacon, on unless the slide says `qr: false` */
+    qr?: boolean
+  }>(),
+  { qr: true },
+)
 </script>
 
 <template>
   <div class="slidev-layout zmc-cover zmc-end">
     <OrreryBackdrop variant="bold" anchor="left" />
+    <QrBeacon v-if="qr" class="zmc-end-qr" />
     <div class="zmc-cover-body" style="margin-left: auto; text-align: right">
       <p class="zmc-eyebrow">FINIS · TRANSMISSIONIS</p>
       <slot />

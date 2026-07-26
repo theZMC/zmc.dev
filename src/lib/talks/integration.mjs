@@ -10,6 +10,8 @@ import {
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parse } from "yaml";
+import { deckQr } from "../qr/deck";
+import { assertNoQrSlug } from "../qr/paths";
 
 const TALKS_BASE = "src/data/talks";
 const DECKS_OUT = "public/talks";
@@ -127,6 +129,10 @@ export default function talks() {
           )
           .map((entry) => entry.name);
 
+        // the same guard the collections carry: a talk slugged "qr" would
+        // sit inside the beacon namespace the site keys off {page}/qr/
+        assertNoQrSlug(slugs, "talks");
+
         for (const slug of slugs) {
           logger.info(`building deck ${slug}`);
           await buildDeck(root, decksDir, slug, site);
@@ -144,10 +150,14 @@ export default function talks() {
  * @param {string} site
  * @returns {Promise<void>}
  */
-function buildDeck(root, decksDir, slug, site) {
+async function buildDeck(root, decksDir, slug, site) {
   const entry = path.join(TALKS_BASE, slug, "slides.md");
   const out = path.join(decksDir, slug);
   const meta = socialMeta(root, slug, site);
+  // The talk's standalone beacon, written into the Slidev output below —
+  // an Astro route would make two writers of dist/talks. The in-deck form
+  // arrives separately, through the theme's virtual:zmc-qr module.
+  const { standalone } = await deckQr(slug);
 
   return new Promise((resolve, reject) => {
     const child = spawn(
@@ -191,6 +201,7 @@ function buildDeck(root, decksDir, slug, site) {
             .replace("<head>", `<head>${THEME_BRIDGE}${meta}`),
         );
       }
+      writeFileSync(path.join(out, "qr.svg"), standalone);
       resolve();
     });
   });
