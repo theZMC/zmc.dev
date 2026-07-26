@@ -1,9 +1,9 @@
 import { star4Path } from "../icons/render";
+import { monogram } from "./badge";
 import {
   QUIET_ZONE,
   alignmentCenters,
   finderOrigins,
-  inAlignment,
   inFinder,
 } from "./geometry";
 import type { QrMatrix } from "./matrix";
@@ -26,6 +26,19 @@ import type { QrMatrix } from "./matrix";
 // the gate checks at 7px/module rather than a fixed small size. Real
 // scan surfaces (the 420px page plate, print, any camera) sit far above.
 const STAR_W = 0.36;
+
+// The Z·M·C badge: a centered clearing in the star field carrying the
+// sigil. EC-H's ~30% damage budget is what licenses it — the clearing
+// spends ~8% of the modules, and on v7 codes it swallows the center
+// alignment pattern too (decoders extrapolate the sampling grid; the
+// scan gate proves ours do). Fractions of the code's side, so the badge
+// scales with density.
+const BADGE_W = 0.42;
+const BADGE_H = 0.2;
+/** clearance between the badge box and the surrounding stars */
+const BADGE_GAP = 0.35;
+/** breathing room between the box edge and the sigil */
+const BADGE_PAD = 0.5;
 
 export interface QrColors {
   /** dark-module fill — a literal or a var() reference */
@@ -53,12 +66,25 @@ export const QR_VARS: QrColors = {
   field: `var(--qr-field, ${QR_LIGHT.field})`,
 };
 
-export const qrSvg = (
+export const qrSvg = async (
   m: QrMatrix,
   colors: QrColors,
   opts: QrSvgOpts = {},
-): string => {
+): Promise<string> => {
   const total = m.size + QUIET_ZONE * 2;
+
+  // the badge clearing, centered in module units
+  const badge = {
+    w: m.size * BADGE_W,
+    h: m.size * BADGE_H,
+    x: (m.size * (1 - BADGE_W)) / 2,
+    y: (m.size * (1 - BADGE_H)) / 2,
+  };
+  const inBadge = (row: number, col: number, margin: number): boolean =>
+    col + 0.5 > badge.x - margin &&
+    col + 0.5 < badge.x + badge.w + margin &&
+    row + 0.5 > badge.y - margin &&
+    row + 0.5 < badge.y + badge.h + margin;
 
   // Finders: square ring (7×7 with a 5×5 hole) around a star cluster — a
   // 3-module star with four satellite stars on the 3×3's corner modules.
@@ -84,26 +110,51 @@ export const qrSvg = (
   // alignment (v≥2): the conventional 5×5 ring, its center module a
   // normal-sized star — a miniature echo of the finder treatment. A
   // 1.5-radius star here would touch the ring and corrupt the light band.
+  // A pattern the badge clearing touches at all is dropped whole — a
+  // partially-eaten ring reads as a defect, and EC covers the loss.
   const alignRings: string[] = [];
   const alignStars: string[] = [];
-  for (const c of alignmentCenters(m.version)) {
+  const alignments = alignmentCenters(m.version).filter(
+    (c) =>
+      !(
+        c.col + 2.5 > badge.x - BADGE_GAP &&
+        c.col - 2.5 < badge.x + badge.w + BADGE_GAP &&
+        c.row + 2.5 > badge.y - BADGE_GAP &&
+        c.row - 2.5 < badge.y + badge.h + BADGE_GAP
+      ),
+  );
+  for (const c of alignments) {
     alignRings.push(
       `M${c.col - 2} ${c.row - 2}h5v5h-5Z M${c.col - 1} ${c.row - 1}v3h3v-3Z`,
     );
     alignStars.push(star4Path(c.col + 0.5, c.row + 0.5, 0.5, STAR_W));
   }
+  const inKeptAlignment = (row: number, col: number): boolean =>
+    alignments.some(
+      (c) => Math.abs(row - c.row) <= 2 && Math.abs(col - c.col) <= 2,
+    );
 
   // every remaining dark module — data, timing, format, version — is a
-  // half-module star whose points reach the module edge, chaining runs
+  // half-module star whose points reach the module edge, chaining runs;
+  // the badge clearing swallows the ones under and around the sigil
   const stars: string[] = [];
   for (let row = 0; row < m.size; row++) {
     for (let col = 0; col < m.size; col++) {
       if (!m.isDark(row, col)) continue;
-      if (inFinder(row, col, m.size) || inAlignment(row, col, m.version))
-        continue;
+      if (inFinder(row, col, m.size) || inKeptAlignment(row, col)) continue;
+      if (inBadge(row, col, BADGE_GAP)) continue;
       stars.push(star4Path(col + 0.5, row + 0.5, 0.5, STAR_W));
     }
   }
+
+  // the sigil, width-fit into the clearing and centered
+  const sigil = await monogram();
+  const scale = Math.min(
+    (badge.w - 2 * BADGE_PAD) / sigil.width,
+    (badge.h - 2 * BADGE_PAD) / sigil.height,
+  );
+  const sigilX = badge.x + (badge.w - sigil.width * scale) / 2;
+  const sigilY = badge.y + (badge.h - sigil.height * scale) / 2;
 
   const label = opts.label ? `Scan to open ${opts.label}` : "QR code";
   return [
@@ -120,6 +171,7 @@ export const qrSvg = (
       ? `<path fill-rule="evenodd" d="${alignRings.join(" ")}"/><path d="${alignStars.join(" ")}"/>`
       : "",
     `<path d="${stars.join(" ")}"/>`,
+    `<g transform="translate(${sigilX.toFixed(2)} ${sigilY.toFixed(2)}) scale(${scale.toFixed(4)})">${sigil.body}</g>`,
     `</g></svg>`,
   ].join("");
 };

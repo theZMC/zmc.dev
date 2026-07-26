@@ -16,8 +16,8 @@ const decode = async (svg: string, size: number) => {
 };
 
 describe("qrSvg", () => {
-  it("inline form carries the CSS-var skin and an accessible name", () => {
-    const svg = qrSvg(
+  it("inline form carries the CSS-var skin and an accessible name", async () => {
+    const svg = await qrSvg(
       qrMatrix(URL),
       {
         star: "var(--qr-star, #1a1e29)",
@@ -31,16 +31,27 @@ describe("qrSvg", () => {
     expect(svg).not.toContain("<title>");
   });
 
-  it("standalone form is a sized, titled document with baked literals", () => {
-    const svg = qrSvg(qrMatrix(URL), LIGHT, { standalone: true, label: URL });
+  it("standalone form is a sized, titled document with baked literals", async () => {
+    const svg = await qrSvg(qrMatrix(URL), LIGHT, {
+      standalone: true,
+      label: URL,
+    });
     expect(svg).toContain('width="1024" height="1024"');
     expect(svg).toContain(`<title>Scan to open ${URL}</title>`);
     expect(svg).toContain('fill="#1a1e29"');
   });
 
+  it("carries the Z·M·C badge as glyph paths, no text or font", async () => {
+    const svg = await qrSvg(qrMatrix(URL), LIGHT);
+    expect(svg).not.toContain("<text");
+    expect(svg).not.toContain("font-family");
+    // the sigil group: a scaled translate wrapping bare paths
+    expect(svg).toMatch(/<g transform="translate\([\d. ]+\) scale\([\d.]+\)">/);
+  });
+
   it("the star field round-trips: worst-case slug decodes at 1024 and small", async () => {
     const m = qrMatrix(URL);
-    const svg = qrSvg(m, LIGHT);
+    const svg = await qrSvg(m, LIGHT);
     // 7px/module, the gate's small-render floor
     for (const size of [1024, (m.size + 8) * 7]) {
       const results = await decode(svg, size);
@@ -50,8 +61,19 @@ describe("qrSvg", () => {
     }
   });
 
+  it("the shortest code — homepage, v3 — decodes with the badge too", async () => {
+    const url = "https://zmc.dev/";
+    const m = qrMatrix(url);
+    const svg = await qrSvg(m, LIGHT);
+    for (const size of [1024, (m.size + 8) * 7]) {
+      const results = await decode(svg, size);
+      expect(results).toHaveLength(1);
+      expect(results[0].text).toBe(url);
+    }
+  });
+
   it("the inverted form decodes too", async () => {
-    const svg = qrSvg(qrMatrix(URL), {
+    const svg = await qrSvg(qrMatrix(URL), {
       star: LIGHT.field,
       field: LIGHT.star,
     });
@@ -63,7 +85,7 @@ describe("qrSvg", () => {
   it("the dark-mode form — brass stars on the dark field — decodes", async () => {
     const m = qrMatrix(URL);
     // the dark halves of --brass and --bg, what dark-mode screens show
-    const svg = qrSvg(m, { star: "#c8a96a", field: "#0b0e14" });
+    const svg = await qrSvg(m, { star: "#c8a96a", field: "#0b0e14" });
     for (const size of [1024, (m.size + 8) * 7]) {
       const results = await decode(svg, size);
       expect(results).toHaveLength(1);

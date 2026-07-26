@@ -153,7 +153,9 @@ const appleTouchSvg = (): string => {
 
 // satori can't parse woff2; load the plain WOFF cut from @fontsource.
 // The build always runs from the repo root, so resolve via cwd.
-const marcellus = readFileSync(
+// Exported for the QR badge (src/lib/qr/badge.ts), which sets the same
+// Z·M·C sigil in the same cut.
+export const marcellus = readFileSync(
   path.join(
     process.cwd(),
     "node_modules",

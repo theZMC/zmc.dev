@@ -15,7 +15,7 @@ interface Props {
 
 const { url, svgHref, backHref, backLabel, eyebrow, title } = Astro.props;
 
-const svg = qrSvg(qrMatrix(url), QR_VARS, { label: url });
+const svg = await qrSvg(qrMatrix(url), QR_VARS, { label: url });
 ---
 
 <div class="panel-wrap">

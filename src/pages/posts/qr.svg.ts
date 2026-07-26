@@ -3,10 +3,10 @@ import { qrMatrix } from "@lib/qr/matrix";
 import { canonicalUrlFor } from "@lib/qr/paths";
 import { QR_LIGHT, qrSvg } from "@lib/qr/render";
 
-export const GET: APIRoute = () => {
+export const GET: APIRoute = async () => {
   const url = canonicalUrlFor("/posts/");
   return new Response(
-    qrSvg(qrMatrix(url), QR_LIGHT, { standalone: true, label: url }),
+    await qrSvg(qrMatrix(url), QR_LIGHT, { standalone: true, label: url }),
     { headers: { "Content-Type": "image/svg+xml" } },
   );
 };

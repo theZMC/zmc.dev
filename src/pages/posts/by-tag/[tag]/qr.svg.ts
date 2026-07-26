@@ -10,10 +10,10 @@ export const getStaticPaths = async () => {
   }));
 };
 
-export const GET: APIRoute = ({ params }) => {
+export const GET: APIRoute = async ({ params }) => {
   const url = canonicalUrlFor(`/posts/by-tag/${params.tag}/`);
   return new Response(
-    qrSvg(qrMatrix(url), QR_LIGHT, { standalone: true, label: url }),
+    await qrSvg(qrMatrix(url), QR_LIGHT, { standalone: true, label: url }),
     { headers: { "Content-Type": "image/svg+xml" } },
   );
 };
