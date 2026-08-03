@@ -9,6 +9,7 @@ import { rehypeHeadingIds } from "@astrojs/markdown-remark";
 import relativeLinks from "astro-relative-links";
 
 import talks from "./src/lib/talks/integration.mjs";
+import buildCache from "./src/lib/build-cache/integration";
 
 import { zmcDark, zmcLight } from "./src/lib/shiki/zmc-themes.mjs";
 
@@ -107,7 +108,9 @@ export default defineConfig({
     ],
   },
 
-  integrations: [relativeLinks(), talks()],
+  // buildCache last: its build:done sweep must run after every producer
+  // has marked the artifact-cache entries it touched.
+  integrations: [relativeLinks(), talks(), buildCache()],
 
   vite: {
     cacheDir: isBuild ? "node_modules/.vite-build" : undefined,

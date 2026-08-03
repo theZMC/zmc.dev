@@ -10,6 +10,7 @@ import {
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parse } from "yaml";
+import { cachedDir, hashDir } from "../build-cache/index";
 import { deckQr } from "../qr/deck";
 import { assertNoQrSlug } from "../qr/paths";
 
@@ -134,9 +135,25 @@ export default function talks() {
         assertNoQrSlug(slugs, "talks");
 
         for (const slug of slugs) {
-          logger.info(`building deck ${slug}`);
-          await buildDeck(root, decksDir, slug, site);
-          logger.info(`deck ready at /talks/${slug}/`);
+          // The slug + deck source dir (slides.md, talk.yaml, assets)
+          // are the per-deck key — the slug is baked into the deck's
+          // --base, og:url, and beacon, so a renamed talk must miss even
+          // when its contents are byte-identical. The site URL feeds
+          // og:url/og:image and the beacon; the theme package, qr lib,
+          // and this file ride the class manifest, so a hit restores the
+          // fully post-processed deck — bridge, social meta, and qr.svg
+          // included.
+          const result = await cachedDir(
+            "talks",
+            [slug, hashDir(path.join(talksDir, slug)), site],
+            path.join(decksDir, slug),
+            () => buildDeck(root, decksDir, slug, site),
+          );
+          logger.info(
+            result === "hit"
+              ? `deck ${slug} restored from cache`
+              : `deck built at /talks/${slug}/`,
+          );
         }
       },
     },

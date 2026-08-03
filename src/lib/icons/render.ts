@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import satori from "satori";
 import sharp from "sharp";
+import { cachedBuffer } from "../build-cache";
 
 // Engraved celestial chart tokens (dark theme, src/lib/styles/global.css).
 // Icons always render the dark palette; the SVG favicon carries a media
@@ -70,10 +71,14 @@ export const faviconSvg = (
 </svg>
 `;
 
-export const renderFaviconPng = async (size = 512): Promise<Buffer> =>
-  sharp(Buffer.from(faviconSvg(size)))
-    .png()
-    .toBuffer();
+export const renderFaviconPng = (): Promise<Buffer> =>
+  cachedBuffer("icons", ["favicon"], () =>
+    // 512 sets the rasterization size; a bare faviconSvg() has no
+    // width/height and sharp would rasterize at the 128px viewBox.
+    sharp(Buffer.from(faviconSvg(512)))
+      .png()
+      .toBuffer(),
+  );
 
 // ---- apple touch icon: a deeper cut of the orrery under the nav sigil ----
 
@@ -201,13 +206,14 @@ const sigilOverlay = async (): Promise<Buffer> => {
   return sharp(Buffer.from(svg)).png().toBuffer();
 };
 
-export const renderAppleTouchIcon = async (): Promise<Buffer> => {
-  const overlay = await sigilOverlay();
-  // Two passes: sharp's pipeline resizes before compositing, so the 4×
-  // composite must be flattened to a buffer before the downsample.
-  const supersampled = await sharp(Buffer.from(appleTouchSvg()))
-    .composite([{ input: overlay }])
-    .png()
-    .toBuffer();
-  return sharp(supersampled).resize(SIZE, SIZE).png().toBuffer();
-};
+export const renderAppleTouchIcon = (): Promise<Buffer> =>
+  cachedBuffer("icons", ["apple-touch"], async () => {
+    const overlay = await sigilOverlay();
+    // Two passes: sharp's pipeline resizes before compositing, so the 4×
+    // composite must be flattened to a buffer before the downsample.
+    const supersampled = await sharp(Buffer.from(appleTouchSvg()))
+      .composite([{ input: overlay }])
+      .png()
+      .toBuffer();
+    return sharp(supersampled).resize(SIZE, SIZE).png().toBuffer();
+  });

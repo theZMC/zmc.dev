@@ -4,6 +4,11 @@ on:
     branches:
     - main
   workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: Rebuild all artifacts (skip artifact cache restore)
+        type: boolean
+        default: false
 permissions:
   contents: read
   pages: write
@@ -18,6 +23,16 @@ jobs:
       uses: pnpm/action-setup@v4
       with:
         version: 10
+    - name: locate pnpm store
+      id: pnpm-store
+      shell: bash
+      run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+    - name: cache pnpm store
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.pnpm-store.outputs.path }}
+        key: pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+        restore-keys: pnpm-store-
     - name: install packages
       shell: bash
       working-directory: .
@@ -39,10 +54,29 @@ jobs:
       shell: bash
       working-directory: .
       run: pnpm exec playwright install --with-deps chromium
+    # Content-addressed cache of expensive build artifacts (og cards,
+    # mermaid plates, slidev decks, resume pdf — src/lib/build-cache).
+    # Restore/save are split, not one actions/cache step: force_rebuild
+    # must skip only the restore, and the save must land even when a
+    # check gate fails, since entries are input-keyed either way. The
+    # run_id key is always unique so every run saves; restore-keys picks
+    # up the newest prior run's store.
+    - name: restore artifact cache
+      if: ${{ github.event_name != 'workflow_dispatch' || inputs.force_rebuild != true }}
+      uses: actions/cache/restore@v4
+      with:
+        path: .cache/artifacts
+        key: artifacts-v1-${{ github.run_id }}
+        restore-keys: artifacts-v1-
     - name: build astro site
       shell: bash
       working-directory: .
       run: pnpm build
+    - name: save artifact cache
+      uses: actions/cache/save@v4
+      with:
+        path: .cache/artifacts
+        key: artifacts-v1-${{ github.run_id }}
     - name: check social cards
       shell: bash
       working-directory: .

@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { renderToBuffer, type DocumentProps } from "@react-pdf/renderer";
 import { createElement, type ReactElement } from "react";
+import { cachedBuffer } from "../build-cache";
 import { loadResume } from "../resume/load";
 import { HarvardResume } from "./template";
 
@@ -12,8 +13,17 @@ import { HarvardResume } from "./template";
  */
 export const GET: APIRoute = async () => {
   const data = await loadResume();
-  const pdf = await renderToBuffer(
-    createElement(HarvardResume, { data }) as ReactElement<DocumentProps>,
+  // Cached on the loaded data, not the yaml file — astro:content stays
+  // the sole reader of resume.yaml. Bonus: the two PDF routes were two
+  // renders with differing react-pdf CreationDate metadata; the second
+  // is now a hit, so they ship byte-identical.
+  const pdf = await cachedBuffer(
+    "resume-pdf",
+    [JSON.stringify(data)],
+    () =>
+      renderToBuffer(
+        createElement(HarvardResume, { data }) as ReactElement<DocumentProps>,
+      ),
   );
   return new Response(new Uint8Array(pdf), {
     headers: { "Content-Type": "application/pdf" },

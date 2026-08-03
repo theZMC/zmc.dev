@@ -13,6 +13,7 @@ import {
   themeVariables,
   DIAGRAM_FONT_FAMILY,
 } from "./palette";
+import { getJson, putJson } from "../build-cache";
 
 export interface PreparedDiagram {
   /** Source handed to mermaid, with the frontmatter title removed. */
@@ -78,14 +79,12 @@ function fontsCssUrl(): URL {
   );
 }
 
-/**
- * Render a batch of fences (all diagrams of one document) to theme-aware
- * SVG strings. Throws — failing the build — on the first diagram mermaid
- * rejects or whose colors the palette does not fully cover.
- */
-export async function renderDiagrams(
+// The uncached batch renderer — the pre-cache body of renderDiagrams,
+// parameterized on per-diagram error labels so fences that skipped the
+// cache keep their original ordinals in failure messages.
+async function renderDiagramsUncached(
   fences: string[],
-  context: string,
+  wheres: string[],
 ): Promise<RenderedDiagram[]> {
   const prepared = fences.map(prepareDiagram);
 
@@ -144,17 +143,16 @@ export async function renderDiagrams(
   );
 
   return settled.map((result, i) => {
-    const where = `${context}, diagram ${i + 1}`;
     if (result.status === "rejected") {
       const reason =
         result.reason instanceof Error
           ? result.reason.message
           : String(result.reason);
-      throw new Error(`[diagrams] ${where}: mermaid failed: ${reason}`);
+      throw new Error(`[diagrams] ${wheres[i]}: mermaid failed: ${reason}`);
     }
 
     const swapped = washPieSlices(swapSentinels(result.value.svg));
-    assertNoStrayColors(swapped, where);
+    assertNoStrayColors(swapped, wheres[i]);
 
     return {
       svg: swapped,
@@ -164,4 +162,38 @@ export async function renderDiagrams(
       description: result.value.description,
     };
   });
+}
+
+/**
+ * Render a batch of fences (all diagrams of one document) to theme-aware
+ * SVG strings. Throws — failing the build — on the first diagram mermaid
+ * rejects or whose colors the palette does not fully cover.
+ *
+ * Each fence caches through the artifact store (keyed on its raw source,
+ * which carries the frontmatter title and any config), so only misses
+ * reach the renderer — a full-hit build never launches chromium. The
+ * sentinel assertion runs on misses only: a cached SVG already passed
+ * it, and the key folds in the palette and this module.
+ */
+export async function renderDiagrams(
+  fences: string[],
+  context: string,
+): Promise<RenderedDiagram[]> {
+  const results = fences.map((fence) =>
+    getJson<RenderedDiagram>("diagrams", [fence]),
+  );
+  const missing = results.flatMap((cached, i) =>
+    cached === undefined ? [i] : [],
+  );
+  if (missing.length === 0) return results as RenderedDiagram[];
+
+  const fresh = await renderDiagramsUncached(
+    missing.map((i) => fences[i]),
+    missing.map((i) => `${context}, diagram ${i + 1}`),
+  );
+  missing.forEach((i, j) => {
+    putJson("diagrams", [fences[i]], fresh[j]);
+    results[i] = fresh[j];
+  });
+  return results as RenderedDiagram[];
 }

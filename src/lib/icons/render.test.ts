@@ -15,7 +15,7 @@ describe("favicon", () => {
   });
 
   it("rasterizes at the requested size", async () => {
-    const meta = await sharp(await renderFaviconPng(512)).metadata();
+    const meta = await sharp(await renderFaviconPng()).metadata();
     expect([meta.width, meta.height]).toEqual([512, 512]);
   });
 });

@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import satori from "satori";
 import sharp from "sharp";
+import { cachedBuffer } from "../build-cache";
 
 export const WIDTH = 1200;
 export const HEIGHT = 630;
@@ -103,10 +104,7 @@ export const OUT_SCALE = 2;
 
 // The satori text tree renders on a transparent layer and composites over the
 // chart SVG, so text trees never set a backgroundColor of their own.
-export const compose = async (
-  chart: string,
-  tree: Node,
-): Promise<Buffer> => {
+const composeUncached = async (chart: string, tree: Node): Promise<Buffer> => {
   // The tree mimics React elements structurally; satori's ReactNode
   // parameter only became visible to tsc once @types/react was installed.
   const svg = await satori(tree as unknown as import("react").ReactNode, {
@@ -127,3 +125,11 @@ export const compose = async (
     .png()
     .toBuffer();
 };
+
+// Chart + tree are a complete input key: every resolved prop a plate
+// depends on — title, date, tags, the epoch numeral — arrives here as
+// text inside the tree, and the fonts ride the lockfile part.
+export const compose = (chart: string, tree: Node): Promise<Buffer> =>
+  cachedBuffer("og", [chart, JSON.stringify(tree)], () =>
+    composeUncached(chart, tree),
+  );
