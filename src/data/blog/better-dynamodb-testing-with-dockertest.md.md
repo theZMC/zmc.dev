@@ -782,16 +782,11 @@ func Test_dynamoDBTransactionRepository_Integration(t *testing.T) {
 #### Running Our Tests
 
 Now that we have our tests written, we can run them with `go test` from the root
-of the project:
+of the project. This will run all of our tests and output the results. We
+should see something like this:
 
-```bash
-go test -v -cover ./...
-```
-
-This will run all of our tests and output the results. We should see something
-like this:
-
-```
+```console
+$ go test -v -cover ./...
 === RUN   Test_dynamoDBTransactionRepository_Integration
 === RUN   Test_dynamoDBTransactionRepository_Integration/GetTransactionsByUserID__Multiple_Transactions_From_User_ID
 === RUN   Test_dynamoDBTransactionRepository_Integration/GetTransactionsByUserID__One_Transaction_From_User_ID

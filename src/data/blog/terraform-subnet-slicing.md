@@ -291,7 +291,7 @@ VPC modules expect.
 > immediately. It's a much faster feedback loop than editing a `.tf` file and
 > running `plan` just to check your math:
 >
-> ```sh
+> ```console repl="terraform"
 > $ terraform console
 > > cidrsubnet("10.0.0.0/21", 3, 4)
 > "10.0.4.0/24"

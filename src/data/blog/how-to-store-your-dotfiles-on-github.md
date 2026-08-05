@@ -150,15 +150,11 @@ Now we can run it with the following command:
 ~/dotfiles/setup.sh
 ```
 
-And check to make sure the symlinks were created:
+And check to make sure the symlinks were created. You should see something
+similar to:
 
-```bash
-ls -la ~/.vimrc
-```
-
-You should see something similar to:
-
-```
+```console
+$ ls -la ~/.vimrc
 lrwxrwxrwx 1 user user 17 Sep  1 12:00 .vimrc -> /home/user/.vimrc
 ```
 
