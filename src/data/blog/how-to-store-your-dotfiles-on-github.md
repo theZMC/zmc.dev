@@ -75,9 +75,9 @@ in a directory called `.config`. Wherever you decide to clone your repository,
 make sure you remember where you put it. For this example, I'll assume you
 cloned your repo to your home directory in a directory called `dotfiles`.
 
-```bash
-cd ~
-git clone <your-repo-url> dotfiles
+```console
+$ cd ~
+$ git clone <your-repo-url> dotfiles
 ```
 
 ### Step 3: Create/Copy Your Dotfiles
@@ -87,22 +87,22 @@ dotfiles into the repository. For this example, I'll assume you have a `.vimrc`
 file in your home directory. You can create a new file or copy an existing one
 into your repository.
 
-```bash
-cp ~/.vimrc ~/dotfiles
+```console
+$ cp ~/.vimrc ~/dotfiles
 ```
 
 To automate this process, we can use a simple bash for loop.
 
-```bash
-for file in .bashrc .vimrc .gitconfig; do cp ~/$file ~/dotfiles; done
+```console
+$ for file in .bashrc .vimrc .gitconfig; do cp ~/$file ~/dotfiles; done
 ```
 
 Just make sure you replace the list of files with the files you want to copy.
 You can also use wildcards to copy all files that match a pattern. For example,
 to copy all files that begin with a period, you could use the following command.
 
-```bash
-cp ~/.* ~/dotfiles
+```console
+$ cp ~/.* ~/dotfiles
 ```
 
 ### Step 4: Create a Shell Script to Link Your Dotfiles
@@ -140,14 +140,14 @@ ln -sf ~/dotfiles/.gitconfig ~/
 Now that you have your shell script, you can run it to create symlinks for your
 dotfiles. But before we can run it, we'll need to make it executable:
 
-```bash
-chmod +x ~/dotfiles/setup.sh
+```console
+$ chmod +x ~/dotfiles/setup.sh
 ```
 
 Now we can run it with the following command:
 
-```bash
-~/dotfiles/setup.sh
+```console
+$ ~/dotfiles/setup.sh
 ```
 
 And check to make sure the symlinks were created. You should see something
@@ -169,11 +169,11 @@ lrwxrwxrwx 1 user user 17 Sep  1 12:00 .vimrc -> /home/user/.vimrc
 Now that you have your dotfiles in your repository and you've created symlinks
 for them, you can commit and push your changes.
 
-```bash
-cd ~/dotfiles
-git add .
-git commit -m "added dotfiles; added setup.sh"
-git push
+```console
+$ cd ~/dotfiles
+$ git add .
+$ git commit -m "added dotfiles; added setup.sh"
+$ git push
 ```
 
 > [!NOTE]
@@ -187,10 +187,10 @@ Now that you have your dotfiles in a remote repository, you can clone them to a
 new machine. Just make sure you run your shell script to create symlinks for
 your dotfiles.
 
-```bash
-cd ~
-git clone <your-repo-url> dotfiles
-~/dotfiles/setup.sh
+```console
+$ cd ~
+$ git clone <your-repo-url> dotfiles
+$ ~/dotfiles/setup.sh
 ```
 
 ## How to Keep Your Dotfiles Synced
@@ -215,8 +215,8 @@ Cron is a system service that runs in the background on POSIX-based systems
 (Linux, Mac, etc.). It's configured by editing a file called a `crontab`. You
 can edit your user's crontab with the following command:
 
-```bash
-crontab -e
+```console
+$ crontab -e
 ```
 
 This will open your crontab in your default text editor. You can also use the
@@ -252,22 +252,22 @@ git push
 
 Now we need to make this script executable:
 
-```bash
-chmod +x ~/dotfiles/sync.sh
+```console
+$ chmod +x ~/dotfiles/sync.sh
 ```
 
 And we'll need to push our changes to our remote repository. Luckily, we just
 created a script to do that for us!
 
-```bash
-~/dotfiles/sync.sh
+```console
+$ ~/dotfiles/sync.sh
 ```
 
 Now we can add a cron job to run our script every 30 minutes. Open your crontab
 with the following command:
 
-```bash
-crontab -e
+```console
+$ crontab -e
 ```
 
 And add the following line to the bottom of the file:
