@@ -971,6 +971,22 @@ const { Content } = await render(post);
       color: var(--shiki-light);
     }
   }
+  /* ```console transcripts: prompts are drawn here, never present in DOM
+     text, so selection — and the command-aware Copy button in site.ts —
+     always yields clean pasteable shell. Output is flat dim ink. */
+  .post-body .astro-code .line.console-cmd[data-prompt]::before {
+    content: attr(data-prompt) " ";
+    color: var(--brass);
+  }
+  /* PS2 continuation prompts recede — plumbing, not a new command.
+     (Class, not [data-prompt=">"]: a fence-meta prompt=">" makes `>` a
+     primary REPL prompt, and those stay brass.) */
+  .post-body .astro-code .line.console-cmd.console-cont::before {
+    color: var(--ink-dim);
+  }
+  .post-body .astro-code .line.console-out {
+    color: var(--ink-dim);
+  }
 
   .post-body img {
     display: block;

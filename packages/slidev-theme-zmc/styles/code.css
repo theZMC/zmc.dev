@@ -148,6 +148,42 @@ html:not(.dark) .slidev-layout .shiki .slidev-code-dishonored {
   opacity: 0.85 !important;
 }
 
+/* ============ CONSOLE ============
+   ```console transcripts: prompts are drawn here, never present in DOM
+   text, so drag-selection yields clean pasteable commands — the copy
+   affordance that fits the no-buttons rule at the top of this file.
+   Output lines are flat dim ink (a single text node, no tokens); in PDF
+   export the print block's --shiki-light !important re-inks them to full
+   strength, which reads fine on paper. */
+.slidev-layout .shiki .line.console-cmd[data-prompt]::before {
+  content: attr(data-prompt) " ";
+  color: var(--brass);
+}
+/* PS2 continuation prompts recede — they're plumbing, not a new command.
+   (Class, not [data-prompt=">"]: a fence-meta prompt=">" makes `>` a
+   primary REPL prompt, and those stay brass.) */
+.slidev-layout .shiki .line.console-cmd.console-cont::before {
+  color: var(--ink-dim);
+}
+.slidev-layout .shiki .line.console-out {
+  color: var(--ink-dim);
+}
+/* Slidev's built-in copy button stays on transcripts, but setup/main.ts
+   intercepts it to copy the command lines only. The bypassed button can't
+   flip its own "Copied" icon, so that feedback is drawn here instead. */
+.slidev-layout .slidev-code-copy.zmc-copied svg {
+  display: none;
+}
+.slidev-layout .slidev-code-copy.zmc-copied::before {
+  content: "✓";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  color: var(--brass);
+}
+
 /* magic-move gets the frame without a chip (the languages shift mid-flight) */
 .slidev-layout .shiki-magic-move-container {
   display: block;

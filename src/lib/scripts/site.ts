@@ -127,6 +127,9 @@ document.addEventListener("click", (e) => {
       };
       // Clipboard API unavailable (permissions/insecure context):
       // select the block so a manual ⌘C still lands the right text.
+      // For console frames that's the whole transcript — a selection can
+      // only hold one Range, so command-only isn't reachable here, but the
+      // DOM text is already prompt-free so the paste stays shell-clean.
       const fallback = () => {
         const range = document.createRange();
         range.selectNodeContents(code);
@@ -134,8 +137,21 @@ document.addEventListener("click", (e) => {
         sel?.removeAllRanges();
         sel?.addRange(range);
       };
+      // Console frames copy the commands alone, newline-joined — prompts
+      // are CSS pseudo-content and output lines are skipped, so the paste
+      // is runnable as-is. textContent per span, not innerText: the
+      // newline separators are text nodes *between* the line spans.
+      // Trailing \n+ trim: a transcript often ends on a bare prompt
+      // awaiting input — an empty command that shouldn't paste as a
+      // trailing blank line. Interior blanks (heredoc content) survive.
+      const cmds = code.querySelectorAll<HTMLElement>(".line.console-cmd");
+      const text = cmds.length
+        ? Array.from(cmds, (l) => l.textContent ?? "")
+            .join("\n")
+            .replace(/\n+$/, "")
+        : code.innerText;
       if (navigator.clipboard) {
-        navigator.clipboard.writeText(code.innerText).then(done, fallback);
+        navigator.clipboard.writeText(text).then(done, fallback);
       } else {
         fallback();
       }

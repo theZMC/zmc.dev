@@ -212,7 +212,7 @@ layout: terminal
 heading: EXPEDITION LOG · PROD-EAST
 ---
 
-```bash
+```console
 $ kubectl get pods -n checkout | grep -v Running
 checkout-api-7d4b9c-x2vlp   0/1   CrashLoopBackOff   14   42m
 
@@ -220,6 +220,16 @@ $ kubectl logs checkout-api-7d4b9c-x2vlp --previous | tail -3
 FATAL: connection pool exhausted (max=10, waiting=147)
   at PoolClient.acquire (pg-pool/index.js:45:11)
   at OrderRepo.findMany (src/repo/orders.ts:88:20)
+
+$ sudo -i
+# kubectl -n checkout patch deploy checkout-api --type merge \
+    -p '{"spec":{"template":{"metadata":{"labels":{"pool":"batched"}}}}}'
+# cat <<EOF | kubectl apply -f -
+> apiVersion: v1
+> kind: ConfigMap
+> metadata: { name: pool-size, namespace: checkout }
+> EOF
+configmap/pool-size created
 ```
 
 ---

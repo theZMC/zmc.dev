@@ -15,6 +15,7 @@ import { zmcDark, zmcLight } from "./src/lib/shiki/zmc-themes.mjs";
 
 import rehypeMermaid from "./src/lib/diagrams/rehype-mermaid";
 import rehypeFrames from "./src/lib/frames/rehype-frames";
+import { consoleTransformer } from "./src/lib/shiki/console";
 
 // `astro build` re-runs the Vite dep optimizer in production mode, and with a
 // shared cache dir it overwrites the dev server's pre-bundle in place — any
@@ -78,6 +79,15 @@ export default defineConfig({
       // Emit only --shiki-dark/--shiki-light custom props (no inline color),
       // so the theme CSS can pick the right one per data-theme.
       defaultColor: false,
+      // ```console fences: command/output split, prompts drawn by CSS so
+      // copy and selection yield clean shell. Shared with the Slidev theme.
+      transformers: [consoleTransformer()],
+      // REPL grammars for ```console repl= blocks: the transformer
+      // tokenizes REPL input synchronously, so anything it may need must
+      // be loaded up front — fence-time lazy loading only covers the
+      // fence's own language. (Cast: Astro types langs as registration
+      // objects, but shiki's createHighlighter takes bundled names too.)
+      langs: /** @type {any} */ (["hcl", "python", "javascript"]),
     },
     rehypePlugins: [
       // Build-time mermaid → theme-aware inline SVG figure plates.
