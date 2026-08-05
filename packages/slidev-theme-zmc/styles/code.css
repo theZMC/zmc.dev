@@ -123,6 +123,13 @@ html:not(.dark) .slidev-layout .shiki span {
   width: 100%;
   min-height: 1em;
 }
+/* a blank line's span has no text, so no baseline strut — its box floats
+   above the true baseline and the highlight wash paints only the top of
+   the line. A pseudo no-break space restores full text metrics without
+   entering the DOM, so drag-selection still yields a clean blank line. */
+.slidev-layout .shiki .line:empty::before {
+  content: "\a0";
+}
 .slidev-layout .shiki .line.highlighted {
   background: color-mix(in srgb, var(--brass) 16%, transparent);
   box-shadow: inset 3px 0 0 var(--brass);
